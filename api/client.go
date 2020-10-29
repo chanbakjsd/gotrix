@@ -1,9 +1,11 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
@@ -52,19 +54,27 @@ func (c *Client) Request(method string, route string, to interface{}, errors Err
 	}
 	defer resp.Body.Close()
 
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
 	// 200 OK. Just return the error.
 	if resp.StatusCode == 200 {
 		if to == nil {
 			return nil
 		}
-		return json.NewDecoder(resp.Body).Decode(to)
+		return json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(to)
 	}
+
+	// Try to decode into target just in case it is expecting the error message.
+	_ = json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(to)
 
 	// Try parsing it as an API error.
 	var apiError Error
 	apiError.ResponseCode = resp.StatusCode
 
-	err = json.NewDecoder(resp.Body).Decode(&apiError)
+	err = json.NewDecoder(bytes.NewReader(bodyBytes)).Decode(&apiError)
 	if err != nil {
 		return HTTPError{
 			Code:            resp.StatusCode,
