@@ -21,17 +21,20 @@ type UserInteractiveAuthAPI struct {
 		Stages []matrix.LoginMethod `json:"stages"`
 	} `json:"flows"`
 
-	// Params are list of parameters which contain arbitrary data required to finish the auth flow.
+	// Params are list of parameters which contain arbitrary data required to
+	// finish the auth flow.
 	// Examples are the public key for Captcha.
 	Params map[string]json.RawMessage `json:"params"`
 
-	// Session represents the current session of auth that allows the server to keep track of the auth flow.
+	// Session represents the current session of auth that allows the server to
+	// keep track of the auth flow.
 	Session string `json:"session"`
 
 	// Completed lists all auth successes that the server acknowledges.
 	Completed []matrix.LoginMethod `json:"completed"`
 
-	// Error and ErrorCode represents the error encountered which probably means incorrect credentials and similar.
+	// Error and ErrorCode represents the error encountered which probably means
+	// incorrect credentials and similar.
 	Error     string           `json:"error"`
 	ErrorCode matrix.ErrorCode `json:"errcode"`
 

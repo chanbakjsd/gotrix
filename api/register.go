@@ -34,13 +34,11 @@ type RegisterResponse struct {
 }
 
 // Register registers an account on the homeserver with the provided arguments.
+// Once the authentication is successful, the client is automatically logged in
+// if InhibitLogin is set to false in RegisterArg.
 //
 // It returns an InteractiveRegister object which implements the User Interactive
 // Authentication API.
-//
-// Once the authentication is successful, the client is automatically logged in
-// assuming InhibitLogin is set to false.
-//
 // Users may choose to call InteractiveRegister.RegisterResponse() to inspect the
 // RegisterResponse.
 //

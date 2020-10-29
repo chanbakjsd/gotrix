@@ -27,10 +27,8 @@ type DiscoveryInfoResponse struct {
 	} `json:"m.identity_server`
 }
 
-// DiscoveryInfo discovers homeserver and identity server from the provided URL and validates them.
-//
-// The hostname to discover from is assumed to be (*Client).HomeServer and should be set before
-// calling this function.
+// DiscoveryInfo discovers homeserver and identity server from the URL set in (*Client).HomeServer
+// and validates them.
 //
 // It implements https://matrix.org/docs/spec/client_server/r0.6.1#well-known-uri.
 func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {

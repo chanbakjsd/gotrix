@@ -31,9 +31,10 @@ type Modifier func(c *Client, req *http.Request)
 type ErrorMap map[matrix.ErrorCode]error
 
 // Request processes the method and path to send to and make a request.
+// Modifiers may be provided to modify the request before it's sent out.
+//
 // ErrorMap may be provided to convert internal REST errors to user-friendly errors.
 // If it's not provided or an unknown error is returned, it'll return the REST error as-is.
-// Modifiers may be provided to modify the request before it's sent out.
 func (c *Client) Request(method string, route string, to interface{}, errors ErrorMap, mods ...Modifier) error {
 	// Generate the request.
 	fullRoute := fmt.Sprintf("https://%s/%s", c.HomeServer, route)

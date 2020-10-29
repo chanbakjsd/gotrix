@@ -88,8 +88,6 @@ func (c *Client) Login(arg LoginArg) error {
 // token on the server-side.
 //
 // It implements the `GET _matrix/client/r0/logout` endpoint.
-//
-// See (*Client).LogoutAll() for invalidating all active tokens.
 func (c *Client) Logout() error {
 	err := c.Request("GET", "_matrix/client/r0/logout", nil, nil, WithToken())
 	c.AccessToken = ""
@@ -100,8 +98,6 @@ func (c *Client) Logout() error {
 // tokens on the server-side.
 //
 // It implements the `GET _matrix/client/r0/logout/all` endpoint.
-//
-// See (*Client).Logout() for invalidating only the current token.
 func (c *Client) LogoutAll() error {
 	err := c.Request("GET", "_matrix/client/r0/logout/all", nil, nil, WithToken())
 	c.AccessToken = ""
