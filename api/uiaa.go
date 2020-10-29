@@ -39,11 +39,11 @@ type UserInteractiveAuthAPI struct {
 	ErrorCode matrix.ErrorCode `json:"errcode"`
 
 	// Request is the function to call to make a request.
-	Request         func(req interface{}, to interface{}) error
-	SuccessCallback func(json.RawMessage) error
+	Request         func(req, to interface{}) error `json:"-"`
+	SuccessCallback func(json.RawMessage) error     `json:"-"`
 
 	// Result is the result after everything succeeds.
-	result *json.RawMessage `json:"-"`
+	result *json.RawMessage
 }
 
 // Auth attempts to authenticate using the provided information in an attempt to progress in the authentication.

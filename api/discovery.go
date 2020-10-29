@@ -24,7 +24,7 @@ type DiscoveryInfoResponse struct {
 	} `json:"m.homeserver"`
 	IdentityServer struct {
 		BaseURL string `json:"base_url"`
-	} `json:"m.identity_server`
+	} `json:"m.identity_server"`
 }
 
 // DiscoveryInfo discovers homeserver and identity server from the URL set in (*Client).HomeServer
