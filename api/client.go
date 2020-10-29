@@ -53,7 +53,10 @@ func (c *Client) Request(method string, route string, to interface{}, errors Err
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		// We honestly don't care about errors closing the body.
+		_ = resp.Body.Close()
+	}()
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

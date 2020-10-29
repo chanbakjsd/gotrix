@@ -59,7 +59,10 @@ func (u *UserInteractiveAuthAPI) Auth(req interface{}) error {
 // processResponse updates the object's state using the provided raw message.
 func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage) error {
 	var resp *UserInteractiveAuthAPI
-	json.Unmarshal(rawMsg, resp)
+	err := json.Unmarshal(rawMsg, resp)
+	if err != nil {
+		return err
+	}
 
 	if resp.ErrorCode != "" {
 		return Error{
