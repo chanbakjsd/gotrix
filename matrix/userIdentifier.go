@@ -12,8 +12,8 @@ type IdentifierType string
 // It can be found at https://matrix.org/docs/spec/client_server/r0.6.1#identifier-types.
 const (
 	IdentifierUser       IdentifierType = "m.id.user"
-	IdentifierThirdparty                = "m.id.thirdparty"
-	IdentifierPhone                     = "m.id.phone"
+	IdentifierThirdparty IdentifierType = "m.id.thirdparty"
+	IdentifierPhone      IdentifierType = "m.id.phone"
 )
 
 // Identifier represents a struct with all possible fields of identifying a user.

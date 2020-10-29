@@ -8,13 +8,13 @@ type ErrorCode string
 const (
 	// Common error codes
 	CodeForbidden     ErrorCode = "M_FORBIDDEN"
-	CodeUnknownToken            = "M_UNKNOWN_TOKEN"
-	CodeMissingToken            = "M_MISSING_TOKEN"
-	CodeBadJSON                 = "M_BAD_JSON"
-	CodeNotJSON                 = "M_NOT_JSON"
-	CodeNotFound                = "M_NOT_FOUND"
-	CodeLimitExceeded           = "M_LIMIT_EXCEEDED"
-	CodeUnknown                 = "M_UNKNOWN"
+	CodeUnknownToken  ErrorCode = "M_UNKNOWN_TOKEN"
+	CodeMissingToken  ErrorCode = "M_MISSING_TOKEN"
+	CodeBadJSON       ErrorCode = "M_BAD_JSON"
+	CodeNotJSON       ErrorCode = "M_NOT_JSON"
+	CodeNotFound      ErrorCode = "M_NOT_FOUND"
+	CodeLimitExceeded ErrorCode = "M_LIMIT_EXCEEDED"
+	CodeUnknown       ErrorCode = "M_UNKNOWN"
 
 	// Other error codes the client might encounter
 	CodeUnrecognized                 = "M_UNRECOGNIZED"

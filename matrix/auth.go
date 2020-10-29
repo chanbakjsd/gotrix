@@ -11,13 +11,13 @@ type LoginMethod string
 // It can be found here: https://matrix.org/docs/spec/client_server/r0.6.1#authentication-types.
 const (
 	LoginPassword  LoginMethod = "m.login.password"
-	LoginRecaptcha             = "m.login.recaptcha"
-	LoginToken                 = "m.login.token"
-	LoginOAuth2                = "m.login.oauth2"
-	LoginSSO                   = "m.login.sso"
-	LoginEmail                 = "m.login.email.identity"
-	LoginPhone                 = "m.login.msisdn"
-	LoginDummy                 = "m.login.dummy"
+	LoginRecaptcha LoginMethod = "m.login.recaptcha"
+	LoginToken     LoginMethod = "m.login.token"
+	LoginOAuth2    LoginMethod = "m.login.oauth2"
+	LoginSSO       LoginMethod = "m.login.sso"
+	LoginEmail     LoginMethod = "m.login.email.identity"
+	LoginPhone     LoginMethod = "m.login.msisdn"
+	LoginDummy     LoginMethod = "m.login.dummy"
 )
 
 // List of famous custom authentications.
