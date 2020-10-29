@@ -104,10 +104,16 @@ func WithToken() Modifier {
 	}
 }
 
-// WithBody attaches a body to the request. This is generally a byte buffer written to by json.Encoder.
-func WithBody(body io.ReadCloser) Modifier {
+// WithBody attaches a JSON body to the request.
+func WithBody(body interface{}) Modifier {
+	rp, wp := io.Pipe()
+	go func() {
+		_ = json.NewEncoder(wp).Encode(&body)
+	}()
+
 	return func(_ *Client, req *http.Request) {
-		req.Body = body
+		req.Header.Add("Content-Type", "application/json")
+		req.Body = rp
 	}
 }
 
