@@ -52,7 +52,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		req.Auth = auth
 		return c.Request(
 			"POST", "_matrix/client/r0/register", to,
-			map[matrix.ErrorCode]error{
+			ErrorMap{
 				matrix.CodeUserInUse:       ErrUserIDTaken,
 				matrix.CodeInvalidUsername: ErrMalformedUserID,
 				matrix.CodeExclusive:       ErrReservedUserID,
