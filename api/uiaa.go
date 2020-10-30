@@ -40,8 +40,10 @@ type UserInteractiveAuthAPI struct {
 	ErrorCode matrix.ErrorCode `json:"errcode"`
 
 	// Request is the function to call to make a request.
-	Request         func(req, to interface{}) error `json:"-"`
-	SuccessCallback func(json.RawMessage) error     `json:"-"`
+	// RequestThreePID is the function called to request a token. It passes the type of 3PID to the function.
+	Request         func(req, to interface{}) error                  `json:"-"`
+	RequestThreePID func(authType string, req, to interface{}) error `json:"-"`
+	SuccessCallback func(json.RawMessage) error                      `json:"-"`
 
 	// Result is the result after everything succeeds.
 	result *json.RawMessage

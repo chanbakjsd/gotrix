@@ -66,6 +66,13 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		})
 	}
 
+	ir.RequestThreePID = func(authType string, auth, to interface{}) error {
+		return c.Request(
+			"POST", "_matrix/client/r0/register/"+authType+"/requestToken",
+			httputil.WithBody(req),
+		)
+	}
+
 	ir.SuccessCallback = func(json.RawMessage) error {
 		resp, err := ir.RegisterResponse()
 		if err != nil {
@@ -80,6 +87,9 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		}
 		return nil
 	}
+
+	ir.Auth(nil)
+
 	return ir, nil
 }
 

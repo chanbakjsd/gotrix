@@ -28,7 +28,7 @@ func (c *Client) GetLoginMethods() ([]matrix.LoginMethod, error) {
 		} `json:"flows"`
 	}
 
-	err := c.Request("GET", "_matrix/client/r0/login", &response, nil)
+	err := c.Request("GET", "_matrix/client/r0/login", &response)
 	if err != nil {
 		return nil, err
 	}
