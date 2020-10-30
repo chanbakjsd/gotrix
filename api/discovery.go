@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"net/http"
 	"net/url"
 
 	"github.com/chanbakjsd/gomatrix/matrix"
@@ -41,7 +42,7 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 		switch matrix.StatusCode(err) {
 		case -1:
 			return nil, err
-		case 404:
+		case http.StatusNotFound:
 			return nil, ErrServerNotFound
 		}
 		return nil, ErrDiscoveryFail

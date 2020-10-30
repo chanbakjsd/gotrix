@@ -48,8 +48,8 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 		_ = resp.Body.Close()
 	}()
 
-	// 200 OK. Just return the object.
-	if resp.StatusCode == 200 {
+	// HTTP OK. Just return the object.
+	if resp.StatusCode == http.StatusOK {
 		if to == nil {
 			return nil
 		}

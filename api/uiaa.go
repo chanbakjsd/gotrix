@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
 
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
@@ -66,7 +67,7 @@ func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage, reqErro
 
 	// If there's an error in request and it's not unauthorized (the server requesting to continue auth),
 	// we can't handle it.
-	if matrix.StatusCode(reqError) != 401 {
+	if matrix.StatusCode(reqError) != http.StatusUnauthorized {
 		return reqError
 	}
 
