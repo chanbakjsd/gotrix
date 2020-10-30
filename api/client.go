@@ -44,3 +44,16 @@ func (c *Client) Whoami() (string, error) {
 		matrix.CodeForbidden:    ErrTokenAndUserMismatch,
 	})
 }
+
+func (c *Client) ServerCapabilities() (matrix.Capabilities, error) {
+	var resp struct {
+		Capabilities matrix.Capabilites `json:"capabilities"`
+	}
+
+	err := c.Request(
+		"GET", "_matrix/client/r0/capabilities", &resp,
+		httputil.WithToken(),
+	)
+
+	return resp.Capabilities, err
+}
