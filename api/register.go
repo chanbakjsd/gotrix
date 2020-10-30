@@ -90,9 +90,9 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		return nil
 	}
 
-	_ = ir.Auth(nil)
+	err := ir.Auth(nil)
 
-	return ir, nil
+	return ir, err
 }
 
 // InteractiveRegister is a struct that adds helper functions onto UserInteractiveAuthAPI.

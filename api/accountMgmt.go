@@ -16,7 +16,7 @@ var ErrNewPasswordTooWeak = errors.New("new password is too weak")
 // All devices except the current one will be logged out if logoutDevices is set to true.
 //
 // This implements the `POST _matrix/client/r0/account/password` endpoint.
-func (c *Client) PasswordChange(newPassword string, logoutDevices bool) *UserInteractiveAuthAPI {
+func (c *Client) PasswordChange(newPassword string, logoutDevices bool) (*UserInteractiveAuthAPI, error) {
 	var req struct {
 		Auth          interface{} `json:"auth,omitempty"`
 		NewPassword   string      `json:"new_password"`
@@ -44,8 +44,8 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) *UserInt
 			httputil.WithBody(req),
 		)
 	}
-	_ = uiaa.Auth(nil)
-	return uiaa
+	err := uiaa.Auth(nil)
+	return uiaa, err
 }
 
 // DeactivateResponse represents the success response from the deactivate endpoint.
@@ -58,7 +58,7 @@ type DeactivateResponse struct {
 // idServer is the identity server to unbind all of the user's 3PID from.
 // It is optional and if not provided, the homeserver is responsible for determining
 // the unbind source.
-func (c *Client) DeactivateAccount(idServer string) InteractiveDeactivate {
+func (c *Client) DeactivateAccount(idServer string) (InteractiveDeactivate, error) {
 	var req struct {
 		Auth     interface{} `json:"auth,omitempty"`
 		IDServer string      `json:"id_server"`
@@ -76,8 +76,8 @@ func (c *Client) DeactivateAccount(idServer string) InteractiveDeactivate {
 			httputil.WithBody(req),
 		)
 	}
-	_ = uiaa.Auth(nil)
-	return uiaa
+	err := uiaa.Auth(nil)
+	return uiaa, err
 }
 
 // InteractiveDeactivate is a struct that adds helper functions onto UserInteractiveAuthAPI.
