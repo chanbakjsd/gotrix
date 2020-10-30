@@ -2,10 +2,15 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/chanbakjsd/gomatrix/api/httputil"
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
+
+// ErrNewPasswordTooWeak means that the homeserver rejected the new password for being too weak.
+// It is returned by (*Client).PasswordChange.
+var ErrNewPasswordTooWeak = errors.New("new password is too weak")
 
 // PasswordChange sends a request to the homeserver to change the password.
 // All devices except the current one will be logged out if logoutDevices is set to true.
@@ -24,11 +29,14 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) *UserInt
 	uiaa := &UserInteractiveAuthAPI{}
 	uiaa.Request = func(auth, to interface{}) error {
 		req.Auth = auth
-		return c.Request(
+		err := c.Request(
 			"POST", "_matrix/client/r0/account/password", to,
 			httputil.WithToken(),
 			httputil.WithBody(req),
 		)
+		return matrix.MapAPIError(err, matrix.ErrorMap{
+			matrix.CodeWeakPassword: ErrNewPasswordTooWeak,
+		})
 	}
 	uiaa.RequestThreePID = func(authType string, req, to interface{}) error {
 		return c.Request(

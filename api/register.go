@@ -15,6 +15,7 @@ var (
 	ErrMalformedUserID      = errors.New("invalid characters found in user ID")
 	ErrReservedUserID       = errors.New("the user ID has been reserved for other purposes")
 	ErrRegistrationDisabled = errors.New("registration for the specified user type has been disabled")
+	ErrPasswordTooWeak      = errors.New("password used in registration is too weak")
 )
 
 // RegisterArg represents arguments for the Register function.
@@ -63,6 +64,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 			matrix.CodeInvalidUsername: ErrMalformedUserID,
 			matrix.CodeExclusive:       ErrReservedUserID,
 			matrix.CodeForbidden:       ErrRegistrationDisabled,
+			matrix.CodeWeakPassword:    ErrPasswordTooWeak,
 		})
 	}
 
