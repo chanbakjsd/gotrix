@@ -8,7 +8,7 @@ import (
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
-// Errors returned by (*Client).Register().
+// Errors returned by (*Client).Register() or (*Client).UsernameAvailable().
 // It may also be returned by any auth functions in InteractiveRegister.
 var (
 	ErrUserIDTaken          = errors.New("requested user ID has already been taken")
@@ -113,4 +113,28 @@ func (i InteractiveRegister) RegisterResponse() (*RegisterResponse, error) {
 	var result *RegisterResponse
 	err = json.Unmarshal(*msg, result)
 	return result, err
+}
+
+// UsernameAvailable returns if the username is reported as available on the homeserver.
+//
+// Clients should be aware that this might be racey as registration can take place
+// between UsernameAvailable() and actual registration.
+//
+// This implements the `GET _matrix/client/r0/register/available` endpoint.
+func (c *Client) UsernameAvailable(username string) (bool, error) {
+	err := c.Request(
+		"GET", "_matrix/client/r0/register/available", nil,
+		httputil.WithQuery(map[string]string{
+			"username": username,
+		}),
+	)
+	if err == nil {
+		return true, nil
+	}
+
+	return false, matrix.MapAPIError(err, matrix.ErrorMap{
+		matrix.CodeUserInUse:       ErrUserIDTaken,
+		matrix.CodeInvalidUsername: ErrMalformedUserID,
+		matrix.CodeExclusive:       ErrReservedUserID,
+	})
 }
