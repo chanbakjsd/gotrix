@@ -50,36 +50,33 @@ type UserInteractiveAuthAPI struct {
 func (u *UserInteractiveAuthAPI) Auth(req interface{}) error {
 	var rawMsg json.RawMessage
 	err := u.Request(req, rawMsg)
-	if err != nil {
-		return err
-	}
-	return u.processResponse(rawMsg)
+	return u.processResponse(rawMsg, err)
 }
 
 // processResponse updates the object's state using the provided raw message.
-func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage) error {
+func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage, reqError error) error {
+	// If there isn't any errors at all (not 401). The request was successful.
+	if reqError == nil {
+		u.result = &rawMsg
+		if u.SuccessCallback != nil {
+			return u.SuccessCallback(rawMsg)
+		}
+		return nil
+	}
+
+	// If there's an error in request and it's not unauthorized (the server requesting to continue auth),
+	// we can't handle it.
+	if matrix.StatusCode(reqError) != 401 {
+		return reqError
+	}
+
 	var resp *UserInteractiveAuthAPI
 	err := json.Unmarshal(rawMsg, resp)
 	if err != nil {
 		return err
 	}
 
-	if resp.ErrorCode != "" {
-		return matrix.APIError{
-			Code:    resp.ErrorCode,
-			Message: resp.Error,
-		}
-	}
-
-	if len(resp.Completed) > 0 {
-		u = resp
-	}
-
-	// No errors and no completed entry probably means it's now successful.
-	u.result = &rawMsg
-	if u.SuccessCallback != nil {
-		return u.SuccessCallback(rawMsg)
-	}
+	*u = *resp
 	return nil
 }
 
