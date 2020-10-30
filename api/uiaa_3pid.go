@@ -12,6 +12,7 @@ var (
 	ErrPhoneNumberInUse  = errors.New("requested phone number is already in use")
 	ErrInvalidIDServer   = errors.New("the requested identity server is not trusted by the server")
 	ErrThreePIDDisabled  = errors.New("the homeserver does not support third-party identifiers")
+	ErrUnsupported       = errors.New("the current interactive auth session does not support third-party identifier tokens")
 )
 
 // RequestEmailTokenArg represents all possible argument to RequestEmailToken.
@@ -34,6 +35,9 @@ type RequestEmailTokenResponse struct {
 // for registration purposes.
 // It returns the session ID needed in 3PID auth and the submit URL (if applicable).
 func (u *UserInteractiveAuthAPI) RequestEmailToken(req RequestEmailTokenArg) (*RequestEmailTokenResponse, error) {
+	if u.RequestThreePID == nil {
+		return nil, ErrUnsupported
+	}
 	var response *RequestEmailTokenResponse
 	err := u.RequestThreePID("email", req, response)
 	return response, matrix.MapAPIError(err, matrix.ErrorMap{
@@ -63,6 +67,9 @@ type RequestPhoneTokenResponse struct {
 // for registration purposes.
 // It returns the session ID needed in 3PID auth and the submit URL (if applicable).
 func (u *UserInteractiveAuthAPI) RequestPhoneToken(req RequestPhoneTokenArg) (*RequestPhoneTokenResponse, error) {
+	if u.RequestThreePID == nil {
+		return nil, ErrUnsupported
+	}
 	var response *RequestPhoneTokenResponse
 	err := u.RequestThreePID("phone", req, response)
 	return response, matrix.MapAPIError(err, matrix.ErrorMap{
