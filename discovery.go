@@ -23,9 +23,8 @@ func NewWithClient(httpClient *http.Client, serverName string) (*Client, error) 
 		return nil, err
 	}
 
-	apiClient := &api.Client{
-		HomeServer: parsed.Host,
-	}
+	apiClient := &api.Client{}
+	apiClient.HomeServer = parsed.Host
 	info, err := apiClient.DiscoveryInfo()
 	if err != nil {
 		return nil, err

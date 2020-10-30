@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/chanbakjsd/gomatrix/api/httputil"
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
@@ -52,10 +53,10 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		req.Auth = auth
 		err := c.Request(
 			"POST", "_matrix/client/r0/register", to,
-			WithQuery(map[string]string{
+			httputil.WithBody(req),
+			httputil.WithQuery(map[string]string{
 				"kind": kind,
 			}),
-			WithBody(req),
 		)
 		return matrix.MapAPIError(err, matrix.ErrorMap{
 			matrix.CodeUserInUse:       ErrUserIDTaken,

@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 
+	"github.com/chanbakjsd/gomatrix/api/httputil"
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
@@ -90,7 +91,7 @@ func (c *Client) Login(arg LoginArg) error {
 //
 // It implements the `GET _matrix/client/r0/logout` endpoint.
 func (c *Client) Logout() error {
-	err := c.Request("GET", "_matrix/client/r0/logout", nil, nil, WithToken())
+	err := c.Request("GET", "_matrix/client/r0/logout", nil, nil, httputil.WithToken())
 	c.AccessToken = ""
 	return err
 }
@@ -100,7 +101,7 @@ func (c *Client) Logout() error {
 //
 // It implements the `GET _matrix/client/r0/logout/all` endpoint.
 func (c *Client) LogoutAll() error {
-	err := c.Request("GET", "_matrix/client/r0/logout/all", nil, nil, WithToken())
+	err := c.Request("GET", "_matrix/client/r0/logout/all", nil, nil, httputil.WithToken())
 	c.AccessToken = ""
 	return err
 }
