@@ -1,43 +1,49 @@
 package matrix
 
-// ErrorCode represents an error code that is found in REST errors.
-type ErrorCode string
+// APIError represents an API error as returned by the Matrix server.
+//
+// It is always wrapped around by HTTPError.
+type APIError struct {
+	// Code and Message should be included in every API error.
+	Code    ErrorCode `json:"errcode"`
+	Message string    `json:"error"`
 
-// List of official error codes.
-// It can be found at https://matrix.org/docs/spec/client_server/r0.6.1#api-standards.
-const (
-	// Common error codes
-	CodeForbidden     ErrorCode = "M_FORBIDDEN"
-	CodeUnknownToken  ErrorCode = "M_UNKNOWN_TOKEN"
-	CodeMissingToken  ErrorCode = "M_MISSING_TOKEN"
-	CodeBadJSON       ErrorCode = "M_BAD_JSON"
-	CodeNotJSON       ErrorCode = "M_NOT_JSON"
-	CodeNotFound      ErrorCode = "M_NOT_FOUND"
-	CodeLimitExceeded ErrorCode = "M_LIMIT_EXCEEDED"
-	CodeUnknown       ErrorCode = "M_UNKNOWN"
+	// SoftLogout is included in invalid token errors.
+	// If it's true, the client should just log back in.
+	// If it's false, the client should purge all its cache before
+	// logging back in.
+	SoftLogout bool `json:"soft_logout"`
 
-	// Other error codes the client might encounter
-	CodeUnrecognized                 = "M_UNRECOGNIZED"
-	CodeUnauthorized                 = "M_UNAUTHORIZED"
-	CodeUserDeactivated              = "M_USER_DEACTIVATED"
-	CodeUserInUse                    = "M_USER_IN_USE"
-	CodeInvalidUsername              = "M_INVALID_USERNAME"
-	CodeRoomInUse                    = "M_ROOM_IN_USE"
-	CodeInvalidRoomState             = "M_INVALID_ROOM_STATE"
-	CodeThreePIDInUse                = "M_THREEPID_IN_USE"
-	CodeThreePIDNotFound             = "M_THREEPID_NOT_FOUND"
-	CodeThreePIDAuthFailed           = "M_THREEPID_AUTH_FAILED"
-	CodeThreePIDDenied               = "M_THREEPID_DENIED"
-	CodeServerNotTrusted             = "M_SERVER_NOT_TRUSTED"
-	CodeUnsupportedRoomVersion       = "M_UNSUPPORTED_ROOM_VERSION"
-	CodeIncompatibleRoomVersion      = "M_INCOMPATIBLE_ROOM_VERSION"
-	CodeBadState                     = "M_BAD_STATE"
-	CodeGuestAccessForbidden         = "M_GUEST_ACCESS_FORBIDDEN"
-	CodeCaptchaNeeded                = "M_CAPTCHA_NEEDED"
-	CodeMissingParam                 = "M_MISSING_PARAM"
-	CodeInvalidParam                 = "M_INVALID_PARAM"
-	CodeTooLarge                     = "M_TOO_LARGE"
-	CodeExclusive                    = "M_EXCLUSIVE"
-	CodeResourceLimitExceeded        = "M_RESOURCE_LIMIT_EXCEEDED"
-	CodeCannotLeaveServiceNoticeRoom = "M_CANNOT_LEAVE_SERVICE_NOTICE_ROOM"
-)
+	// RetryAfterMillisecond is included in rate limit errors.
+	RetryAfterMillisecond int `json:"retry_after_ms"`
+}
+
+// Error makes API Error implement the `error` interface.
+func (e APIError) Error() string {
+	return e.Message
+}
+
+// HTTPError represents an error while decoding response.
+// It contains the status code and the actual error.
+type HTTPError struct {
+	Code            int
+	UnderlyingError error
+}
+
+// Error makes HTTPError implement the `error` interface.
+func (h HTTPError) Error() string {
+	return h.UnderlyingError.Error()
+}
+
+// Unwrap allows the underlying error to be exposed.
+func (h HTTPError) Unwrap() error {
+	return h.UnderlyingError
+}
+
+// NewHTTPError constructs a new HTTP error with the provided details.
+func NewHTTPError(code int, underlyingError error) HTTPError {
+	return HTTPError{
+		Code:            code,
+		UnderlyingError: underlyingError,
+	}
+}

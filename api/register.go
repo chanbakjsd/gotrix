@@ -50,19 +50,19 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 
 	ir.Request = func(auth, to interface{}) error {
 		req.Auth = auth
-		return c.Request(
+		err := c.Request(
 			"POST", "_matrix/client/r0/register", to,
-			ErrorMap{
-				matrix.CodeUserInUse:       ErrUserIDTaken,
-				matrix.CodeInvalidUsername: ErrMalformedUserID,
-				matrix.CodeExclusive:       ErrReservedUserID,
-				matrix.CodeForbidden:       ErrRegistrationDisabled,
-			},
 			WithQuery(map[string]string{
 				"kind": kind,
 			}),
 			WithBody(req),
 		)
+		return matrix.MapAPIError(err, matrix.ErrorMap{
+			matrix.CodeUserInUse:       ErrUserIDTaken,
+			matrix.CodeInvalidUsername: ErrMalformedUserID,
+			matrix.CodeExclusive:       ErrReservedUserID,
+			matrix.CodeForbidden:       ErrRegistrationDisabled,
+		})
 	}
 
 	ir.SuccessCallback = func(json.RawMessage) error {

@@ -3,6 +3,8 @@ package api
 import (
 	"errors"
 	"net/url"
+
+	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
 // Errors returned by (*Client).DiscoveryInfo.
@@ -36,12 +38,10 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	var result *DiscoveryInfoResponse
 	err := c.Request("GET", ".well-known/matrix/client", result, nil)
 	if err != nil {
-		x, ok := err.(HTTPError)
-		if !ok {
+		switch matrix.StatusCode(err) {
+		case -1:
 			return nil, err
-		}
-
-		if x.Code == 404 {
+		case 404:
 			return nil, ErrServerNotFound
 		}
 		return nil, ErrDiscoveryFail

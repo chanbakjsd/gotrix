@@ -67,14 +67,15 @@ func (c *Client) Login(arg LoginArg) error {
 	}
 	err := c.Request(
 		"POST", "_matrix/client/r0/login", &resp,
-		ErrorMap{
-			matrix.CodeUnknown:         ErrInvalidRequest,
-			matrix.CodeForbidden:       ErrInvalidCreds,
-			matrix.CodeUserDeactivated: ErrUserDeactivated,
-		},
 	)
 	if err != nil {
-		return err
+		return matrix.MapAPIError(
+			err, matrix.ErrorMap{
+				matrix.CodeUnknown:         ErrInvalidRequest,
+				matrix.CodeForbidden:       ErrInvalidCreds,
+				matrix.CodeUserDeactivated: ErrUserDeactivated,
+			},
+		)
 	}
 
 	c.UserID = resp.UserID

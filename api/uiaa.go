@@ -65,7 +65,7 @@ func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage) error {
 	}
 
 	if resp.ErrorCode != "" {
-		return Error{
+		return matrix.APIError{
 			Code:    resp.ErrorCode,
 			Message: resp.Error,
 		}
