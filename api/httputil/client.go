@@ -21,6 +21,20 @@ type Client struct {
 	HomeServer string
 }
 
+// NewClient creates a new Client that uses the default HTTP client.
+func NewClient() Client {
+	return Client{
+		ClientDriver: http.DefaultClient,
+	}
+}
+
+// NewCustomClient creates a new Client that uses the provided ClientDriver.
+func NewCustomClient(d ClientDriver) Client {
+	return Client{
+		ClientDriver: d,
+	}
+}
+
 // Request makes the request and returns the result.
 //
 // It may return any HTTP request errors or a matrix.HTTPError which may possibly
