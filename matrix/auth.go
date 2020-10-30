@@ -22,7 +22,7 @@ const (
 
 // List of famous custom authentications.
 const (
-	LoginAppservice = "uk.half-shot.msc2778.login.application_service"
+	LoginAppservice LoginMethod = "uk.half-shot.msc2778.login.application_service"
 )
 
 // FallbackURL generates the URL that the application can open in order to finish the auth process.
