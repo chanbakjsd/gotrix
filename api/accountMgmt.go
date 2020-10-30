@@ -38,10 +38,10 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) (*UserIn
 			matrix.CodeWeakPassword: ErrNewPasswordTooWeak,
 		})
 	}
-	uiaa.RequestThreePID = func(authType string, req, to interface{}) error {
+	uiaa.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
 			"POST", "_matrix/client/r0/account/password/"+authType+"/requestToken",
-			httputil.WithBody(req),
+			httputil.WithBody(auth),
 		)
 	}
 	err := uiaa.Auth(nil)

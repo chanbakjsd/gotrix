@@ -71,7 +71,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 	ir.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
 			"POST", "_matrix/client/r0/register/"+authType+"/requestToken",
-			httputil.WithBody(req),
+			httputil.WithBody(auth),
 		)
 	}
 
