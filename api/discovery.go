@@ -20,7 +20,7 @@ var (
 	ErrDiscoveryFail = errors.New("auto-discovery failed")
 )
 
-// DiscoveryInfoResponse represents the response to (*Client).DiscoveryInfo().
+// DiscoveryInfoResponse represents the response to (*Client).DiscoveryInfo.
 type DiscoveryInfoResponse struct {
 	HomeServer struct {
 		BaseURL string `json:"base_url"`

@@ -8,7 +8,7 @@ import (
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
-// Errors returned by (*Client).Register() or (*Client).UsernameAvailable().
+// Errors returned by (*Client).Register or (*Client).UsernameAvailable.
 // It may also be returned by any auth functions in InteractiveRegister.
 var (
 	ErrUserIDTaken          = errors.New("requested user ID has already been taken")
