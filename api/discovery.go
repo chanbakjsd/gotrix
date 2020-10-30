@@ -70,7 +70,7 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	return result, nil
 }
 
-// SupportedVersionsReponse represents the response to (*Client).SupportedVersions.
+// SupportedVersionsResponse represents the response to (*Client).SupportedVersions.
 type SupportedVersionsResponse struct {
 	Versions         []string        `json:"versions"`
 	UnstableFeatures map[string]bool `json:"unstable_features"`
