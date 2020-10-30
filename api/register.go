@@ -88,7 +88,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		return nil
 	}
 
-	ir.Auth(nil)
+	_ = ir.Auth(nil)
 
 	return ir, nil
 }
