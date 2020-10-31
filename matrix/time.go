@@ -18,3 +18,11 @@ func (t Timestamp) Time() time.Time {
 	milliseconds := int64(t % msInSec)
 	return time.Unix(seconds, milliseconds*nsInMs)
 }
+
+// Duration is a duration of time measured in milliseconds.
+type Duration int64
+
+// Duration converts a duration into valid Go duration.
+func (d Duration) Duration() time.Duration {
+	return time.Duration(d) * time.Millisecond
+}
