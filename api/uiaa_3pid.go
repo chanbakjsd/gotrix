@@ -12,7 +12,7 @@ var (
 	ErrPhoneNumberInUse  = errors.New("requested phone number is already in use")
 	ErrInvalidIDServer   = errors.New("the requested identity server is not trusted by the server")
 	ErrThreePIDDisabled  = errors.New("the homeserver does not support third-party identifiers")
-	ErrUnsupported       = errors.New("the current interactive auth session does not support third-party identifier tokens")
+	ErrUnsupported       = errors.New("current interactive auth session does not support third-party identifier tokens")
 )
 
 // RequestEmailTokenArg represents all possible argument to RequestEmailToken.

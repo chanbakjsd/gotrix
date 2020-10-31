@@ -45,9 +45,10 @@ func (c *Client) Whoami() (string, error) {
 	})
 }
 
+// ServerCapabilities retrieves the homeserver's capabilities.
 func (c *Client) ServerCapabilities() (matrix.Capabilities, error) {
 	var resp struct {
-		Capabilities matrix.Capabilites `json:"capabilities"`
+		Capabilities matrix.Capabilities `json:"capabilities"`
 	}
 
 	err := c.Request(
