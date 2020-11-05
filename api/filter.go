@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/url"
+
 	"github.com/chanbakjsd/gomatrix/api/httputil"
 	"github.com/chanbakjsd/gomatrix/event"
 )
@@ -14,7 +16,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 		FilterID string `json:"filter_id"`
 	}
 	err := c.Request(
-		"POST", "_matrix/client/r0/user/"+string(c.UserID)+"/filter", resp,
+		"POST", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter", resp,
 		httputil.WithToken(),
 		httputil.WithBody(filterToUpload),
 	)
@@ -28,7 +30,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 func (c *Client) Filter(filterID string) (*event.GlobalFilter, error) {
 	var resp *event.GlobalFilter
 	err := c.Request(
-		"GET", "_matrix/client/r0/user/"+string(c.UserID)+"/filter/"+filterID, resp,
+		"GET", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter/"+filterID, resp,
 		httputil.WithToken(),
 	)
 
