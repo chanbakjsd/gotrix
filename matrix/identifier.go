@@ -59,5 +59,8 @@ func (userID UserID) Parse() (localPart, serverName string, err error) {
 // DeviceID is a magic string that identifies a device.
 type DeviceID string
 
+// EventID is a string that identifies an event.
+type EventID string
+
 // RoomID is a magic string that identifies a room.
 type RoomID string
