@@ -1,5 +1,9 @@
 package event
 
+import (
+	"github.com/chanbakjsd/gomatrix/matrix"
+)
+
 // RoomCanonicalAlias represents a state event where the alias (name) of the room is set.
 //
 // It has the type ID of `m.room.canonical_alias`.
@@ -21,7 +25,7 @@ type RoomCanonicalAlias struct {
 type RoomCreate struct {
 	Event
 	// The user ID of the room creator. This is set by the homeserver.
-	Creator string `json:"creator"`
+	Creator matrix.UserID `json:"creator"`
 	// Whether users from other servers can join. Defaults to true.
 	Federated *bool `json:"m.federate,omitempty"`
 	// Room Version. Defaults to "1" if not specified.
@@ -72,8 +76,7 @@ type RoomMember struct {
 	// A purely INFORMATIONAL source that SHOULD NOT be trusted for the state of the room.
 	// It may be present or absent.
 	Unsigned struct {
-		// Each event contains `content`, `state_key`, `type` and `sender`.
-		InviteRoomState []Event `json:"invite_room_state"`
+		InviteRoomState []StrippedEvent `json:"invite_room_state"`
 	} `json:"unsigned,omitempty"`
 }
 
@@ -115,7 +118,7 @@ type RoomPowerLevels struct {
 	StateRequirement int          `json:"state_default,omitempty"`
 
 	// UserLevel is a map of user IDs to their power level.
-	UserLevel map[string]int `json:"users,omitempty"`
+	UserLevel map[matrix.UserID]int `json:"users,omitempty"`
 	// The default power level of users (if not in UserLevel).
 	UserDefault int `json:"users_default,omitempty"`
 

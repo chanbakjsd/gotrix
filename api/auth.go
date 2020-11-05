@@ -46,7 +46,7 @@ type LoginArg struct {
 	InitialDeviceDisplayName string             `json:"initial_device_display_name"`
 
 	// DeviceID should be provided when resuming a session.
-	DeviceID string `json:"device_id"`
+	DeviceID matrix.DeviceID `json:"device_id"`
 
 	// Identifier and Password is only required when logging in with password.
 	Identifier matrix.Identifier `json:"identifier"`
@@ -61,9 +61,9 @@ type LoginArg struct {
 // It implements the `POST _matrix/client/r0/login` endpoint.
 func (c *Client) Login(arg LoginArg) error {
 	var resp struct {
-		UserID      string                `json:"user_id"`
+		UserID      matrix.UserID         `json:"user_id"`
 		AccessToken string                `json:"access_token"`
-		DeviceID    string                `json:"device_id"`
+		DeviceID    matrix.DeviceID       `json:"device_id"`
 		WellKnown   DiscoveryInfoResponse `json:"well_known"`
 	}
 	err := c.Request("POST", "_matrix/client/r0/login", &resp)

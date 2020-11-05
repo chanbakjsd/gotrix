@@ -18,23 +18,23 @@ var (
 type Client struct {
 	httputil.Client
 	IdentityServer string
-	UserID         string
-	DeviceID       string
+	UserID         matrix.UserID
+	DeviceID       matrix.DeviceID
 }
 
 // Whoami queries the homeserver to check if the token is still valid.
 // The user ID is returned if it's successful.
 //
 // This implements the `GET _matrix/client/r0/account/whoami` endpoint.
-func (c *Client) Whoami() (string, error) {
+func (c *Client) Whoami() (matrix.UserID, error) {
 	var resp struct {
-		UserID string `json:"user_id"`
+		UserID matrix.UserID `json:"user_id"`
 	}
 
 	err := c.Request(
 		"GET", "_matrix/client/r0/account/whoami", &resp,
 		httputil.WithQuery(map[string]string{
-			"user_id": c.UserID,
+			"user_id": string(c.UserID),
 		}),
 		httputil.WithToken(),
 	)

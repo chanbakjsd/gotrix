@@ -51,10 +51,10 @@ type SyncJoinedRoomEvents struct {
 }
 
 // SyncInvitedRoomEvents consists of events that are tied to rooms that the client is invited to.
-// Events here are stripped.
 type SyncInvitedRoomEvents struct {
-	// Events here are stripped.
-	State SyncEvents `json:"state,omitempty"`
+	State struct {
+		Events []event.StrippedEvent `json:"events,omitempty"`
+	} `json:"state,omitempty"`
 }
 
 // SyncLeftRoomEvents consists of events that are tied to rooms that the user has left.
@@ -93,8 +93,8 @@ type SyncEvents struct {
 // SyncDeviceLists is a list of users who has their encryption keys changed (added or modified)
 // or deleted (Left).
 type SyncDeviceLists struct {
-	Changed []string
-	Left    []string
+	Changed []matrix.UserID
+	Left    []matrix.UserID
 }
 
 // Sync requests the latest state changes from the server.

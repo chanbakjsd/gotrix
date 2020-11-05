@@ -11,3 +11,15 @@ const (
 	// the identity server to unbind from.
 	UnbindNoSupport IDServerUnbindResult = "no-support"
 )
+
+// Presence represents the status of the client to set while the client is
+// polling.
+type Presence string
+
+// The three possible status to be in are online, offline (invisible) and
+// idle (unavailable).
+const (
+	PresenceOnline  Presence = "online"
+	PresenceOffline Presence = "offline"
+	PresenceIdle    Presence = "unavailable"
+)

@@ -1,11 +1,15 @@
-package matrix
+package event
 
-// Filter represents a filter that can be uploaded to/downloaded from
-// the homeserver.
+import (
+	"github.com/chanbakjsd/gomatrix/matrix"
+)
+
+// GlobalFilter represents a filter that can be uploaded to/downloaded
+// from the homeserver.
 //
 // Servers MAY still send data that has been excluded by the filter.
 // The filter only tells the server what is safe to not include.
-type Filter struct {
+type GlobalFilter struct {
 	// List of event fields that should be included.
 	EventFields []string `json:"event_fields,omitempty"`
 	// The format to use. This implementation recommends the
@@ -14,37 +18,37 @@ type Filter struct {
 	// Don't include if you don't know what you're doing.
 	EventFormat string `json:"event_format,omitempty"`
 	// List of presence updates to include.
-	Presence EventFilter `json:"presence,omitempty"`
+	Presence Filter `json:"presence,omitempty"`
 	// List of user account data updates to include.
 	// This does not affect data associated with room.
-	AccountData EventFilter `json:"account_data,omitempty"`
+	AccountData Filter `json:"account_data,omitempty"`
 	// Filter to be applied to room data.
 	Room RoomFilter `json:"room,omitempty"`
 }
 
-// EventFilter represents a filter that filters events that should
-// be sent to the client.
-type EventFilter struct {
+// Filter represents a filter that filters events that should be
+// sent to the client.
+type Filter struct {
 	// Maximum number of events to return.
 	Limit int `json:"limit,omitempty"`
 	// List of senders to include. All if not provided.
-	IncludedSenders []string `json:"senders,omitempty"`
+	IncludedSenders []matrix.UserID `json:"senders,omitempty"`
 	// List of event types to include. All if not provided.
 	// '*' can be used as a wildcard.
-	IncludedTypes []string `json:"types,omitempty"`
+	IncludedTypes []Type `json:"types,omitempty"`
 	// List of senders to exclude. Overrides IncludedSenders.
-	ExcludedSenders []string `json:"not_senders,omitempty"`
+	ExcludedSenders []matrix.UserID `json:"not_senders,omitempty"`
 	// List of event types to exclude. Overrides IncludedTypes.
 	// '*' can be used as a wildcard.
-	ExcludedTypes []string `json:"not_types,omitempty"`
+	ExcludedTypes []Type `json:"not_types,omitempty"`
 }
 
 // RoomFilter represents a filter that filters room data.
 type RoomFilter struct {
 	// Rooms to include. All if not provided.
-	IncludedRooms []string `json:"rooms,omitempty"`
+	IncludedRooms []matrix.RoomID `json:"rooms,omitempty"`
 	// Rooms to exclude. Overrides IncludedRoom.
-	ExcludedRooms []string `json:"not_rooms,omitempty"`
+	ExcludedRooms []matrix.RoomID `json:"not_rooms,omitempty"`
 	// Ephemeral is the subfilter applied to events that are
 	// not persistent (added to history) like typing.
 	Ephemeral RoomEventFilter `json:"ephemeral,omitempty"`
@@ -67,17 +71,17 @@ type StateFilter struct {
 	// Limit is the maximum number of events to return.
 	Limit int `json:"limit,omitempty"`
 	// List of senders to include. All if omitted.
-	IncludedSenders []string `json:"senders,omitempty"`
+	IncludedSenders []matrix.UserID `json:"senders,omitempty"`
 	// List of types to include. All if omitted.
-	IncludedTypes []string `json:"types"`
+	IncludedTypes []Type `json:"types"`
 	// List of rooms to include. All if omitted.
-	IncludeRooms []string `json:"rooms,omitempty"`
+	IncludeRooms []matrix.RoomID `json:"rooms,omitempty"`
 	// List of senders to exclude. Overrides IncludedSenders.
-	ExcludedSenders []string `json:"not_senders,omitempty"`
+	ExcludedSenders []matrix.UserID `json:"not_senders,omitempty"`
 	// List of types to exclude. Overrides IncludedTypes.
-	ExcludedTypes []string `json:"not_types,omitempty"`
+	ExcludedTypes []Type `json:"not_types,omitempty"`
 	// List of rooms to exclude. Overrides IncludedRooms.
-	ExcludedRooms []string `json:"not_rooms,omitempty"`
+	ExcludedRooms []matrix.RoomID `json:"not_rooms,omitempty"`
 	// Enable lazy loading members. If it's true, it'll only send
 	// member info that are mentioned in events.
 	// Other member data should be queried through the API if this
@@ -98,17 +102,17 @@ type RoomEventFilter struct {
 	// Limit is the maximum number of events to return.
 	Limit int `json:"limit,omitempty"`
 	// List of senders to include. All if omitted.
-	IncludedSenders []string `json:"senders,omitempty"`
+	IncludedSenders []matrix.UserID `json:"senders,omitempty"`
 	// List of types to include. All if omitted.
-	IncludedTypes []string `json:"types"`
+	IncludedTypes []Type `json:"types"`
 	// List of rooms to include. All if omitted.
-	IncludeRooms []string `json:"rooms,omitempty"`
+	IncludeRooms []matrix.RoomID `json:"rooms,omitempty"`
 	// List of senders to exclude. Overrides IncludedSenders.
-	ExcludedSenders []string `json:"not_senders,omitempty"`
+	ExcludedSenders []matrix.UserID `json:"not_senders,omitempty"`
 	// List of types to exclude. Overrides IncludedTypes.
-	ExcludedTypes []string `json:"not_types,omitempty"`
+	ExcludedTypes []Type `json:"not_types,omitempty"`
 	// List of rooms to exclude. Overrides IncludedRooms.
-	ExcludedRooms []string `json:"not_rooms,omitempty"`
+	ExcludedRooms []matrix.RoomID `json:"not_rooms,omitempty"`
 	// Enable lazy loading members. If it's true, it'll only send
 	// member info that are mentioned in events.
 	// Other member data should be queried through the API if this

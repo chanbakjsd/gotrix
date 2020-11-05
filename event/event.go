@@ -6,15 +6,24 @@ import (
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
+// StrippedEvent represents an event that has been stripped.
+// This allows the client to display a room state correctly without its full timeline.
+type StrippedEvent struct {
+	Type     Type            `json:"type"`
+	Content  json.RawMessage `json:"content"`
+	StateKey string          `json:"state_key"`
+	Sender   string          `json:"sender"`
+}
+
 // Event represents events that can be sent from homeserver to the client.
 type Event struct {
 	// Common data for all events.
-	Type    string          `json:"type"`
+	Type    Type            `json:"type"`
 	Content json.RawMessage `json:"content"`
 
 	// Data that are common for rooms and state events.
 	EventID          string           `json:"event_id,omitempty"`
-	Sender           string           `json:"sender,omitempty"`
+	Sender           matrix.UserID    `json:"sender,omitempty"`
 	OriginServerTime matrix.Timestamp `json:"origin_server_ts,omitempty"`
 	RoomID           string           `json:"room_id,omitempty"` // NOT included on `/sync` events.
 	Unsigned         struct {

@@ -20,19 +20,19 @@ var (
 
 // RegisterArg represents arguments for the Register function.
 type RegisterArg struct {
-	Auth                     interface{} `json:"auth,omitempty"`
-	Username                 string      `json:"username"`
-	Password                 string      `json:"password"`
-	DeviceID                 string      `json:"device_id,omitempty"`
-	InitialDeviceDisplayName string      `json:"initial_device_display_name,omitempty"`
-	InhibitLogin             bool        `json:"inhibit_login,omitempty"`
+	Auth                     interface{}     `json:"auth,omitempty"`
+	Username                 string          `json:"username"`
+	Password                 string          `json:"password"`
+	DeviceID                 matrix.DeviceID `json:"device_id,omitempty"`
+	InitialDeviceDisplayName string          `json:"initial_device_display_name,omitempty"`
+	InhibitLogin             bool            `json:"inhibit_login,omitempty"`
 }
 
 // RegisterResponse represents the success response from the register endpoint.
 type RegisterResponse struct {
-	UserID      string `json:"user_id"`
-	AccessToken string `json:"access_token"`
-	DeviceID    string `json:"device_id"`
+	UserID      matrix.UserID   `json:"user_id"`
+	AccessToken string          `json:"access_token"`
+	DeviceID    matrix.DeviceID `json:"device_id"`
 }
 
 // Register registers an account on the homeserver with the provided arguments.
