@@ -12,7 +12,7 @@ import (
 )
 
 // ErrEventNotFound is returned when the event is not found or cannot be accessed by the user.
-// It is returned by (*Client).Event, (*Client).RoomState and (*Client).RoomStates.
+// It is returned by (*Client).RoomEvent, (*Client).RoomState and (*Client).RoomStates.
 var ErrEventNotFound = errors.New("event not found")
 
 // ErrRoomNotFound is returned when the room is not found or cannot be accessed by the user.
@@ -20,10 +20,10 @@ var ErrEventNotFound = errors.New("event not found")
 // (*Client).RoomMessages.
 var ErrRoomNotFound = errors.New("room not found")
 
-// Event fetches an event from the server with the provided room ID or event ID.
+// RoomEvent fetches an event from the server with the provided room ID or event ID.
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/event/{eventId}` endpoint.
-func (c *Client) Event(roomID matrix.RoomID, eventID matrix.EventID) (*event.Event, error) {
+func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event.Event, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) +
 		"/event/" + url.PathEscape(string(eventID))
 	var resp *event.Event
