@@ -1,4 +1,4 @@
-module github.com/chanbakjsd/gomatrix
+module github.com/chanbakjsd/gotrix
 
 go 1.15
 
