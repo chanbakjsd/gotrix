@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -25,19 +26,24 @@ func handleMessage(c *gotrix.Client, m event.RoomMessage) {
 	panicIfErr(err)
 }
 
+var username = flag.String("user", "", "username")
+var password = flag.String("pass", "", "password")
+var url = flag.String("url", "http://localhost:8008", "url")
+
 func main() {
+	flag.Parse()
 	// Ask for username and password.
-	if len(os.Args) != 3 {
-		fmt.Printf("Usage: %s <username> <password>", os.Args[0])
+	if *username == "" || *password == "" {
+		fmt.Printf("user and pass flags not provided.")
 		return
 	}
 
 	// Construct the client.
-	cli, err := gotrix.New("http://localhost:8008")
+	cli, err := gotrix.New(*url)
 	panicIfErr(err)
 
 	// Login using provided creds.
-	panicIfErr(cli.LoginPassword(os.Args[1], os.Args[2]))
+	panicIfErr(cli.LoginPassword(*username, *password))
 
 	// Register the handler.
 	cli.AddHandler(handleMessage)
