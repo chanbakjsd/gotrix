@@ -28,7 +28,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 // It implements the `GET _matrix/client/r0/user/{userId}/filter/{filterId}`
 // endpoint.
 func (c *Client) Filter(filterID string) (*event.GlobalFilter, error) {
-	var resp *event.GlobalFilter
+	resp := &event.GlobalFilter{}
 	err := c.Request(
 		"GET", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter/"+filterID, resp,
 		httputil.WithToken(),

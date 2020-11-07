@@ -21,7 +21,7 @@ type ThirdpartyIdentifier struct {
 func (c *Client) ThreePID() ([]ThirdpartyIdentifier, error) {
 	var resp []ThirdpartyIdentifier
 	err := c.Request(
-		"GET", "_matrix/client/r0/account/3pid", resp,
+		"GET", "_matrix/client/r0/account/3pid", &resp,
 		httputil.WithToken(),
 	)
 	return resp, err

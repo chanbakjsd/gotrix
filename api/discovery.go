@@ -36,7 +36,7 @@ type DiscoveryInfoResponse struct {
 // It implements https://matrix.org/docs/spec/client_server/r0.6.1#well-known-uri.
 func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	// Check well-known URI.
-	var result *DiscoveryInfoResponse
+	result := &DiscoveryInfoResponse{}
 	err := c.Request("GET", ".well-known/matrix/client", result)
 	if err != nil {
 		switch matrix.StatusCode(err) {
@@ -83,7 +83,7 @@ type SupportedVersionsResponse struct {
 //
 // It implements the `GET _matrix/client/versions` endpoint.
 func (c *Client) SupportedVersions() (*SupportedVersionsResponse, error) {
-	var result *SupportedVersionsResponse
+	result := &SupportedVersionsResponse{}
 	err := c.Request("GET", "_matrix/client/versions", &result)
 	if err != nil {
 		return nil, err

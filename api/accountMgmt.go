@@ -95,7 +95,7 @@ func (i InteractiveDeactivate) DeactivateResponse() (*DeactivateResponse, error)
 		return nil, err
 	}
 
-	var result *DeactivateResponse
+	result := &DeactivateResponse{}
 	err = json.Unmarshal(*msg, result)
 	return result, err
 }

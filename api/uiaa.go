@@ -52,7 +52,7 @@ type UserInteractiveAuthAPI struct {
 // Auth attempts to authenticate using the provided information in an attempt to progress in the authentication.
 func (u *UserInteractiveAuthAPI) Auth(req interface{}) error {
 	var rawMsg json.RawMessage
-	err := u.Request(req, rawMsg)
+	err := u.Request(req, &rawMsg)
 	return u.processResponse(rawMsg, err)
 }
 
@@ -73,7 +73,7 @@ func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage, reqErro
 		return reqError
 	}
 
-	var resp *UserInteractiveAuthAPI
+	resp := &UserInteractiveAuthAPI{}
 	err := json.Unmarshal(rawMsg, resp)
 	if err != nil {
 		return err

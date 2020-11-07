@@ -38,7 +38,7 @@ func (u *UserInteractiveAuthAPI) RequestEmailToken(req RequestEmailTokenArg) (*R
 	if u.RequestThreePID == nil {
 		return nil, ErrUnsupported
 	}
-	var response *RequestEmailTokenResponse
+	response := &RequestEmailTokenResponse{}
 	err := u.RequestThreePID("email", req, response)
 	return response, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeThreePIDInUse:    ErrEmailAddressInUse,
@@ -70,7 +70,7 @@ func (u *UserInteractiveAuthAPI) RequestPhoneToken(req RequestPhoneTokenArg) (*R
 	if u.RequestThreePID == nil {
 		return nil, ErrUnsupported
 	}
-	var response *RequestPhoneTokenResponse
+	response := &RequestPhoneTokenResponse{}
 	err := u.RequestThreePID("phone", req, response)
 	return response, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeThreePIDInUse:    ErrPhoneNumberInUse,

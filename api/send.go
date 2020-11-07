@@ -29,7 +29,7 @@ func (c *Client) RoomStateSend(roomID matrix.RoomID, event RoomStateSendArg) (ma
 		EventID matrix.EventID `json:"event_id"`
 	}
 
-	err := c.Request("PUT", path, resp, httputil.WithToken(), httputil.WithBody(event.Content))
+	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithBody(event.Content))
 	return resp.EventID, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeForbidden: ErrNoSendPerm,
 	})
@@ -45,7 +45,7 @@ func (c *Client) RoomEventSend(roomID matrix.RoomID, eventType event.Type, body 
 		EventID matrix.EventID `json:"event_id"`
 	}
 
-	err := c.Request("PUT", path, resp, httputil.WithToken(), httputil.WithBody(body))
+	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithBody(body))
 	return resp.EventID, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeForbidden: ErrNoSendPerm,
 	})
@@ -64,9 +64,9 @@ func (c *Client) RoomEventRedact(roomID matrix.RoomID, eventID matrix.EventID, r
 	var err error
 
 	if reason == "" {
-		err = c.Request("PUT", path, resp, httputil.WithToken())
+		err = c.Request("PUT", path, &resp, httputil.WithToken())
 	} else {
-		err = c.Request("PUT", path, resp, httputil.WithToken(), httputil.WithBody(struct {
+		err = c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithBody(struct {
 			Reason string `json:"reason"`
 		}{
 			Reason: reason,

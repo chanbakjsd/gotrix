@@ -26,7 +26,7 @@ var ErrRoomNotFound = errors.New("room not found")
 func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event.Event, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) +
 		"/event/" + url.PathEscape(string(eventID))
-	var resp *event.Event
+	resp := &event.Event{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
 	return resp, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeNotFound: ErrEventNotFound,
@@ -40,7 +40,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/state/" +
 		url.PathEscape(string(eventType)) + "/" + url.PathEscape(key)
 	var content json.RawMessage
-	err := c.Request("GET", path, content, httputil.WithToken())
+	err := c.Request("GET", path, &content, httputil.WithToken())
 	if err != nil {
 		return nil, matrix.MapAPIError(err, matrix.ErrorMap{
 			matrix.CodeNotFound:  ErrEventNotFound,
@@ -61,7 +61,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/state` endpoint.
 func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.Event, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID))
-	var resp *[]event.Event
+	resp := &[]event.Event{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
 	return resp, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeNotFound:  ErrEventNotFound,
@@ -98,7 +98,7 @@ func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) (*[]
 		arg["not_membership"] = string(filter.NotMembership)
 	}
 
-	err := c.Request("GET", path, resp, httputil.WithToken(), httputil.WithQuery(arg))
+	err := c.Request("GET", path, &resp, httputil.WithToken(), httputil.WithQuery(arg))
 	return resp.Chunk, matrix.MapAPIError(err, matrix.ErrorMap{
 		matrix.CodeForbidden: ErrRoomNotFound,
 	})
@@ -114,7 +114,7 @@ type RoomMember struct {
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/joinedMembers` endpoint.
 func (c *Client) RoomJoinedMembers(roomID matrix.RoomID) (*map[matrix.UserID]RoomMember, error) {
-	var resp *map[matrix.UserID]RoomMember
+	resp := &map[matrix.UserID]RoomMember{}
 	err := c.Request(
 		"GET", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/joined_members", resp,
 		httputil.WithToken(),
@@ -174,7 +174,7 @@ func (c *Client) RoomMessages(roomID matrix.RoomID, query RoomMessagesQuery) (*R
 		arg["filter"] = string(bytes)
 	}
 
-	var resp *RoomMessagesResponse
+	resp := &RoomMessagesResponse{}
 	err := c.Request(
 		"GET", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/messages", resp,
 		httputil.WithToken(), httputil.WithQuery(arg),

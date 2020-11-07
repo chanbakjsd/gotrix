@@ -110,7 +110,7 @@ func (i InteractiveRegister) RegisterResponse() (*RegisterResponse, error) {
 		return nil, err
 	}
 
-	var result *RegisterResponse
+	result := &RegisterResponse{}
 	err = json.Unmarshal(*msg, result)
 	return result, err
 }
