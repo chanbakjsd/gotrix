@@ -8,11 +8,10 @@ import (
 
 // StrippedEvent represents an event that has been stripped.
 // This allows the client to display a room state correctly without its full timeline.
+//
+// It has the Type, Content, StateKey and Sender field.
 type StrippedEvent struct {
-	Type     Type            `json:"type"`
-	Content  json.RawMessage `json:"content"`
-	StateKey string          `json:"state_key"`
-	Sender   string          `json:"sender"`
+	Event
 }
 
 // Event represents events that can be sent from homeserver to the client.
@@ -41,4 +40,9 @@ type Event struct {
 
 	// Data for `m.room.redaction`. The ID of the event that was actually redacted.
 	Redacts string `json:"redacts,omitempty"`
+}
+
+// Content is implemented by all event contents.
+type Content interface {
+	ContentOf() Type
 }

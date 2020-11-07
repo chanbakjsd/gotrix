@@ -7,6 +7,7 @@ import (
 	"github.com/chanbakjsd/gomatrix/api"
 	"github.com/chanbakjsd/gomatrix/debug"
 	"github.com/chanbakjsd/gomatrix/event"
+	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
 const (
@@ -59,6 +60,7 @@ func (c *Client) Close() error {
 func (c *Client) readLoop(filter string) {
 	next := ""
 	for !c.shouldClose {
+		// Fetch next set of events.
 		debug.Fields(map[string]interface{}{
 			"next_id": next,
 		}).Debug("Fetching new events.")
@@ -84,6 +86,48 @@ func (c *Client) readLoop(filter string) {
 
 			time.Sleep(time.Duration(c.nextRetryTime) * time.Second)
 			continue
+		}
+
+		handleWithRoomID := func(e []event.Event, roomID matrix.RoomID) {
+			// Handle all events in the list.
+			for _, v := range e {
+				v.RoomID = roomID
+				concrete, err := v.Parse()
+				switch {
+				case next == "":
+					// Don't handle historical events.
+					continue
+				case errors.Is(err, event.ErrUnknownEventType):
+					debug.Fields(map[string]interface{}{"type": v.Type}).
+						Warn("Unknown event type.")
+					continue
+				case err != nil:
+					debug.Fields(map[string]interface{}{
+						"err": err,
+					}).Warn("Error unmarshalling content.")
+					continue
+				}
+				c.Handler.Handle(c, concrete)
+			}
+		}
+		handle := func(e []event.Event) {
+			handleWithRoomID(e, "")
+		}
+
+		handle(resp.Presence.Events)
+		handle(resp.AccountData.Events)
+		handle(resp.ToDevice.Events)
+		for k, v := range resp.Rooms.Joined {
+			handleWithRoomID(v.State.Events, k)
+			handleWithRoomID(v.Timeline.Events, k)
+			handleWithRoomID(v.Ephemeral.Events, k)
+			handleWithRoomID(v.AccountData.Events, k)
+		}
+		// TODO resp.Rooms.Invited
+		for k, v := range resp.Rooms.Left {
+			handleWithRoomID(v.State.Events, k)
+			handleWithRoomID(v.Timeline.Events, k)
+			handleWithRoomID(v.AccountData.Events, k)
 		}
 
 		next = resp.NextBatch

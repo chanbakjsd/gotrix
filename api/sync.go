@@ -32,9 +32,9 @@ type SyncResponse struct {
 // SyncRoomEvents consists of events that are tied to specific rooms (like messages and typing
 // notifications).
 type SyncRoomEvents struct {
-	Joined  SyncJoinedRoomEvents  `json:"join,omitempty"`
-	Invited SyncInvitedRoomEvents `json:"invite,omitempty"`
-	Left    SyncLeftRoomEvents    `json:"leave,omitempty"`
+	Joined  map[matrix.RoomID]SyncJoinedRoomEvents  `json:"join,omitempty"`
+	Invited map[matrix.RoomID]SyncInvitedRoomEvents `json:"invite,omitempty"`
+	Left    map[matrix.RoomID]SyncLeftRoomEvents    `json:"leave,omitempty"`
 }
 
 // SyncJoinedRoomEvents consists of events that are tied to joined rooms (rooms the user is in).

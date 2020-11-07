@@ -4,6 +4,7 @@ package event
 type Type string
 
 // List of all known room events.
+// NOTE: Update event/parse.go as well.
 const (
 	TypeRoomCanonicalAlias Type = "m.room.canonical_alias"
 	TypeRoomCreate         Type = "m.room.create"
@@ -11,4 +12,6 @@ const (
 	TypeRoomMember         Type = "m.room.member"
 	TypeRoomPowerLevels    Type = "m.room.power_levels"
 	TypeRoomRedaction      Type = "m.room.redaction"
+
+	TypeRoomMessage Type = "m.room.message"
 )

@@ -139,3 +139,33 @@ type RoomRedaction struct {
 
 	Reason string `json:"reason,omitempty"`
 }
+
+// ContentOf implements EventContent.
+func (e RoomCanonicalAlias) ContentOf() Type {
+	return TypeRoomCanonicalAlias
+}
+
+// ContentOf implements EventContent.
+func (e RoomCreate) ContentOf() Type {
+	return TypeRoomCreate
+}
+
+// ContentOf implements EventContent.
+func (e RoomJoinRules) ContentOf() Type {
+	return TypeRoomJoinRules
+}
+
+// ContentOf implements EventContent.
+func (e RoomMember) ContentOf() Type {
+	return TypeRoomMember
+}
+
+// ContentOf implements EventContent.
+func (e RoomPowerLevels) ContentOf() Type {
+	return TypeRoomPowerLevels
+}
+
+// ContentOf implements EventContent.
+func (e RoomRedaction) ContentOf() Type {
+	return TypeRoomRedaction
+}

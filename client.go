@@ -2,6 +2,7 @@ package gomatrix
 
 import (
 	"net/url"
+	"reflect"
 
 	"github.com/chanbakjsd/gomatrix/api"
 	"github.com/chanbakjsd/gomatrix/api/httputil"
@@ -11,7 +12,8 @@ import (
 // Client is an instance of a higher level client.
 type Client struct {
 	*api.Client
-	Filter event.GlobalFilter
+	Filter  event.GlobalFilter
+	Handler Handler
 
 	nextRetryTime int
 	shouldClose   bool
@@ -44,5 +46,8 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 	return &Client{
 		Client: apiClient,
 		Filter: DefaultFilter,
+		Handler: &defaultHandler{
+			handlers: make(map[event.Type][]reflect.Value),
+		},
 	}, err
 }
