@@ -21,15 +21,15 @@ type Identifier struct {
 	Type IdentifierType `json:"type"`
 
 	// User is valid when the type is IdentifierUser.
-	User UserID `json:"user"`
+	User UserID `json:"user,omitempty"`
 
 	// Medium and Address are valid when the type is IdentifierThirdparty.
-	Medium  string `json:"medium"`
-	Address string `json:"address"`
+	Medium  string `json:"medium,omitempty"`
+	Address string `json:"address,omitempty"`
 
 	// Country and Phone are valid when the type is IdentifierPhone.
-	Country string `json:"country"`
-	Phone   string `json:"phone"`
+	Country string `json:"country,omitempty"`
+	Phone   string `json:"phone,omitempty"`
 }
 
 // UserID is a user's full qualified identifier.

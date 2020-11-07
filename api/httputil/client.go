@@ -19,6 +19,9 @@ type Client struct {
 	// HomeServer is the host part of the homeserver and is treated as the host
 	// for all requests.
 	HomeServer string
+	// HomeServerScheme is the scheme to talk to homeserver on.
+	// It is https most of the time.
+	HomeServerScheme string
 }
 
 // NewClient creates a new Client that uses the default HTTP client.
@@ -41,7 +44,7 @@ func NewCustomClient(d ClientDriver) Client {
 // wrap a matrix.APIError.
 func (c *Client) Request(method, route string, to interface{}, mods ...Modifier) error {
 	// Generate the request.
-	req, err := http.NewRequest(method, route, nil)
+	req, err := http.NewRequest(method, c.HomeServerScheme+"://"+c.HomeServer+"/"+route, nil)
 	if err != nil {
 		return err
 	}

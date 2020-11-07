@@ -20,12 +20,19 @@ func WithToken() Modifier {
 
 // WithBody attaches a JSON body to the request.
 func WithBody(body interface{}) Modifier {
-	rp, wp := io.Pipe()
-	go func() {
-		_ = json.NewEncoder(wp).Encode(&body)
-	}()
-
 	return func(_ *Client, req *http.Request) {
+		rp, wp := io.Pipe()
+		go func() {
+			err := json.NewEncoder(wp).Encode(&body)
+			if err != nil {
+				panic(err)
+			}
+			err = wp.Close()
+			if err != nil {
+				panic(err)
+			}
+		}()
+
 		req.Header.Add("Content-Type", "application/json")
 		req.Body = rp
 	}

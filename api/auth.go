@@ -43,17 +43,17 @@ func (c *Client) GetLoginMethods() ([]matrix.LoginMethod, error) {
 // LoginArg represents all possible login arguments.
 type LoginArg struct {
 	Type                     matrix.LoginMethod `json:"type"`
-	InitialDeviceDisplayName string             `json:"initial_device_display_name"`
+	InitialDeviceDisplayName string             `json:"initial_device_display_name,omitempty"`
 
 	// DeviceID should be provided when resuming a session.
-	DeviceID matrix.DeviceID `json:"device_id"`
+	DeviceID matrix.DeviceID `json:"device_id,omitempty"`
 
 	// Identifier and Password is only required when logging in with password.
-	Identifier matrix.Identifier `json:"identifier"`
-	Password   string            `json:"password"`
+	Identifier matrix.Identifier `json:"identifier,omitempty"`
+	Password   string            `json:"password,omitempty"`
 
 	// Token is only required when logging in with token.
-	Token string `json:"token"`
+	Token string `json:"token,omitempty"`
 }
 
 // Login logs the client into the homeserver with the provided arguments.
@@ -66,7 +66,7 @@ func (c *Client) Login(arg LoginArg) error {
 		DeviceID    matrix.DeviceID       `json:"device_id"`
 		WellKnown   DiscoveryInfoResponse `json:"well_known"`
 	}
-	err := c.Request("POST", "_matrix/client/r0/login", &resp)
+	err := c.Request("POST", "_matrix/client/r0/login", &resp, httputil.WithBody(arg))
 	if err != nil {
 		return matrix.MapAPIError(
 			err, matrix.ErrorMap{
@@ -87,9 +87,9 @@ func (c *Client) Login(arg LoginArg) error {
 // Logout clears the AccessToken field in the client and attempts to invalidate the
 // token on the server-side.
 //
-// It implements the `GET _matrix/client/r0/logout` endpoint.
+// It implements the `POST _matrix/client/r0/logout` endpoint.
 func (c *Client) Logout() error {
-	err := c.Request("GET", "_matrix/client/r0/logout", httputil.WithToken())
+	err := c.Request("POST", "_matrix/client/r0/logout", nil, httputil.WithToken())
 	c.AccessToken = ""
 	return err
 }
@@ -97,9 +97,9 @@ func (c *Client) Logout() error {
 // LogoutAll clears the AccessToken field in the client and attempts to invalidate all
 // tokens on the server-side.
 //
-// It implements the `GET _matrix/client/r0/logout/all` endpoint.
+// It implements the `POST _matrix/client/r0/logout/all` endpoint.
 func (c *Client) LogoutAll() error {
-	err := c.Request("GET", "_matrix/client/r0/logout/all", httputil.WithToken())
+	err := c.Request("POST", "_matrix/client/r0/logout/all", nil, httputil.WithToken())
 	c.AccessToken = ""
 	return err
 }

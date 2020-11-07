@@ -3,35 +3,30 @@ package gomatrix
 import (
 	"net/url"
 
-	"github.com/chanbakjsd/gomatrix/api"
 	"github.com/chanbakjsd/gomatrix/api/httputil"
 )
 
-// New is a helper function that calls NewWithClient with the default HTTP client.
-func New(serverName string) (*Client, error) {
+// Discover is a helper function that calls DiscoverWithClient with the default HTTP client.
+func Discover(serverName string) (*Client, error) {
 	return NewWithClient(httputil.NewClient(), serverName)
 }
 
-// NewWithClient creates a client with the provided HTTP client.
+// DiscoverWithClient  attempts to discover the homeserver using the provided server name.
 //
-// It attempts to discover the homeserver using the provided server name.
-// This allows the host address to be extracted from the user ID and used to
-// construct a client in a way that is spec-compliant.
-func NewWithClient(httpClient httputil.Client, serverName string) (*Client, error) {
-	parsed, err := url.Parse(serverName)
+// This allows the host address to be extracted from the user ID and used to discover the
+// homeserver host in a way that is spec-compliant.
+func DiscoverWithClient(httpClient httputil.Client, serverName string) (*Client, error) {
+	apiClient, err := NewWithClient(httpClient, serverName)
 	if err != nil {
 		return nil, err
 	}
 
-	apiClient := &api.Client{
-		Client: httpClient,
-	}
-	apiClient.HomeServer = parsed.Host
 	info, err := apiClient.DiscoveryInfo()
 	if err != nil {
 		return nil, err
 	}
-	homeServerURL, err := url.Parse(info.HomeServer.BaseURL)
+
+	apiClient, err = NewWithClient(httpClient, info.HomeServer.BaseURL)
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +34,11 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 	if err != nil {
 		return nil, err
 	}
+	if identityServerURL.Scheme == "" {
+		identityServerURL.Scheme = "https"
+	}
 
-	apiClient.HomeServer = homeServerURL.Host
 	apiClient.IdentityServer = identityServerURL.Host
 
-	return &Client{
-		Client: apiClient,
-	}, nil
+	return apiClient, nil
 }
