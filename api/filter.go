@@ -16,7 +16,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 		FilterID string `json:"filter_id"`
 	}
 	err := c.Request(
-		"POST", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter", resp,
+		"POST", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter", &resp,
 		httputil.WithToken(),
 		httputil.WithBody(filterToUpload),
 	)

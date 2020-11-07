@@ -101,7 +101,7 @@ type SyncDeviceLists struct {
 //
 // It implements the `GET _matrix/client/r0/sync` endpoint.
 func (c *Client) Sync(req SyncArg) (*SyncResponse, error) {
-	var resp *SyncResponse
+	resp := &SyncResponse{}
 	args := make(map[string]string)
 	if req.Filter != "" {
 		args["filter"] = req.Filter

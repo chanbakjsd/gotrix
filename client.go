@@ -5,11 +5,17 @@ import (
 
 	"github.com/chanbakjsd/gomatrix/api"
 	"github.com/chanbakjsd/gomatrix/api/httputil"
+	"github.com/chanbakjsd/gomatrix/event"
 )
 
 // Client is an instance of a higher level client.
 type Client struct {
 	*api.Client
+	Filter event.GlobalFilter
+
+	nextRetryTime int
+	shouldClose   bool
+	closeDone     chan struct{}
 }
 
 // New creates a client with the provided host URL and the default HTTP client.
@@ -37,5 +43,6 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 	apiClient.HomeServerScheme = parsed.Scheme
 	return &Client{
 		Client: apiClient,
+		Filter: DefaultFilter,
 	}, err
 }

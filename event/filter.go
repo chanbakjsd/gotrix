@@ -60,7 +60,7 @@ type RoomFilter struct {
 	State StateFilter `json:"state,omitempty"`
 	// Timeline is the subfilter applied to events that are
 	// persistent (added to history) like messages.
-	Timeline RoomEventFilter `json:"timeline"`
+	Timeline RoomEventFilter `json:"timeline,omitempty"`
 	// AccountData is the subfilter applied to per user account
 	// data.
 	AccountData RoomEventFilter `json:"account_data,omitempty"`
@@ -73,7 +73,7 @@ type StateFilter struct {
 	// List of senders to include. All if omitted.
 	IncludedSenders []matrix.UserID `json:"senders,omitempty"`
 	// List of types to include. All if omitted.
-	IncludedTypes []Type `json:"types"`
+	IncludedTypes []Type `json:"types,omitempty"`
 	// List of rooms to include. All if omitted.
 	IncludeRooms []matrix.RoomID `json:"rooms,omitempty"`
 	// List of senders to exclude. Overrides IncludedSenders.
@@ -104,7 +104,7 @@ type RoomEventFilter struct {
 	// List of senders to include. All if omitted.
 	IncludedSenders []matrix.UserID `json:"senders,omitempty"`
 	// List of types to include. All if omitted.
-	IncludedTypes []Type `json:"types"`
+	IncludedTypes []Type `json:"types,omitempty"`
 	// List of rooms to include. All if omitted.
 	IncludeRooms []matrix.RoomID `json:"rooms,omitempty"`
 	// List of senders to exclude. Overrides IncludedSenders.
