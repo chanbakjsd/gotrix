@@ -110,7 +110,9 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 
 	// If it's a rate-limit, we intercept it and retry after the recommended time.
 	if apiError.Code == matrix.CodeLimitExceeded {
-		debug.Debug("Being throttled! Sleeping for ", apiError.RetryAfterMillisecond, "ms")
+		debug.Fields(map[string]interface{}{
+			"sleep_ms": apiError.RetryAfterMillisecond,
+		}).Debug("Being rate-limited by homeserver.")
 		time.Sleep(time.Duration(apiError.RetryAfterMillisecond) * time.Millisecond)
 		return c.Request(method, route, to, mods...)
 	}

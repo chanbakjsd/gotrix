@@ -56,15 +56,16 @@ func (c *Client) Close() error {
 func (c *Client) readLoop(filter string) {
 	next := ""
 	for !c.shouldClose {
-		debug.Debug("Calling sync API. Next ID:", next)
+		debug.Fields(map[string]interface{}{
+			"next_id": next,
+		}).Debug("Fetching new events.")
 		resp, err := c.Sync(api.SyncArg{
 			Filter:  filter,
 			Since:   next,
 			Timeout: syncTimeout,
 		})
 		if err != nil {
-			debug.Debug("Error:", err)
-
+			// Exponentially backoff with a cap of 5 minutes.
 			c.nextRetryTime *= 2
 			if c.nextRetryTime < minBackoffTime {
 				c.nextRetryTime = minBackoffTime
@@ -73,7 +74,10 @@ func (c *Client) readLoop(filter string) {
 				c.nextRetryTime = maxBackoffTime
 			}
 
-			debug.Debug("Attempting to resume loop in", c.nextRetryTime, "seconds")
+			debug.Fields(map[string]interface{}{
+				"err":        err,
+				"retry_time": c.nextRetryTime,
+			}).Error("Event loop error!")
 
 			time.Sleep(time.Duration(c.nextRetryTime) * time.Second)
 			continue
