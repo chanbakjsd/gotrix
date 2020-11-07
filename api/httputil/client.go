@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"time"
 
+	"github.com/chanbakjsd/gomatrix/debug"
 	"github.com/chanbakjsd/gomatrix/matrix"
 )
 
@@ -54,10 +56,27 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 		v(c, req)
 	}
 
+	if debug.TraceEnabled {
+		b, err := httputil.DumpRequest(req, true)
+		if err != nil {
+			panic(err)
+		}
+		debug.Trace("<<<<\n", string(b))
+	}
+
 	// Make the request.
 	resp, err := c.Do(req)
 	if err != nil {
+		debug.Trace(">>>> N/A. Error:", err)
 		return err
+	}
+
+	if debug.TraceEnabled {
+		b, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			panic(err)
+		}
+		debug.Trace(">>>>\n", string(b))
 	}
 
 	defer func() {
@@ -91,6 +110,7 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 
 	// If it's a rate-limit, we intercept it and retry after the recommended time.
 	if apiError.Code == matrix.CodeLimitExceeded {
+		debug.Debug("Being throttled! Sleeping for ", apiError.RetryAfterMillisecond, "ms")
 		time.Sleep(time.Duration(apiError.RetryAfterMillisecond) * time.Millisecond)
 		return c.Request(method, route, to, mods...)
 	}
