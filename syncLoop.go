@@ -1,6 +1,7 @@
 package gomatrix
 
 import (
+	"errors"
 	"time"
 
 	"github.com/chanbakjsd/gomatrix/api"
@@ -14,6 +15,9 @@ const (
 	maxBackoffTime       = 300
 	syncTimeout          = 5000
 )
+
+// ErrAlreadyClosed is the error returned by (*Client).Close() when called again.
+var ErrAlreadyClosed = errors.New("client already closed")
 
 // DefaultFilter is the default filter used by the client.
 var DefaultFilter = event.GlobalFilter{
@@ -44,8 +48,7 @@ func (c *Client) Open() error {
 // Close signals to the event loop to stop and wait for it to finish.
 func (c *Client) Close() error {
 	if c.shouldClose {
-		// TODO Already closed
-		return nil
+		return ErrAlreadyClosed
 	}
 	c.shouldClose = true
 	<-c.closeDone
