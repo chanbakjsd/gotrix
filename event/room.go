@@ -1,7 +1,7 @@
 package event
 
 import (
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // RoomCanonicalAlias represents a state event where the alias (name) of the room is set.

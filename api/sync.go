@@ -3,9 +3,9 @@ package api
 import (
 	"strconv"
 
-	"github.com/chanbakjsd/gomatrix/api/httputil"
-	"github.com/chanbakjsd/gomatrix/event"
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/event"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // SyncArg represents all possible arguments that can be provided to a sync API call.

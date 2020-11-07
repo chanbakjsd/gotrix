@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/chanbakjsd/gomatrix/api/httputil"
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // ThirdpartyIdentifier is an instance of thirdparty identifier returned by the

@@ -1,12 +1,12 @@
-package gomatrix
+package gotrix
 
 import (
 	"net/url"
 	"reflect"
 
-	"github.com/chanbakjsd/gomatrix/api"
-	"github.com/chanbakjsd/gomatrix/api/httputil"
-	"github.com/chanbakjsd/gomatrix/event"
+	"github.com/chanbakjsd/gotrix/api"
+	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/event"
 )
 
 // Client is an instance of a higher level client.

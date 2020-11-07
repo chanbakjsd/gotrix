@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // ErrInteractiveAuthIncomplete is returned when the result is requested before interactive auth

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/chanbakjsd/gomatrix/api/httputil"
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // ErrNewPasswordTooWeak means that the homeserver rejected the new password for being too weak.

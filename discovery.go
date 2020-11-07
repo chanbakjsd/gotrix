@@ -1,9 +1,9 @@
-package gomatrix
+package gotrix
 
 import (
 	"net/url"
 
-	"github.com/chanbakjsd/gomatrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/api/httputil"
 )
 
 // Discover is a helper function that calls DiscoverWithClient with the default HTTP client.

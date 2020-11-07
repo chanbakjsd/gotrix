@@ -5,8 +5,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/chanbakjsd/gomatrix"
-	"github.com/chanbakjsd/gomatrix/event"
+	"github.com/chanbakjsd/gotrix"
+	"github.com/chanbakjsd/gotrix/event"
 )
 
 func panicIfErr(err error) {
@@ -15,7 +15,7 @@ func panicIfErr(err error) {
 	}
 }
 
-func handleMessage(c *gomatrix.Client, m event.RoomMessage) {
+func handleMessage(c *gotrix.Client, m event.RoomMessage) {
 	// If it's a notice (another bot's message) or not "ping", ignore.
 	if m.MsgType == event.RoomMessageNotice || m.Body != "ping" {
 		return
@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Construct the client.
-	cli, err := gomatrix.New("http://localhost:8008")
+	cli, err := gotrix.New("http://localhost:8008")
 	panicIfErr(err)
 
 	// Login using provided creds.

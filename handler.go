@@ -1,10 +1,10 @@
-package gomatrix
+package gotrix
 
 import (
 	"reflect"
 
-	"github.com/chanbakjsd/gomatrix/debug"
-	"github.com/chanbakjsd/gomatrix/event"
+	"github.com/chanbakjsd/gotrix/debug"
+	"github.com/chanbakjsd/gotrix/event"
 )
 
 // Handler is the interface that represents the methods the client needs from the handler.

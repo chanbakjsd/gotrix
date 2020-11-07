@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/chanbakjsd/gomatrix/api/httputil"
-	"github.com/chanbakjsd/gomatrix/event"
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/event"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // ErrNoSendPerm represents an error where the user does not have permission to send an event to a room.

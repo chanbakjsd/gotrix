@@ -1,8 +1,8 @@
-package gomatrix
+package gotrix
 
 import (
-	"github.com/chanbakjsd/gomatrix/event"
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/event"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // SendMessage sends a message to the provided room ID with the provided content.

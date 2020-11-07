@@ -1,13 +1,13 @@
-package gomatrix
+package gotrix
 
 import (
 	"errors"
 	"time"
 
-	"github.com/chanbakjsd/gomatrix/api"
-	"github.com/chanbakjsd/gomatrix/debug"
-	"github.com/chanbakjsd/gomatrix/event"
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/api"
+	"github.com/chanbakjsd/gotrix/debug"
+	"github.com/chanbakjsd/gotrix/event"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 const (

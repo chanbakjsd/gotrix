@@ -3,7 +3,7 @@ package event
 import (
 	"encoding/json"
 
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // StrippedEvent represents an event that has been stripped.

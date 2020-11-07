@@ -3,8 +3,8 @@ package api
 import (
 	"net/url"
 
-	"github.com/chanbakjsd/gomatrix/api/httputil"
-	"github.com/chanbakjsd/gomatrix/event"
+	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/event"
 )
 
 // FilterAdd uploads the provided filter to the homeserver and returns its

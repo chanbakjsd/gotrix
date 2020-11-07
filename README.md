@@ -1,14 +1,14 @@
-# gomatrix
+# gotrix
 
 [![Examples](https://img.shields.io/badge/Example-__examples%2F-blueviolet?style=flat-square)][example-link]
-[![Report Card](https://goreportcard.com/badge/github.com/chanbakjsd/gomatrix?style=flat-square)][report-link]
+[![Report Card](https://goreportcard.com/badge/github.com/chanbakjsd/gotrix?style=flat-square)][report-link]
 [![Godoc Reference](https://img.shields.io/badge/godoc-reference-blue?style=flat-square)][doc-link]
 
-[example-link]: https://github.com/chanbakjsd/gomatrix/tree/master/_examples
-[report-link]: https://goreportcard.com/report/github.com/chanbakjsd/gomatrix
-[doc-link]: https://pkg.go.dev/chanbakjsd/gomatrix
+[example-link]: https://github.com/chanbakjsd/gotrix/tree/master/_examples
+[report-link]: https://goreportcard.com/report/github.com/chanbakjsd/gotrix
+[doc-link]: https://pkg.go.dev/github.com/chanbakjsd/gotrix
 
-Gomatrix is a work-in-progress implementation of the client portion of [Matrix's client-server API][spec-link].
+Gotrix is a work-in-progress implementation of the client portion of [Matrix's client-server API][spec-link].
 
 You should use more stable libraries such as [gomatrix][gomatrix-link] and [mautrix-go][mautrixgo-link] meanwhile.
 

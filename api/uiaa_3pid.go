@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 
-	"github.com/chanbakjsd/gomatrix/matrix"
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // Errors returned by (*UserInteractiveAuthAPI).RequestEmailToken or (*UserInteractiveAuthAPI).RequestPhoneToken.
