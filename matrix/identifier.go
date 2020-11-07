@@ -21,7 +21,8 @@ type Identifier struct {
 	Type IdentifierType `json:"type"`
 
 	// User is valid when the type is IdentifierUser.
-	User UserID `json:"user,omitempty"`
+	// It only contains the local part.
+	User string `json:"user,omitempty"`
 
 	// Medium and Address are valid when the type is IdentifierThirdparty.
 	Medium  string `json:"medium,omitempty"`
