@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/chanbakjsd/gotrix/encrypt"
 	"github.com/chanbakjsd/gotrix/matrix"
@@ -14,6 +15,9 @@ type RoomMessageEvent struct {
 	Event
 	Body    string      `json:"body"`
 	MsgType MessageType `json:"msgtype"`
+
+	// This message is a reply to RelatesTo if present.
+	RelatesTo matrix.EventID `json:"relates_to,omitempty"`
 
 	// Optionally present in Text, Emote and Notice.
 	Format        MessageFormat `json:"format,omitempty"`
@@ -142,6 +146,20 @@ func (e RoomMessageEvent) LocationInfo() (LocationInfo, error) {
 	var a LocationInfo
 	err := json.Unmarshal(e.Info, &a)
 	return a, err
+}
+
+// StrippedBody should be used if the client is rich reply aware (uses the RelatesTo field) in place
+// of Body.
+func (e RoomMessageEvent) StrippedBody() string {
+	split := strings.Split(e.Body, "\n")
+	var line int // Amount of line to strip.
+	for line < len(split) && strings.HasPrefix(split[line], "> ") {
+		line++
+	}
+	if line == len(split) {
+		return ""
+	}
+	return strings.Join(split[line:], "\n")
 }
 
 // TODO Add helper method to parse RoomMessageHTML messages.

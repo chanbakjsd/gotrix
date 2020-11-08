@@ -13,5 +13,10 @@ const (
 	TypeRoomPowerLevels    Type = "m.room.power_levels"
 	TypeRoomRedaction      Type = "m.room.redaction"
 
+	// Events from Instant Messenging module.
 	TypeRoomMessage Type = "m.room.message"
+	TypeRoomName    Type = "m.room.name"
+	TypeRoomTopic   Type = "m.room.topic"
+	TypeRoomAvatar  Type = "m.room.avatar"
+	TypeRoomPinned  Type = "m.room.pinned_events"
 )
