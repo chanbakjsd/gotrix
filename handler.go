@@ -44,7 +44,7 @@ func (d *defaultHandler) AddHandler(function interface{}) {
 		}).Warn("Non-function passed into AddHandler. Ignoring.")
 		return
 	}
-	//nolint:ignore mnd - 2 is the number of parameters in a handler.
+	//nolint:gomnd // 2 is the number of parameters in a handler.
 	if typ.NumIn() != 2 {
 		debug.Fields(map[string]interface{}{
 			"type": typ,
