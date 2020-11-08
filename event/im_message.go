@@ -7,17 +7,17 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-// RoomMessage represents a room event where a message has been sent.
+// RoomMessageEvent represents a room event where a message has been sent.
 //
 // It has the type ID of `m.room.message`.
-type RoomMessage struct {
+type RoomMessageEvent struct {
 	Event
-	Body    string          `json:"body"`
-	MsgType RoomMessageType `json:"msgtype"`
+	Body    string      `json:"body"`
+	MsgType MessageType `json:"msgtype"`
 
 	// Optionally present in Text, Emote and Notice.
-	Format        RoomMessageFormat `json:"format,omitempty"`
-	FormattedBody string            `json:"formatted_body,omitempty"`
+	Format        MessageFormat `json:"format,omitempty"`
+	FormattedBody string        `json:"formatted_body,omitempty"`
 
 	// This field is present in Location.
 	GeoURI matrix.GeoURI `json:"geo_uri,omitempty"`
@@ -31,114 +31,115 @@ type RoomMessage struct {
 	Info json.RawMessage `json:"info,omitempty"` // Also present in Location.
 }
 
-// RoomMessageType is the type of message sent.
-type RoomMessageType string
+// MessageType is the type of message sent.
+type MessageType string
 
-// All possible RoomMessage types.
+// All possible RoomMessageEvent types.
 // List available at https://matrix.org/docs/spec/client_server/r0.6.1#m-room-message-msgtypes.
 const (
 	// Text, Emote and Notice are all messages.
 	// Text is a regular message, Emote is similar to /me in IRC and Notice is a message sent by a bot.
-	RoomMessageText     RoomMessageType = "m.text"
-	RoomMessageEmote    RoomMessageType = "m.emote"
-	RoomMessageNotice   RoomMessageType = "m.notice"
-	RoomMessageImage    RoomMessageType = "m.image"
-	RoomMessageFile     RoomMessageType = "m.file"
-	RoomMessageAudio    RoomMessageType = "m.audio"
-	RoomMessageLocation RoomMessageType = "m.location"
-	RoomMessageVideo    RoomMessageType = "m.video"
+	RoomMessageText   MessageType = "m.text"
+	RoomMessageEmote  MessageType = "m.emote"
+	RoomMessageNotice MessageType = "m.notice"
+
+	RoomMessageImage    MessageType = "m.image"
+	RoomMessageFile     MessageType = "m.file"
+	RoomMessageAudio    MessageType = "m.audio"
+	RoomMessageLocation MessageType = "m.location"
+	RoomMessageVideo    MessageType = "m.video"
 )
 
-// RoomMessageFormat is the type of the custom formatted body.
-type RoomMessageFormat string
+// MessageFormat is the type of the custom formatted body.
+type MessageFormat string
 
-// Currently, RoomMessageHTML is the only known RoomMessageFormat.
+// Currently, HTML is the only known RoomMessageFormat.
 const (
-	RoomMessageHTML RoomMessageFormat = "org.matrix.custom.html"
+	FormatHTML MessageFormat = "org.matrix.custom.html"
 )
 
-// RoomMessageThumbnailInfo stores the info of a thumbnail.
-type RoomMessageThumbnailInfo struct {
+// ThumbnailInfo stores the info of a thumbnail.
+type ThumbnailInfo struct {
 	Height   int    `json:"h,omitempty"`        // Intended height of thumbnail.
 	Width    int    `json:"w,omitempty"`        // Intended width of thumbnail.
 	MimeType string `json:"mimetype,omitempty"` // MIME type of thumbnail.
 	Size     int    `json:"size,omitempty"`     // Size in bytes.
 }
 
-// RoomMessageFileInfo stores the info of a file.
-type RoomMessageFileInfo struct {
-	MimeType      string                   `json:"mimetype,omitempty"`       // MIME type of image.
-	Size          int                      `json:"size,omitempty"`           // Size in bytes.
-	ThumbnailURL  matrix.URL               `json:"thumbnail_url,omitempty"`  // Present if thumbnail is unencrypted.
-	ThumbnailFile encrypt.File             `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
-	ThumbnailInfo RoomMessageThumbnailInfo `json:"thumbnail_info,omitempty"`
+// FileInfo stores the info of a file.
+type FileInfo struct {
+	MimeType      string        `json:"mimetype,omitempty"`       // MIME type of image.
+	Size          int           `json:"size,omitempty"`           // Size in bytes.
+	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is unencrypted.
+	ThumbnailFile encrypt.File  `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
+	ThumbnailInfo ThumbnailInfo `json:"thumbnail_info,omitempty"`
 }
 
-// RoomMessageImageInfo stores the info of an image.
-type RoomMessageImageInfo struct {
-	RoomMessageFileInfo
+// ImageInfo stores the info of an image.
+type ImageInfo struct {
+	FileInfo
 
 	// Intended display size of image. Present if RoomMessageFileInfo is part of RoomMessageImage.
 	Height int `json:"h,omitempty"`
 	Width  int `json:"w,omitempty"`
 }
 
-// RoomMessageAudioInfo stores the info of an audio.
-type RoomMessageAudioInfo struct {
+// AudioInfo stores the info of an audio.
+type AudioInfo struct {
 	Duration int    // Duration of audio in millisecond.
 	MimeType string // MIME type of audio.
 	Size     int    // Size in bytes.
 }
 
-// RoomMessageLocationInfo stores the info of a location.
-type RoomMessageLocationInfo struct {
-	ThumbnailURL  matrix.URL               `json:"thumbnail_url,omitempty"`  // Present if thumbnail is unencrypted.
-	ThumbnailFile encrypt.File             `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
-	ThumbnailInfo RoomMessageThumbnailInfo `json:"thumbnail_info,omitempty"`
+// LocationInfo stores the info of a location.
+type LocationInfo struct {
+	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is unencrypted.
+	ThumbnailFile encrypt.File  `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
+	ThumbnailInfo ThumbnailInfo `json:"thumbnail_info,omitempty"`
 }
 
-// RoomMessageVideoInfo stores the info of a single video clip.
-type RoomMessageVideoInfo struct {
-	RoomMessageImageInfo
+// VideoInfo stores the info of a single video clip.
+type VideoInfo struct {
+	ImageInfo
 	Duration int `json:"duration,omitempty"` // Duration of video in milliseconds.
 }
 
 // ContentOf implements EventContent.
-func (e RoomMessage) ContentOf() Type {
+func (e RoomMessageEvent) ContentOf() Type {
 	return TypeRoomMessage
 }
 
-// ImageInfo parses info as a RoomMessageImageInfo.
-func (e RoomMessage) ImageInfo() (RoomMessageImageInfo, error) {
-	var a RoomMessageImageInfo
+// ImageInfo parses info as an ImageInfo.
+func (e RoomMessageEvent) ImageInfo() (ImageInfo, error) {
+	var a ImageInfo
 	err := json.Unmarshal(e.Info, &a)
 	return a, err
 }
 
-// FileInfo parses info as a RoomMessageFileInfo.
-func (e RoomMessage) FileInfo() (RoomMessageFileInfo, error) {
-	var a RoomMessageFileInfo
+// FileInfo parses info as a FileInfo.
+func (e RoomMessageEvent) FileInfo() (FileInfo, error) {
+	var a FileInfo
 	err := json.Unmarshal(e.Info, &a)
 	return a, err
 }
 
-// AudioInfo parses info as a RoomMessageAudioInfo.
-func (e RoomMessage) AudioInfo() (RoomMessageAudioInfo, error) {
-	var a RoomMessageAudioInfo
+// AudioInfo parses info as an AudioInfo.
+func (e RoomMessageEvent) AudioInfo() (AudioInfo, error) {
+	var a AudioInfo
 	err := json.Unmarshal(e.Info, &a)
 	return a, err
 }
 
-// VideoInfo parses info as a RoomMessageImageInfo.
-func (e RoomMessage) VideoInfo() (RoomMessageVideoInfo, error) {
-	var a RoomMessageVideoInfo
+// VideoInfo parses info as a VideoInfo.
+func (e RoomMessageEvent) VideoInfo() (VideoInfo, error) {
+	var a VideoInfo
 	err := json.Unmarshal(e.Info, &a)
 	return a, err
 }
 
-// LocationInfo parses info as a RoomMessageLocationInfo.
-func (e RoomMessage) LocationInfo() (RoomMessageLocationInfo, error) {
-	var a RoomMessageLocationInfo
+// LocationInfo parses info as a LocationInfo.
+func (e RoomMessageEvent) LocationInfo() (LocationInfo, error) {
+	var a LocationInfo
 	err := json.Unmarshal(e.Info, &a)
 	return a, err
 }

@@ -14,43 +14,43 @@ var ErrUnknownEventType = errors.New("unknown event type")
 func (e Event) Parse() (Content, error) {
 	switch e.Type {
 	case TypeRoomCanonicalAlias:
-		c := RoomCanonicalAlias{
+		c := RoomCanonicalAliasEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	case TypeRoomCreate:
-		c := RoomCreate{
+		c := RoomCreateEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	case TypeRoomJoinRules:
-		c := RoomJoinRules{
+		c := RoomJoinRulesEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	case TypeRoomMember:
-		c := RoomMember{
+		c := RoomMemberEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	case TypeRoomPowerLevels:
-		c := RoomPowerLevels{
+		c := RoomPowerLevelsEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	case TypeRoomRedaction:
-		c := RoomRedaction{
+		c := RoomRedactionEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	case TypeRoomMessage:
-		c := RoomMessage{
+		c := RoomMessageEvent{
 			Event: e,
 		}
 		err := json.Unmarshal(e.Content, &c)

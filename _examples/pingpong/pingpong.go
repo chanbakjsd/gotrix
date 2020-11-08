@@ -15,7 +15,7 @@ func panicIfErr(err error) {
 	}
 }
 
-func handleMessage(c *gotrix.Client, m event.RoomMessage) {
+func handleMessage(c *gotrix.Client, m event.RoomMessageEvent) {
 	// If it's a notice (another bot's message) or not "ping", ignore.
 	if m.MsgType == event.RoomMessageNotice || m.Body != "ping" {
 		return

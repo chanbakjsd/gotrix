@@ -72,9 +72,9 @@ func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.Event, error) {
 // RoomMemberFilter represents a filter that can be set to filter a RoomMembers request.
 type RoomMemberFilter struct {
 	// The pagination token to query at.
-	At            string               `json:"at,omitempty"`
-	Membership    event.RoomMemberType `json:"membership,omitempty"`
-	NotMembership event.RoomMemberType `json:"not_membership,omitempty"`
+	At            string           `json:"at,omitempty"`
+	Membership    event.MemberType `json:"membership,omitempty"`
+	NotMembership event.MemberType `json:"not_membership,omitempty"`
 }
 
 // RoomMembers fetches the member list for a room from the homeserver.

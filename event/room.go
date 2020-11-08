@@ -4,11 +4,11 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-// RoomCanonicalAlias represents a state event where the alias (name) of the room is set.
+// RoomCanonicalAliasEvent represents a state event where the alias (name) of the room is set.
 //
 // It has the type ID of `m.room.canonical_alias`.
 // It has a zero-length StateKey.
-type RoomCanonicalAlias struct {
+type RoomCanonicalAliasEvent struct {
 	Event
 	// The canonical alias for the room. May be empty.
 	Alias string `json:"alias,omitempty"`
@@ -16,13 +16,13 @@ type RoomCanonicalAlias struct {
 	AltAlias []string `json:"alt_aliases,omitempty"`
 }
 
-// RoomCreate represents a state event where the room is created or upgraded.
+// RoomCreateEvent represents a state event where the room is created or upgraded.
 // Do note that there's no order of Matrix version and it is still considered upgrading for
 // "upgrading" version 2 to 1.
 // It is the first event in any room.
 //
 // It has the type ID of `m.room.create` and a zero-length StateKey.
-type RoomCreate struct {
+type RoomCreateEvent struct {
 	Event
 	// The user ID of the room creator. This is set by the homeserver.
 	Creator matrix.UserID `json:"creator"`
@@ -32,40 +32,40 @@ type RoomCreate struct {
 	RoomVersion *string `json:"room_version,omitempty"`
 }
 
-// RoomJoinRules represents a state event where the room's join rules are set.
+// RoomJoinRulesEvent represents a state event where the room's join rules are set.
 //
 // It has the type ID of `m.room.join_rules` and a zero-length StateKey.
-type RoomJoinRules struct {
+type RoomJoinRulesEvent struct {
 	Event
 	// The new rules to be applied to users wishing to join the room.
-	JoinRule RoomJoinRule `json:"join_rule"`
+	JoinRule JoinRule `json:"join_rule"`
 }
 
-// RoomJoinRule represents the condition required to join a room.
-type RoomJoinRule string
+// JoinRule represents the condition required to join a room.
+type JoinRule string
 
 // "public" means the room can be joined by everyone while "invite" means the user must be
 // invited before attempting to join.
 //
 // "knock" and "private" are reserved keywords which are not implemented.
 const (
-	RoomJoinPublic  RoomJoinRule = "public"
-	RoomJoinKnock   RoomJoinRule = "knock"
-	RoomJoinInvite  RoomJoinRule = "invite"
-	RoomJoinPrivate RoomJoinRule = "private"
+	JoinPublic  JoinRule = "public"
+	JoinKnock   JoinRule = "knock"
+	JoinInvite  JoinRule = "invite"
+	JoinPrivate JoinRule = "private"
 )
 
-// RoomMember represents a state event where a user's membership state changes.
+// RoomMemberEvent represents a state event where a user's membership state changes.
 //
 // It has the type ID of `m.room.member` and the StateKey of the user ID.
-type RoomMember struct {
+type RoomMemberEvent struct {
 	Event
 	// The avatar URL of the user, if any.
 	AvatarURL string `json:"avatar_url,omitempty"`
 	// The display name of the user, if any.
 	DisplayName *string `json:"displayname,omitempty"`
 	// The new state of the user in the room.
-	NewState RoomMemberType `json:"membership,omitempty"`
+	NewState MemberType `json:"membership,omitempty"`
 	// Flag indicating if the room was created with intention of being a DM.
 	IsDirect bool `json:"is_direct,omitempty"`
 	// ThirdPartyInvites is set when it's an invite event and is the successor of a
@@ -80,8 +80,8 @@ type RoomMember struct {
 	} `json:"unsigned,omitempty"`
 }
 
-// RoomMemberType represents the type of member the user is in a room.
-type RoomMemberType string
+// MemberType represents the type of member the user is in a room.
+type MemberType string
 
 // Invited means that the user is invited and could join the room.
 // Joined means that the user is already in the room.
@@ -90,18 +90,18 @@ type RoomMemberType string
 //
 // Knock is reserved and not implemented.
 const (
-	RoomMemberInvited RoomMemberType = "invite"
-	RoomMemberJoined  RoomMemberType = "join"
-	RoomMemberLeft    RoomMemberType = "leave"
-	RoomMemberBanned  RoomMemberType = "ban"
-	RoomMemberKnock   RoomMemberType = "knock"
+	MemberInvited MemberType = "invite"
+	MemberJoined  MemberType = "join"
+	MemberLeft    MemberType = "leave"
+	MemberBanned  MemberType = "ban"
+	MemberKnock   MemberType = "knock"
 )
 
-// RoomPowerLevels represents a state event that establishes the power level and requirements
+// RoomPowerLevelsEvent represents a state event that establishes the power level and requirements
 // for each event to be sent.
 //
 // It has the type ID of `m.room.power_levels` and a zero-length StateKey.
-type RoomPowerLevels struct {
+type RoomPowerLevelsEvent struct {
 	Event
 
 	// Ban, invite, kick and redact defaults to 50 if unspecified.
@@ -128,44 +128,44 @@ type RoomPowerLevels struct {
 	} `json:"notifications,omitempty"`
 }
 
-// RoomRedaction is a message event where another event is redacted from the history.
+// RoomRedactionEvent is a message event where another event is redacted from the history.
 // All keys associated with the event may be stripped off, causing the data to no longer be
 // accessible.
 // This can also be used for moderators to hide message events (which can be undone).
 //
 // It has the type ID of `m.room.redaction`. The Redacts key will be present.
-type RoomRedaction struct {
+type RoomRedactionEvent struct {
 	Event
 
 	Reason string `json:"reason,omitempty"`
 }
 
 // ContentOf implements EventContent.
-func (e RoomCanonicalAlias) ContentOf() Type {
+func (e RoomCanonicalAliasEvent) ContentOf() Type {
 	return TypeRoomCanonicalAlias
 }
 
 // ContentOf implements EventContent.
-func (e RoomCreate) ContentOf() Type {
+func (e RoomCreateEvent) ContentOf() Type {
 	return TypeRoomCreate
 }
 
 // ContentOf implements EventContent.
-func (e RoomJoinRules) ContentOf() Type {
+func (e RoomJoinRulesEvent) ContentOf() Type {
 	return TypeRoomJoinRules
 }
 
 // ContentOf implements EventContent.
-func (e RoomMember) ContentOf() Type {
+func (e RoomMemberEvent) ContentOf() Type {
 	return TypeRoomMember
 }
 
 // ContentOf implements EventContent.
-func (e RoomPowerLevels) ContentOf() Type {
+func (e RoomPowerLevelsEvent) ContentOf() Type {
 	return TypeRoomPowerLevels
 }
 
 // ContentOf implements EventContent.
-func (e RoomRedaction) ContentOf() Type {
+func (e RoomRedactionEvent) ContentOf() Type {
 	return TypeRoomRedaction
 }
