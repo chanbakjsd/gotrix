@@ -2,6 +2,7 @@ package gotrix
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/chanbakjsd/gotrix/api"
@@ -61,9 +62,7 @@ func (c *Client) readLoop(filter string) {
 	next := ""
 	for !c.shouldClose {
 		// Fetch next set of events.
-		debug.Fields(map[string]interface{}{
-			"next_id": next,
-		}).Debug("Fetching new events.")
+		debug.Debug("Fetching new events. Next: " + next)
 		resp, err := c.Sync(api.SyncArg{
 			Filter:  filter,
 			Since:   next,
@@ -79,11 +78,7 @@ func (c *Client) readLoop(filter string) {
 				c.nextRetryTime = maxBackoffTime
 			}
 
-			debug.Fields(map[string]interface{}{
-				"err":        err,
-				"retry_time": c.nextRetryTime,
-			}).Error("Event loop error!")
-
+			debug.Error(fmt.Errorf("error in event loop (retrying in %d seconds): %w", c.nextRetryTime, err))
 			time.Sleep(time.Duration(c.nextRetryTime) * time.Second)
 			continue
 		}
@@ -98,13 +93,10 @@ func (c *Client) readLoop(filter string) {
 					// Don't handle historical events.
 					continue
 				case errors.Is(err, event.ErrUnknownEventType):
-					debug.Fields(map[string]interface{}{"type": v.Type}).
-						Warn("Unknown event type.")
+					debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
 					continue
 				case err != nil:
-					debug.Fields(map[string]interface{}{
-						"err": err,
-					}).Warn("Error unmarshalling content.")
+					debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
 					continue
 				}
 				c.Handler.Handle(c, concrete)

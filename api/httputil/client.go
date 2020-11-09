@@ -3,6 +3,7 @@ package httputil
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -61,13 +62,13 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 		if err != nil {
 			panic(err)
 		}
-		debug.Trace("<<<<\n", string(b))
+		debug.Trace("<<<<\n" + string(b))
 	}
 
 	// Make the request.
 	resp, err := c.Do(req)
 	if err != nil {
-		debug.Trace(">>>> N/A. Error:", err)
+		debug.Trace(">>>> N/A. Error: " + err.Error())
 		return err
 	}
 
@@ -76,7 +77,7 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 		if err != nil {
 			panic(err)
 		}
-		debug.Trace(">>>>\n", string(b))
+		debug.Trace(">>>>\n" + string(b))
 	}
 
 	defer func() {
@@ -110,9 +111,9 @@ func (c *Client) Request(method, route string, to interface{}, mods ...Modifier)
 
 	// If it's a rate-limit, we intercept it and retry after the recommended time.
 	if apiError.Code == matrix.CodeLimitExceeded {
-		debug.Fields(map[string]interface{}{
-			"sleep_ms": apiError.RetryAfterMillisecond,
-		}).Debug("Being rate-limited by homeserver.")
+		debug.Debug(
+			fmt.Sprintf("Being rate-limited by homeserver. Retrying in %dms.", apiError.RetryAfterMillisecond),
+		)
 		time.Sleep(time.Duration(apiError.RetryAfterMillisecond) * time.Millisecond)
 		return c.Request(method, route, to, mods...)
 	}
