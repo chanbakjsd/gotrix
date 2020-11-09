@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
@@ -122,5 +123,8 @@ func (c *Client) Sync(req SyncArg) (*SyncResponse, error) {
 		"GET", "_matrix/client/r0/sync", resp,
 		httputil.WithToken(), httputil.WithQuery(args),
 	)
-	return resp, err
+	if err != nil {
+		return nil, fmt.Errorf("error syncing: %w", err)
+	}
+	return resp, nil
 }

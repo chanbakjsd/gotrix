@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/chanbakjsd/gotrix/matrix"
@@ -70,13 +71,13 @@ func (u *UserInteractiveAuthAPI) processResponse(rawMsg json.RawMessage, reqErro
 	// If there's an error in request and it's not unauthorized (the server requesting to continue auth),
 	// we can't handle it.
 	if matrix.StatusCode(reqError) != http.StatusUnauthorized {
-		return reqError
+		return fmt.Errorf("uiaa: Auth attempt failed: %w", reqError)
 	}
 
 	resp := &UserInteractiveAuthAPI{}
 	err := json.Unmarshal(rawMsg, resp)
 	if err != nil {
-		return err
+		return fmt.Errorf("uiaa: Failed to unmarshal: %w", err)
 	}
 
 	*u = *resp

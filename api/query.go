@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -26,11 +27,19 @@ var ErrRoomNotFound = errors.New("room not found")
 func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event.Event, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) +
 		"/event/" + url.PathEscape(string(eventID))
+
 	resp := &event.Event{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
-	return resp, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeNotFound: ErrEventNotFound,
-	})
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error fetching room event: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeNotFound: ErrEventNotFound,
+			}),
+		)
+	}
+	return resp, nil
 }
 
 // RoomState fetches the latest state event for the provided state in the provided room.
@@ -42,10 +51,13 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 	var content json.RawMessage
 	err := c.Request("GET", path, &content, httputil.WithToken())
 	if err != nil {
-		return nil, matrix.MapAPIError(err, matrix.ErrorMap{
-			matrix.CodeNotFound:  ErrEventNotFound,
-			matrix.CodeForbidden: ErrRoomNotFound,
-		})
+		return nil, fmt.Errorf(
+			"error fetching room state event: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeNotFound:  ErrEventNotFound,
+				matrix.CodeForbidden: ErrRoomNotFound,
+			}),
+		)
 	}
 	return &event.Event{
 		Type:     eventType,
@@ -61,12 +73,20 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/state` endpoint.
 func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.Event, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID))
+
 	resp := &[]event.Event{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
-	return resp, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeNotFound:  ErrEventNotFound,
-		matrix.CodeForbidden: ErrRoomNotFound,
-	})
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error fetching room states: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeNotFound:  ErrEventNotFound,
+				matrix.CodeForbidden: ErrRoomNotFound,
+			}),
+		)
+	}
+	return resp, nil
 }
 
 // RoomMemberFilter represents a filter that can be set to filter a RoomMembers request.
@@ -99,9 +119,15 @@ func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) (*[]
 	}
 
 	err := c.Request("GET", path, &resp, httputil.WithToken(), httputil.WithQuery(arg))
-	return resp.Chunk, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeForbidden: ErrRoomNotFound,
-	})
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error fetching room members: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeForbidden: ErrRoomNotFound,
+			}),
+		)
+	}
+	return resp.Chunk, nil
 }
 
 // RoomMember represents a member in a room as returned by (*Client).RoomJoinedMembers.
@@ -120,9 +146,15 @@ func (c *Client) RoomJoinedMembers(roomID matrix.RoomID) (*map[matrix.UserID]Roo
 		httputil.WithToken(),
 	)
 
-	return resp, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeForbidden: ErrRoomNotFound,
-	})
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error fetching joined members: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeForbidden: ErrRoomNotFound,
+			}),
+		)
+	}
+	return resp, nil
 }
 
 // RoomMessagesDirection specifies the direction to fetch in.
@@ -169,7 +201,7 @@ func (c *Client) RoomMessages(roomID matrix.RoomID, query RoomMessagesQuery) (*R
 	if query.Filter != nil {
 		bytes, err := json.Marshal(query.Filter)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error marshalling filter: %w", err)
 		}
 		arg["filter"] = string(bytes)
 	}
@@ -179,7 +211,13 @@ func (c *Client) RoomMessages(roomID matrix.RoomID, query RoomMessagesQuery) (*R
 		"GET", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/messages", resp,
 		httputil.WithToken(), httputil.WithQuery(arg),
 	)
-	return resp, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeForbidden: ErrRoomNotFound,
-	})
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error fetching room messages: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeForbidden: ErrRoomNotFound,
+			}),
+		)
+	}
+	return resp, nil
 }

@@ -27,6 +27,7 @@ func handleMessage(c *gotrix.Client, m event.RoomMessageEvent) {
 
 func main() {
 	// Ask for username and password.
+	//nolint:gomnd
 	if len(os.Args) != 3 {
 		fmt.Printf("Usage: %s <username> <password>", os.Args[0])
 		return
@@ -40,7 +41,7 @@ func main() {
 	panicIfErr(cli.LoginPassword(os.Args[1], os.Args[2]))
 
 	// Register the handler.
-	cli.AddHandler(handleMessage)
+	panicIfErr(cli.AddHandler(handleMessage))
 
 	// Start the connection.
 	panicIfErr(cli.Open())

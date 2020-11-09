@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -41,7 +42,7 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	if err != nil {
 		switch matrix.StatusCode(err) {
 		case -1:
-			return nil, err
+			return nil, fmt.Errorf("error fetching discovery info: %w", err)
 		case http.StatusNotFound:
 			return nil, ErrServerNotFound
 		}
@@ -86,7 +87,7 @@ func (c *Client) SupportedVersions() (*SupportedVersionsResponse, error) {
 	result := &SupportedVersionsResponse{}
 	err := c.Request("GET", "_matrix/client/versions", &result)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error fetching homeserver supported versions: %w", err)
 	}
 
 	return result, nil

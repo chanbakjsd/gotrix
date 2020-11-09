@@ -1,6 +1,7 @@
 package gotrix
 
 import (
+	"fmt"
 	"net/url"
 	"reflect"
 
@@ -31,7 +32,7 @@ func New(homeServerHost string) (*Client, error) {
 func NewWithClient(httpClient httputil.Client, serverName string) (*Client, error) {
 	parsed, err := url.Parse(serverName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot parse %s: %w", serverName, err)
 	}
 
 	if parsed.Scheme == "" {
@@ -49,5 +50,5 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 		Handler: &defaultHandler{
 			handlers: make(map[event.Type][]reflect.Value),
 		},
-	}, err
+	}, nil
 }

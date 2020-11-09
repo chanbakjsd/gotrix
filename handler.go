@@ -1,6 +1,7 @@
 package gotrix
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/chanbakjsd/gotrix/debug"
@@ -10,12 +11,12 @@ import (
 // Handler is the interface that represents the methods the client needs from the handler.
 type Handler interface {
 	Handle(cli *Client, event event.Content)
-	AddHandler(toCall interface{})
+	AddHandler(toCall interface{}) error
 }
 
 // AddHandler adds the handler to the list of handlers.
-func (c *Client) AddHandler(function interface{}) {
-	c.Handler.AddHandler(function)
+func (c *Client) AddHandler(function interface{}) error {
+	return c.Handler.AddHandler(function)
 }
 
 type defaultHandler struct {
@@ -24,7 +25,7 @@ type defaultHandler struct {
 
 func (d *defaultHandler) Handle(cli *Client, event event.Content) {
 	handlers, ok := d.handlers[event.ContentOf()]
-	debug.Debug(event.ContentOf())
+	debug.Debug("new event: " + event.ContentOf())
 	if !ok {
 		return
 	}
@@ -33,49 +34,39 @@ func (d *defaultHandler) Handle(cli *Client, event event.Content) {
 	}
 }
 
-func (d *defaultHandler) AddHandler(function interface{}) {
+func (d *defaultHandler) AddHandler(function interface{}) error {
 	typ := reflect.TypeOf(function)
 	val := reflect.ValueOf(function)
 
 	// Check function type.
 	if typ.Kind() != reflect.Func {
-		debug.Fields(map[string]interface{}{
-			"type": typ,
-		}).Warn("Non-function passed into AddHandler. Ignoring.")
-		return
+		return fmt.Errorf("AddHandler: expected func(*Client, EventType), got %T instead", function)
 	}
 	//nolint:gomnd // 2 is the number of parameters in a handler.
 	if typ.NumIn() != 2 {
-		debug.Fields(map[string]interface{}{
-			"type": typ,
-		}).Warn("Invalid handler type! Expected func(*Client, eventType). Ignoring.")
-		return
+		return fmt.Errorf("AddHandler: expected func(*Client, EventType), got %T instead", function)
 	}
 	if typ.In(0) != reflect.TypeOf(&Client{}) {
-		debug.Fields(map[string]interface{}{
-			"type": typ,
-		}).Warn("Invalid handler type! Expected func(*Client, eventType). Ignoring.")
-		return
+		return fmt.Errorf("AddHandler: expected func(*Client, EventType), got %T instead", function)
 	}
-	if !typ.In(1).Implements(reflect.TypeOf([]event.Content{}).Elem()) {
-		debug.Fields(map[string]interface{}{
-			"type": typ,
-		}).Warn("Invalid handler type! Expected func(*Client, eventType). Ignoring.")
-		return
+
+	contentInterface := reflect.Zero(typ.In(1)).Interface()
+	content, ok := contentInterface.(event.Content)
+	if !ok {
+		return fmt.Errorf(
+			"AddHandler: invalid function input, expected function to take event, takes %T instead",
+			contentInterface,
+		)
 	}
 
 	// Get event type
-	method, _ := typ.In(1).MethodByName("ContentOf")
-	result := method.Func.Call([]reflect.Value{reflect.Zero(typ.In(1))})
-	eventType := event.Type(result[0].String())
+	eventType := content.ContentOf()
 
 	// Add it to the list of handlers
 	if _, ok := d.handlers[eventType]; !ok {
 		d.handlers[eventType] = make([]reflect.Value, 0, 1)
 	}
 	d.handlers[eventType] = append(d.handlers[eventType], val)
-	debug.Fields(map[string]interface{}{
-		"eventType": eventType,
-		"type":      typ,
-	}).Debug("Added handler.")
+	debug.Debug("added handler: event=" + eventType)
+	return nil
 }

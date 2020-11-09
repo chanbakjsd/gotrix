@@ -25,7 +25,8 @@ func WithBody(body interface{}) Modifier {
 		go func() {
 			err := json.NewEncoder(wp).Encode(&body)
 			if err != nil {
-				panic(err)
+				// May error if read pipe is closed. In which case, we don't care.
+				return
 			}
 			err = wp.Close()
 			if err != nil {

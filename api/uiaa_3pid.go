@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -40,11 +41,16 @@ func (u *UserInteractiveAuthAPI) RequestEmailToken(req RequestEmailTokenArg) (*R
 	}
 	response := &RequestEmailTokenResponse{}
 	err := u.RequestThreePID("email", req, response)
-	return response, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeThreePIDInUse:    ErrEmailAddressInUse,
-		matrix.CodeServerNotTrusted: ErrInvalidIDServer,
-		matrix.CodeThreePIDDenied:   ErrThreePIDDisabled,
-	})
+	if err != nil {
+		return nil, fmt.Errorf("uiaa: error requesting email token: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeThreePIDInUse:    ErrPhoneNumberInUse,
+				matrix.CodeServerNotTrusted: ErrInvalidIDServer,
+				matrix.CodeThreePIDDenied:   ErrThreePIDDisabled,
+			}),
+		)
+	}
+	return response, nil
 }
 
 // RequestPhoneTokenArg represents all possible argument to RequestPhoneToken.
@@ -72,9 +78,14 @@ func (u *UserInteractiveAuthAPI) RequestPhoneToken(req RequestPhoneTokenArg) (*R
 	}
 	response := &RequestPhoneTokenResponse{}
 	err := u.RequestThreePID("phone", req, response)
-	return response, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeThreePIDInUse:    ErrPhoneNumberInUse,
-		matrix.CodeServerNotTrusted: ErrInvalidIDServer,
-		matrix.CodeThreePIDDenied:   ErrThreePIDDisabled,
-	})
+	if err != nil {
+		return nil, fmt.Errorf("uiaa: error requesting phone token: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeThreePIDInUse:    ErrPhoneNumberInUse,
+				matrix.CodeServerNotTrusted: ErrInvalidIDServer,
+				matrix.CodeThreePIDDenied:   ErrThreePIDDisabled,
+			}),
+		)
+	}
+	return response, nil
 }

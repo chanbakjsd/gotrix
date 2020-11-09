@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
@@ -30,7 +31,7 @@ func (c *Client) GetLoginMethods() ([]matrix.LoginMethod, error) {
 
 	err := c.Request("GET", "_matrix/client/r0/login", &response)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error getting login methods: %w", err)
 	}
 
 	result := make([]matrix.LoginMethod, 0, len(response.Flows))
@@ -68,12 +69,12 @@ func (c *Client) Login(arg LoginArg) error {
 	}
 	err := c.Request("POST", "_matrix/client/r0/login", &resp, httputil.WithBody(arg))
 	if err != nil {
-		return matrix.MapAPIError(
+		return fmt.Errorf("error logging in: %w", matrix.MapAPIError(
 			err, matrix.ErrorMap{
 				matrix.CodeUnknown:         ErrInvalidRequest,
 				matrix.CodeForbidden:       ErrInvalidCreds,
 				matrix.CodeUserDeactivated: ErrUserDeactivated,
-			},
+			}),
 		)
 	}
 
@@ -91,7 +92,10 @@ func (c *Client) Login(arg LoginArg) error {
 func (c *Client) Logout() error {
 	err := c.Request("POST", "_matrix/client/r0/logout", nil, httputil.WithToken())
 	c.AccessToken = ""
-	return err
+	if err != nil {
+		return fmt.Errorf("error logging out: %w", err)
+	}
+	return nil
 }
 
 // LogoutAll clears the AccessToken field in the client and attempts to invalidate all
@@ -101,5 +105,8 @@ func (c *Client) Logout() error {
 func (c *Client) LogoutAll() error {
 	err := c.Request("POST", "_matrix/client/r0/logout/all", nil, httputil.WithToken())
 	c.AccessToken = ""
-	return err
+	if err != nil {
+		return fmt.Errorf("error logging out all tokens: %w", err)
+	}
+	return nil
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
@@ -39,16 +40,23 @@ func (c *Client) Whoami() (matrix.UserID, error) {
 		httputil.WithToken(),
 	)
 
-	return resp.UserID, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeUnknownToken: ErrInvalidToken,
-		matrix.CodeForbidden:    ErrTokenAndUserMismatch,
-	})
+	if err != nil {
+		return "", fmt.Errorf(
+			"error fetching whoami: %w",
+			matrix.MapAPIError(err, matrix.ErrorMap{
+				matrix.CodeUnknownToken: ErrInvalidToken,
+				matrix.CodeForbidden:    ErrTokenAndUserMismatch,
+			}),
+		)
+	}
+	return resp.UserID, nil
+
 }
 
 // ServerCapabilities retrieves the homeserver's capabilities.
-func (c *Client) ServerCapabilities() (matrix.Capabilities, error) {
+func (c *Client) ServerCapabilities() (*matrix.Capabilities, error) {
 	var resp struct {
-		Capabilities matrix.Capabilities `json:"capabilities"`
+		Capabilities *matrix.Capabilities `json:"capabilities"`
 	}
 
 	err := c.Request(
@@ -56,5 +64,9 @@ func (c *Client) ServerCapabilities() (matrix.Capabilities, error) {
 		httputil.WithToken(),
 	)
 
-	return resp.Capabilities, err
+	if err != nil {
+		return nil, fmt.Errorf("error fetching server capabilities: %w", err)
+	}
+
+	return resp.Capabilities, nil
 }

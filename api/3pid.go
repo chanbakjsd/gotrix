@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -19,12 +21,15 @@ type ThirdpartyIdentifier struct {
 //
 // It implements the `GET _matrix/client/r0/account/3pid` endpoint.
 func (c *Client) ThreePID() ([]ThirdpartyIdentifier, error) {
-	var resp []ThirdpartyIdentifier
+	resp := []ThirdpartyIdentifier{}
 	err := c.Request(
 		"GET", "_matrix/client/r0/account/3pid", &resp,
 		httputil.WithToken(),
 	)
-	return resp, err
+	if err != nil {
+		return nil, fmt.Errorf("error getting 3PID: %w", err)
+	}
+	return resp, nil
 }
 
 // ThreePIDAdd adds the third party identifier associated with
@@ -74,11 +79,15 @@ type ThreePIDBindArg struct {
 //
 // It implements the `POST _matrix/client/r0/account/3pid/bind` endpoint.
 func (c *Client) ThreePIDBind(req ThreePIDBindArg) error {
-	return c.Request(
+	err := c.Request(
 		"POST", "_matrix/client/r0/account/3pid/bind", nil,
 		httputil.WithToken(),
 		httputil.WithBody(req),
 	)
+	if err != nil {
+		return fmt.Errorf("error binding 3PID: %w", err)
+	}
+	return nil
 }
 
 // ThreePIDDeleteArg represents all possible arguments of (*Client).ThreePIDDelete.
@@ -102,7 +111,11 @@ func (c *Client) ThreePIDDelete(req ThreePIDDeleteArg) (matrix.IDServerUnbindRes
 		httputil.WithBody(req),
 	)
 
-	return resp.IDServerUnbindResult, err
+	if err != nil {
+		return "", fmt.Errorf("error deleting 3PID: %w", err)
+	}
+
+	return resp.IDServerUnbindResult, nil
 }
 
 // ThreePIDUnbindArg represents all possible arguments of (*Client).ThreePIDUnbind.
@@ -126,5 +139,9 @@ func (c *Client) ThreePIDUnbind(req ThreePIDUnbindArg) (matrix.IDServerUnbindRes
 		httputil.WithBody(req),
 	)
 
-	return resp.IDServerUnbindResult, err
+	if err != nil {
+		return "", fmt.Errorf("error unbinding 3PID: %w", err)
+	}
+
+	return resp.IDServerUnbindResult, nil
 }

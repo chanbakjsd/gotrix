@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
@@ -20,7 +21,10 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 		httputil.WithToken(),
 		httputil.WithBody(filterToUpload),
 	)
-	return resp.FilterID, err
+	if err != nil {
+		return "", fmt.Errorf("error adding filter: %w", err)
+	}
+	return resp.FilterID, nil
 }
 
 // Filter downloads the requested filter from the homeserver.
@@ -34,5 +38,8 @@ func (c *Client) Filter(filterID string) (*event.GlobalFilter, error) {
 		httputil.WithToken(),
 	)
 
-	return resp, err
+	if err != nil {
+		return nil, fmt.Errorf("error getting filter: %w", err)
+	}
+	return resp, nil
 }
