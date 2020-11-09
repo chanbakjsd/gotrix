@@ -55,6 +55,30 @@ func (e Event) Parse() (Content, error) {
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
+	case TypeRoomName:
+		c := RoomNameEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
+	case TypeRoomTopic:
+		c := RoomTopicEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
+	case TypeRoomAvatar:
+		c := RoomAvatarEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
+	case TypeRoomPinned:
+		c := RoomPinnedEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
 	}
 
 	return nil, ErrUnknownEventType

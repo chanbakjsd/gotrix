@@ -9,6 +9,7 @@ import (
 //
 // It has the type ID of `m.room.name` and a zero-length state key.
 type RoomNameEvent struct {
+	Event
 	Name string `json:"name,omitempty"` // This must not exceed 255 bytes.
 }
 
@@ -16,6 +17,7 @@ type RoomNameEvent struct {
 //
 // It has the type ID of `m.room.topic` and a zero-length state key.
 type RoomTopicEvent struct {
+	Event
 	Topic string `json:"topic,omitempty"`
 }
 
@@ -23,6 +25,7 @@ type RoomTopicEvent struct {
 //
 // It has the type ID of `m.room.avatar` and a zero-length state key.
 type RoomAvatarEvent struct {
+	Event
 	Info ImageInfo `json:"info,omitempty"`
 	URL  string    `json:"url"`
 }
@@ -31,6 +34,7 @@ type RoomAvatarEvent struct {
 //
 // It has the type ID of `m.room.pinned_events` and a zero-length state key.
 type RoomPinnedEvent struct {
+	Event
 	Pinned []matrix.EventID `json:"pinned"`
 }
 
