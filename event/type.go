@@ -19,4 +19,10 @@ const (
 	TypeRoomTopic   Type = "m.room.topic"
 	TypeRoomAvatar  Type = "m.room.avatar"
 	TypeRoomPinned  Type = "m.room.pinned_events"
+
+	// Events from Voice over IP module.
+	TypeCallInvite     Type = "m.call.invite"
+	TypeCallCandidates Type = "m.call.candidates"
+	TypeCallAnswer     Type = "m.call.answer"
+	TypeCallHangup     Type = "m.call.hangup"
 )

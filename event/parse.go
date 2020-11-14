@@ -79,6 +79,30 @@ func (e Event) Parse() (Content, error) {
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
+	case TypeCallInvite:
+		c := CallInviteEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
+	case TypeCallCandidates:
+		c := CallCandidatesEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
+	case TypeCallAnswer:
+		c := CallAnswerEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
+	case TypeCallHangup:
+		c := CallHangupEvent{
+			Event: e,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
 	}
 
 	return nil, ErrUnknownEventType
