@@ -15,6 +15,14 @@ func panicIfErr(err error) {
 	}
 }
 
+func handleInvite(c *gotrix.Client, m event.RoomMemberEvent) {
+	if m.NewState != event.MemberInvited || m.UserID != c.UserID {
+		// Not an invite for us.
+		return
+	}
+	panicIfErr(c.RoomJoin(m.RoomID))
+}
+
 func handleMessage(c *gotrix.Client, m event.RoomMessageEvent) {
 	// If it's a notice (another bot's message) or not "ping", ignore.
 	if m.MsgType == event.RoomMessageNotice || m.Body != "ping" {
@@ -42,6 +50,7 @@ func main() {
 
 	// Register the handler.
 	panicIfErr(cli.AddHandler(handleMessage))
+	panicIfErr(cli.AddHandler(handleInvite))
 
 	// Start the connection.
 	panicIfErr(cli.Open())
