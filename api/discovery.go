@@ -67,7 +67,7 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 		return nil, err
 	}
 
-	//TODO: Check identity server when it's implemented.
+	// TODO: Check identity server when it's implemented.
 
 	return result, nil
 }

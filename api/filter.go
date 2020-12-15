@@ -37,7 +37,6 @@ func (c *Client) Filter(filterID string) (*event.GlobalFilter, error) {
 		"GET", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter/"+filterID, resp,
 		httputil.WithToken(),
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf("error getting filter: %w", err)
 	}

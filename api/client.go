@@ -39,7 +39,6 @@ func (c *Client) Whoami() (matrix.UserID, error) {
 		}),
 		httputil.WithToken(),
 	)
-
 	if err != nil {
 		return "", fmt.Errorf(
 			"error fetching whoami: %w",
@@ -50,7 +49,6 @@ func (c *Client) Whoami() (matrix.UserID, error) {
 		)
 	}
 	return resp.UserID, nil
-
 }
 
 // ServerCapabilities retrieves the homeserver's capabilities.
@@ -63,7 +61,6 @@ func (c *Client) ServerCapabilities() (*matrix.Capabilities, error) {
 		"GET", "_matrix/client/r0/capabilities", &resp,
 		httputil.WithToken(),
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf("error fetching server capabilities: %w", err)
 	}

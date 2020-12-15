@@ -110,7 +110,6 @@ func (c *Client) ThreePIDDelete(req ThreePIDDeleteArg) (matrix.IDServerUnbindRes
 		httputil.WithToken(),
 		httputil.WithBody(req),
 	)
-
 	if err != nil {
 		return "", fmt.Errorf("error deleting 3PID: %w", err)
 	}
@@ -138,7 +137,6 @@ func (c *Client) ThreePIDUnbind(req ThreePIDUnbindArg) (matrix.IDServerUnbindRes
 		httputil.WithToken(),
 		httputil.WithBody(req),
 	)
-
 	if err != nil {
 		return "", fmt.Errorf("error unbinding 3PID: %w", err)
 	}
