@@ -17,8 +17,8 @@ import (
 var ErrEventNotFound = errors.New("event not found")
 
 // ErrRoomNotFound is returned when the room is not found or cannot be accessed by the user.
-// It is returned by (*Client).RoomState, (*Client).RoomStates, (*Client).RoomMembers and
-// (*Client).RoomMessages.
+// It is returned by (*Client).RoomState, (*Client).RoomStates, (*Client).RoomMembers,
+// (*Client).RoomMessages, (*Client).RoomAliases and (*Client).Join.
 var ErrRoomNotFound = errors.New("room not found")
 
 // RoomEvent fetches an event from the server with the provided room ID or event ID.
@@ -30,7 +30,6 @@ func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event
 
 	resp := &event.Event{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
-
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error fetching room event: %w",
@@ -76,7 +75,6 @@ func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.Event, error) {
 
 	resp := &[]event.Event{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
-
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error fetching room states: %w",
@@ -145,7 +143,6 @@ func (c *Client) RoomJoinedMembers(roomID matrix.RoomID) (*map[matrix.UserID]Roo
 		"GET", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/joined_members", resp,
 		httputil.WithToken(),
 	)
-
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error fetching joined members: %w",
