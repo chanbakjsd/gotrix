@@ -60,6 +60,9 @@ const (
 // It has the type ID of `m.room.member` and the StateKey of the user ID.
 type RoomMemberEvent struct {
 	Event
+
+	// UserID is set by parser code as a copy of StateKey for easy access.
+	UserID matrix.UserID `json:"-"`
 	// The avatar URL of the user, if any.
 	AvatarURL string `json:"avatar_url,omitempty"`
 	// The display name of the user, if any.

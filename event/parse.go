@@ -3,6 +3,8 @@ package event
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 // ErrUnknownEventType represents an error where the event type is unknown and therefore
@@ -33,7 +35,8 @@ func (e Event) Parse() (Content, error) {
 		return c, err
 	case TypeRoomMember:
 		c := RoomMemberEvent{
-			Event: e,
+			Event:  e,
+			UserID: matrix.UserID(e.StateKey),
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
