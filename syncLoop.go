@@ -115,7 +115,13 @@ func (c *Client) readLoop(filter string) {
 			handleWithRoomID(v.Ephemeral.Events, k)
 			handleWithRoomID(v.AccountData.Events, k)
 		}
-		// TODO resp.Rooms.Invited
+		for k, v := range resp.Rooms.Invited {
+			events := make([]event.Event, len(v.State.Events))
+			for k, v := range v.State.Events {
+				events[k] = v.Event
+			}
+			handleWithRoomID(events, k)
+		}
 		for k, v := range resp.Rooms.Left {
 			handleWithRoomID(v.State.Events, k)
 			handleWithRoomID(v.Timeline.Events, k)

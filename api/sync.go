@@ -55,7 +55,7 @@ type SyncJoinedRoomEvents struct {
 type SyncInvitedRoomEvents struct {
 	State struct {
 		Events []event.StrippedEvent `json:"events,omitempty"`
-	} `json:"state,omitempty"`
+	} `json:"invite_state,omitempty"`
 }
 
 // SyncLeftRoomEvents consists of events that are tied to rooms that the user has left.
