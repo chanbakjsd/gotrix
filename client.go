@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strings"
 
 	"github.com/chanbakjsd/gotrix/api"
 	"github.com/chanbakjsd/gotrix/api/httputil"
@@ -30,13 +31,13 @@ func New(homeServerHost string) (*Client, error) {
 // NewWithClient creates a client with the provided host URL and the provided client.
 // It assumes https if the scheme is not provided.
 func NewWithClient(httpClient httputil.Client, serverName string) (*Client, error) {
+	if strings.Count(serverName, ":") < 2 {
+		// First is protocol while second is port.
+		serverName = "https://" + serverName
+	}
 	parsed, err := url.Parse(serverName)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse %s: %w", serverName, err)
-	}
-
-	if parsed.Scheme == "" {
-		parsed.Scheme = "https"
 	}
 
 	apiClient := &api.Client{
