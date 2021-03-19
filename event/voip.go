@@ -1,5 +1,12 @@
 package event
 
+var (
+	_ RoomEvent = CallInviteEvent{}
+	_ RoomEvent = CallCandidatesEvent{}
+	_ RoomEvent = CallAnswerEvent{}
+	_ RoomEvent = CallHangupEvent{}
+)
+
 // TODO Maybe implement glare at some point.
 // https://matrix.org/docs/spec/client_server/r0.6.1#glare
 
@@ -7,7 +14,7 @@ package event
 //
 // It has the type ID of `m.call.invite`.
 type CallInviteEvent struct {
-	Event
+	RoomEventInfo
 
 	CallID   string `json:"call_id"`
 	Version  int    `json:"version"`  // Currently always 0.
@@ -23,7 +30,7 @@ type CallInviteEvent struct {
 //
 // It has the type ID of `m.call.candidates`.
 type CallCandidatesEvent struct {
-	Event
+	RoomEventInfo
 
 	CallID     string `json:"call_id"`
 	Version    int    `json:"version"` // Currently always 0.
@@ -38,7 +45,7 @@ type CallCandidatesEvent struct {
 //
 // It has the type ID of `m.call.answer`.
 type CallAnswerEvent struct {
-	Event
+	RoomEventInfo
 
 	CallID  string `json:"call_id"`
 	Version int    `json:"int"`
@@ -53,7 +60,7 @@ type CallAnswerEvent struct {
 //
 // It has the type ID of `m.call.hangup`.
 type CallHangupEvent struct {
-	Event
+	RoomEventInfo
 
 	CallID  string           `json:"call_id"`
 	Version int              `json:"version"` // Currently always 0.
@@ -71,22 +78,22 @@ const (
 	CallHangupInviteTimeout CallHangupReason = "invite_timeout"
 )
 
-// ContentOf implements EventContent.
-func (CallInviteEvent) ContentOf() Type {
+// Type satisfies RoomEvent.
+func (CallInviteEvent) Type() Type {
 	return TypeCallInvite
 }
 
-// ContentOf implements EventContent.
-func (CallCandidatesEvent) ContentOf() Type {
+// Type satisfies RoomEvent.
+func (CallCandidatesEvent) Type() Type {
 	return TypeCallCandidates
 }
 
-// ContentOf implements EventContent.
-func (CallAnswerEvent) ContentOf() Type {
+// Type satisfies RoomEvent.
+func (CallAnswerEvent) Type() Type {
 	return TypeCallAnswer
 }
 
-// ContentOf implements EventContent.
-func (CallHangupEvent) ContentOf() Type {
+// Type satisfies RoomEvent.
+func (CallHangupEvent) Type() Type {
 	return TypeCallHangup
 }

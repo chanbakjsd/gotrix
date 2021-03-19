@@ -10,7 +10,7 @@ import (
 
 // Handler is the interface that represents the methods the client needs from the handler.
 type Handler interface {
-	Handle(cli *Client, event event.Content)
+	Handle(cli *Client, event event.Event)
 	AddHandler(toCall interface{}) error
 }
 
@@ -23,9 +23,9 @@ type defaultHandler struct {
 	handlers map[event.Type][]reflect.Value
 }
 
-func (d *defaultHandler) Handle(cli *Client, event event.Content) {
-	handlers, ok := d.handlers[event.ContentOf()]
-	debug.Debug("new event: " + event.ContentOf())
+func (d *defaultHandler) Handle(cli *Client, event event.Event) {
+	handlers, ok := d.handlers[event.Type()]
+	debug.Debug("new event: " + event.Type())
 	if !ok {
 		return
 	}
@@ -51,7 +51,7 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	}
 
 	contentInterface := reflect.Zero(typ.In(1)).Interface()
-	content, ok := contentInterface.(event.Content)
+	content, ok := contentInterface.(event.Event)
 	if !ok {
 		return fmt.Errorf(
 			"AddHandler: invalid function input, expected function to take event, takes %T instead",
@@ -60,7 +60,7 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	}
 
 	// Get event type
-	eventType := content.ContentOf()
+	eventType := content.Type()
 
 	// Add it to the list of handlers
 	if _, ok := d.handlers[eventType]; !ok {

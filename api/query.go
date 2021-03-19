@@ -24,11 +24,11 @@ var ErrRoomNotFound = errors.New("room not found")
 // RoomEvent fetches an event from the server with the provided room ID or event ID.
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/event/{eventId}` endpoint.
-func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event.Event, error) {
+func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event.RawEvent, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) +
 		"/event/" + url.PathEscape(string(eventID))
 
-	resp := &event.Event{}
+	resp := &event.RawEvent{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -44,7 +44,7 @@ func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (*event
 // RoomState fetches the latest state event for the provided state in the provided room.
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/state/{eventType}/{stateKey}` endpoint.
-func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (*event.Event, error) {
+func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (*event.RawEvent, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/state/" +
 		url.PathEscape(string(eventType)) + "/" + url.PathEscape(key)
 	var content json.RawMessage
@@ -58,7 +58,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 			}),
 		)
 	}
-	return &event.Event{
+	return &event.RawEvent{
 		Type:     eventType,
 		Content:  content,
 		RoomID:   roomID,
@@ -70,10 +70,10 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 // If the user has left the room, it returns the state before the user leaves.
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/state` endpoint.
-func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.Event, error) {
+func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.RawEvent, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID))
 
-	resp := &[]event.Event{}
+	resp := &[]event.RawEvent{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
 	if err != nil {
 		return nil, fmt.Errorf(
@@ -99,10 +99,10 @@ type RoomMemberFilter struct {
 // The returned member list is in the form of an array of RoomMember events.
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/members` endpoint.
-func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) (*[]event.Event, error) {
+func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) (*[]event.RoomMemberEvent, error) {
 	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID))
 	var resp struct {
-		Chunk *[]event.Event `json:"chunk,omitempty"`
+		Chunk *[]event.RoomMemberEvent `json:"chunk,omitempty"`
 	}
 
 	arg := make(map[string]string)
@@ -175,10 +175,10 @@ type RoomMessagesQuery struct {
 
 // RoomMessagesResponse represents the response to (*Client).RoomMessages.
 type RoomMessagesResponse struct {
-	Start string        `json:"start"` // The token pagination starts from.
-	End   string        `json:"end"`   // The token pagination ends on.
-	Chunk []event.Event `json:"chunk"` // A list of room events.
-	State []event.Event `json:"state"` // A list of state events relevant to the room events.
+	Start string           `json:"start"` // The token pagination starts from.
+	End   string           `json:"end"`   // The token pagination ends on.
+	Chunk []event.RawEvent `json:"chunk"` // A list of room events.
+	State []event.RawEvent `json:"state"` // A list of state events relevant to the room events.
 }
 
 // RoomMessages fetches the messages specified in the query range and return them.

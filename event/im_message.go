@@ -8,11 +8,14 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
+var _ RoomEvent = RoomMessageEvent{}
+
 // RoomMessageEvent represents a room event where a message has been sent.
 //
 // It has the type ID of `m.room.message`.
 type RoomMessageEvent struct {
-	Event
+	RoomEventInfo
+
 	Body    string      `json:"body"`
 	MsgType MessageType `json:"msgtype"`
 
@@ -108,8 +111,8 @@ type VideoInfo struct {
 	Duration int `json:"duration,omitempty"` // Duration of video in milliseconds.
 }
 
-// ContentOf implements EventContent.
-func (e RoomMessageEvent) ContentOf() Type {
+// Type satisfies RoomEvent.
+func (RoomMessageEvent) Type() Type {
 	return TypeRoomMessage
 }
 

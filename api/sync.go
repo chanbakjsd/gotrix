@@ -81,14 +81,14 @@ type SyncRoomSummary struct {
 //
 // PreviousBatch can be used as an ID to index into previous timeline events.
 type SyncTimeline struct {
-	Events        []event.Event `json:"events,omitempty"`
-	Limited       bool          `json:"limited,omitempty"`
-	PreviousBatch string        `json:"prev_batch"`
+	Events        []event.RawEvent `json:"events,omitempty"`
+	Limited       bool             `json:"limited,omitempty"`
+	PreviousBatch string           `json:"prev_batch"`
 }
 
 // SyncEvents are a list of events.
 type SyncEvents struct {
-	Events []event.Event `json:"events,omitempty"`
+	Events []event.RawEvent `json:"events,omitempty"`
 }
 
 // SyncDeviceLists is a list of users who has their encryption keys changed (added or modified)

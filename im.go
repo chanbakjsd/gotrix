@@ -16,12 +16,7 @@ func (c *Client) MemberName(roomID matrix.RoomID, userID matrix.UserID) (string,
 		return string(userID), nil
 	}
 
-	content, err := e.Parse()
-	if err != nil {
-		return "", err
-	}
-	memberEvent := content.(event.RoomMemberEvent)
-
+	memberEvent := e.(event.RoomMemberEvent)
 	if memberEvent.DisplayName == nil || *memberEvent.DisplayName == "" {
 		return string(userID), nil
 	}
@@ -35,23 +30,14 @@ func (c *Client) RoomName(roomID matrix.RoomID) (string, error) {
 	// Step 1: Check for m.room.name state event.
 	e, _ := c.RoomState(roomID, event.TypeRoomName, "")
 	if e != nil {
-		content, err := e.Parse()
-		if err != nil {
-			return "", err
-		}
-
-		nameEvent := content.(event.RoomNameEvent)
+		nameEvent := e.(event.RoomNameEvent)
 		return nameEvent.Name, nil
 	}
 
 	// Step 2: Check for m.room.canonical_alias state event.
 	e, _ = c.RoomState(roomID, event.TypeRoomCanonicalAlias, "")
 	if e != nil {
-		content, err := e.Parse()
-		if err != nil {
-			return "", err
-		}
-		aliasEvent := content.(event.RoomCanonicalAliasEvent)
+		aliasEvent := e.(event.RoomCanonicalAliasEvent)
 		if aliasEvent.Alias != "" {
 			return aliasEvent.Alias, nil
 		}
@@ -68,12 +54,8 @@ func (c *Client) RoomName(roomID matrix.RoomID) (string, error) {
 		if len(heroes) == 5 {
 			break
 		}
-		content, err := v.Parse()
-		if err != nil {
-			return "", err
-		}
 
-		e := content.(event.RoomMemberEvent)
+		e := v.(event.RoomMemberEvent)
 		heroes = append(heroes, e.UserID)
 	}
 

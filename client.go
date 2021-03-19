@@ -16,6 +16,7 @@ import (
 // Client is an instance of a higher level client.
 type Client struct {
 	*api.Client
+
 	Filter  event.GlobalFilter
 	Handler Handler
 	State   State

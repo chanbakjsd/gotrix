@@ -4,12 +4,22 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
+var (
+	_ StateEvent = RoomCanonicalAliasEvent{}
+	_ StateEvent = RoomCreateEvent{}
+	_ StateEvent = RoomJoinRulesEvent{}
+	_ StateEvent = RoomMemberEvent{}
+	_ StateEvent = RoomPowerLevelsEvent{}
+	_ RoomEvent  = RoomRedactionEvent{}
+)
+
 // RoomCanonicalAliasEvent represents a state event where the alias (name) of the room is set.
 //
 // It has the type ID of `m.room.canonical_alias`.
 // It has a zero-length StateKey.
 type RoomCanonicalAliasEvent struct {
-	Event
+	RoomEventInfo
+
 	// The canonical alias for the room. May be empty.
 	Alias string `json:"alias,omitempty"`
 	// Alternative aliases the room advertises. It can be present even if Alias is empty.
@@ -23,7 +33,8 @@ type RoomCanonicalAliasEvent struct {
 //
 // It has the type ID of `m.room.create` and a zero-length StateKey.
 type RoomCreateEvent struct {
-	Event
+	RoomEventInfo
+
 	// The user ID of the room creator. This is set by the homeserver.
 	Creator matrix.UserID `json:"creator"`
 	// Whether users from other servers can join. Defaults to true.
@@ -36,7 +47,8 @@ type RoomCreateEvent struct {
 //
 // It has the type ID of `m.room.join_rules` and a zero-length StateKey.
 type RoomJoinRulesEvent struct {
-	Event
+	RoomEventInfo
+
 	// The new rules to be applied to users wishing to join the room.
 	JoinRule JoinRule `json:"join_rule"`
 }
@@ -59,9 +71,9 @@ const (
 //
 // It has the type ID of `m.room.member` and the StateKey of the user ID.
 type RoomMemberEvent struct {
-	Event
+	RoomEventInfo
 
-	// UserID is set by parser code as a copy of StateKey for easy access.
+	// The ID of the user for this event.
 	UserID matrix.UserID `json:"-"`
 	// The avatar URL of the user, if any.
 	AvatarURL string `json:"avatar_url,omitempty"`
@@ -105,7 +117,7 @@ const (
 //
 // It has the type ID of `m.room.power_levels` and a zero-length StateKey.
 type RoomPowerLevelsEvent struct {
-	Event
+	RoomEventInfo
 
 	// Ban, invite, kick and redact defaults to 50 if unspecified.
 	BanRequirement    *int `json:"ban,omitempty"`
@@ -138,37 +150,62 @@ type RoomPowerLevelsEvent struct {
 //
 // It has the type ID of `m.room.redaction`. The Redacts key will be present.
 type RoomRedactionEvent struct {
-	Event
+	RoomEventInfo
 
 	Reason string `json:"reason,omitempty"`
 }
 
-// ContentOf implements EventContent.
-func (e RoomCanonicalAliasEvent) ContentOf() Type {
+// Type satisfies StateEvent.
+func (RoomCanonicalAliasEvent) Type() Type {
 	return TypeRoomCanonicalAlias
 }
 
-// ContentOf implements EventContent.
-func (e RoomCreateEvent) ContentOf() Type {
+// StateKey satisfies StateEvent.
+func (RoomCanonicalAliasEvent) StateKey() string {
+	return ""
+}
+
+// Type satisfies StateEvent.
+func (RoomCreateEvent) Type() Type {
 	return TypeRoomCreate
 }
 
-// ContentOf implements EventContent.
-func (e RoomJoinRulesEvent) ContentOf() Type {
+// StateKey satisfies StateEvent.
+func (RoomCreateEvent) StateKey() string {
+	return ""
+}
+
+// Type satisfies StateEvent.
+func (RoomJoinRulesEvent) Type() Type {
 	return TypeRoomJoinRules
 }
 
-// ContentOf implements EventContent.
-func (e RoomMemberEvent) ContentOf() Type {
+// StateKey satisfies StateEvent.
+func (RoomJoinRulesEvent) StateKey() string {
+	return ""
+}
+
+// Type satisfies StateEvent.
+func (RoomMemberEvent) Type() Type {
 	return TypeRoomMember
 }
 
-// ContentOf implements EventContent.
-func (e RoomPowerLevelsEvent) ContentOf() Type {
+// StateKey satisfies StateEvent.
+func (e RoomMemberEvent) StateKey() string {
+	return string(e.UserID)
+}
+
+// Type satisfies StateEvent.
+func (RoomPowerLevelsEvent) Type() Type {
 	return TypeRoomPowerLevels
 }
 
-// ContentOf implements EventContent.
-func (e RoomRedactionEvent) ContentOf() Type {
+// StateKey satisfies StateEvent.
+func (RoomPowerLevelsEvent) StateKey() string {
+	return ""
+}
+
+// Type satisfies RoomEvent.
+func (RoomRedactionEvent) Type() Type {
 	return TypeRoomRedaction
 }

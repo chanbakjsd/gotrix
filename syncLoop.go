@@ -90,14 +90,17 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 			continue
 		}
 
-		handleWithRoomID := func(e []event.Event, roomID matrix.RoomID) {
+		handleWithRoomID := func(e []event.RawEvent, roomID matrix.RoomID) {
 			// Handle all events in the list.
 			for _, v := range e {
 				v := v
-				c.State.RoomEventSet(roomID, &v)
-
 				v.RoomID = roomID
 				concrete, err := v.Parse()
+
+				if stateEvent, ok := concrete.(event.StateEvent); ok {
+					_ = c.State.RoomStateSet(roomID, stateEvent)
+				}
+
 				switch {
 				case next == "":
 					// Don't handle historical events.
@@ -112,7 +115,7 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 				c.Handler.Handle(c, concrete)
 			}
 		}
-		handle := func(e []event.Event) {
+		handle := func(e []event.RawEvent) {
 			handleWithRoomID(e, "")
 		}
 
@@ -126,9 +129,9 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 			handleWithRoomID(v.AccountData.Events, k)
 		}
 		for k, v := range resp.Rooms.Invited {
-			events := make([]event.Event, len(v.State.Events))
+			events := make([]event.RawEvent, len(v.State.Events))
 			for k, v := range v.State.Events {
-				events[k] = v.Event
+				events[k] = v.RawEvent
 			}
 			handleWithRoomID(events, k)
 		}
