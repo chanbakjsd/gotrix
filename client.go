@@ -9,6 +9,7 @@ import (
 	"github.com/chanbakjsd/gotrix/api"
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/event"
+	"github.com/chanbakjsd/gotrix/state"
 )
 
 // Client is an instance of a higher level client.
@@ -16,6 +17,7 @@ type Client struct {
 	*api.Client
 	Filter  event.GlobalFilter
 	Handler Handler
+	State   State
 
 	nextRetryTime int
 	shouldClose   bool
@@ -51,5 +53,6 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 		Handler: &defaultHandler{
 			handlers: make(map[event.Type][]reflect.Value),
 		},
+		State: state.NewDefault(),
 	}, nil
 }

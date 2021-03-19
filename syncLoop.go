@@ -86,6 +86,9 @@ func (c *Client) readLoop(filter string) {
 		handleWithRoomID := func(e []event.Event, roomID matrix.RoomID) {
 			// Handle all events in the list.
 			for _, v := range e {
+				v := v
+				c.State.RoomEventSet(roomID, &v)
+
 				v.RoomID = roomID
 				concrete, err := v.Parse()
 				switch {
