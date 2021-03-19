@@ -1,6 +1,7 @@
 package gotrix
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -18,9 +19,6 @@ const (
 	syncTimeout          = 5000
 )
 
-// ErrAlreadyClosed is the error returned by (*Client).Close() when called again.
-var ErrAlreadyClosed = errors.New("client already closed")
-
 // DefaultFilter is the default filter used by the client.
 var DefaultFilter = event.GlobalFilter{
 	Room: event.RoomFilter{
@@ -35,40 +33,49 @@ var DefaultFilter = event.GlobalFilter{
 	},
 }
 
-// Open starts the event loop of the client.
+// Open starts the event loop of the client with a background context.
 func (c *Client) Open() error {
+	return c.OpenCtx(context.Background())
+}
+
+// OpenCtx starts the event loop of the client with the provided context.
+func (c *Client) OpenCtx(ctx context.Context) error {
 	c.closeDone = make(chan struct{})
+	ctx, c.cancelFunc = context.WithCancel(ctx)
+
 	filterID, err := c.FilterAdd(c.Filter)
 	if err != nil {
 		return err
 	}
-	go c.readLoop(filterID)
+	go c.readLoop(ctx, filterID)
 
 	return nil
 }
 
 // Close signals to the event loop to stop and wait for it to finish.
 func (c *Client) Close() error {
-	if c.shouldClose {
-		return ErrAlreadyClosed
-	}
-	c.shouldClose = true
+	c.cancelFunc()
 	<-c.closeDone
 
 	return nil
 }
 
-func (c *Client) readLoop(filter string) {
+func (c *Client) readLoop(ctx context.Context, filter string) {
 	next := ""
-	for !c.shouldClose {
+	for {
 		// Fetch next set of events.
 		debug.Debug("Fetching new events. Next: " + next)
-		resp, err := c.Sync(api.SyncArg{
+		resp, err := c.WithContext(ctx).Sync(api.SyncArg{
 			Filter:  filter,
 			Since:   next,
 			Timeout: syncTimeout,
 		})
 		if err != nil {
+			if ctx.Err() != nil {
+				// The context has finished.
+				close(c.closeDone)
+				return
+			}
 			// Exponentially backoff with a cap of 5 minutes.
 			c.nextRetryTime *= 2
 			if c.nextRetryTime < minBackoffTime {
@@ -133,6 +140,4 @@ func (c *Client) readLoop(filter string) {
 
 		next = resp.NextBatch
 	}
-
-	c.closeDone <- struct{}{}
 }

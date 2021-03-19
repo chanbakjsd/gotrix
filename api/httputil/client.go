@@ -2,6 +2,7 @@ package httputil
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -25,12 +26,15 @@ type Client struct {
 	// HomeServerScheme is the scheme to talk to homeserver on.
 	// It is https most of the time.
 	HomeServerScheme string
+
+	ctx context.Context
 }
 
 // NewClient creates a new Client that uses the default HTTP client.
 func NewClient() Client {
 	return Client{
 		ClientDriver: http.DefaultClient,
+		ctx:          context.Background(),
 	}
 }
 
@@ -41,13 +45,21 @@ func NewCustomClient(d ClientDriver) Client {
 	}
 }
 
+// WithContext creates a copy of Client that uses the provided context during request creation.
+func (c Client) WithContext(ctx context.Context) Client {
+	c.ctx = ctx
+	return c
+}
+
 // Request makes the request and returns the result.
 //
 // It may return any HTTP request errors or a matrix.HTTPError which may possibly
 // wrap a matrix.APIError.
 func (c *Client) Request(method, route string, to interface{}, mods ...Modifier) error {
 	// Generate the request.
-	req, err := http.NewRequest(method, c.HomeServerScheme+"://"+c.HomeServer+"/"+route, nil)
+	req, err := http.NewRequestWithContext(
+		c.ctx, method, c.HomeServerScheme+"://"+c.HomeServer+"/"+route, nil,
+	)
 	if err != nil {
 		return err
 	}

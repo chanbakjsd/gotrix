@@ -1,6 +1,7 @@
 package gotrix
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"reflect"
@@ -20,7 +21,7 @@ type Client struct {
 	State   State
 
 	nextRetryTime int
-	shouldClose   bool
+	cancelFunc    func()
 	closeDone     chan struct{}
 }
 
@@ -55,4 +56,10 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 		},
 		State: state.NewDefault(),
 	}, nil
+}
+
+// WithContext creates a copy of the client that uses the provided context.
+func (c Client) WithContext(ctx context.Context) *Client {
+	c.Client = c.Client.WithContext(ctx)
+	return &c
 }

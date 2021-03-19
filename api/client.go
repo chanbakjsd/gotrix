@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -21,6 +22,12 @@ type Client struct {
 	IdentityServer string
 	UserID         matrix.UserID
 	DeviceID       matrix.DeviceID
+}
+
+// WithContext creates a copy of Client that uses the provided context when creating a HTTP request.
+func (c Client) WithContext(ctx context.Context) *Client {
+	c.Client = c.Client.WithContext(ctx)
+	return &c
 }
 
 // Whoami queries the homeserver to check if the token is still valid.
