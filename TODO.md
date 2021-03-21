@@ -21,12 +21,12 @@ Core specification includes anything that are not modules and the spec deem nece
 [ ] Rooms
 	[X] Creation
 	[X] Room Aliases
-	[ ] Room Membership
+	[X] Room Membership
 		[X] Joining
 		[X] Leaving
-		[ ] Kick
-		[ ] Ban
-		[ ] Unban
+		[X] Kick
+		[X] Ban
+		[X] Unban
 	[ ] Listing Rooms
 [ ] User Data
 [X] Rate Limiting

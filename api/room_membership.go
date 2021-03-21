@@ -27,6 +27,21 @@ var (
 // It is returned by (*Client).Forget.
 var ErrUserStillInRoom = errors.New("cannot forget room that the user is in")
 
+// ErrNoKickPerm represents an error where the client tried to kick a user without sufficient permission.
+//
+// It is returned by (*Client).Kick.
+var ErrNoKickPerm = errors.New("cannot kick the user from the room due to insufficient permission")
+
+// ErrNoBanPerm represents an error where the client tried to ban a user without sufficient permission.
+//
+// It is returned by (*Client).Ban.
+var ErrNoBanPerm = errors.New("cannot ban the user from the room due to insufficient permission")
+
+// ErrNoUnbanPerm represents an error where the client tried to ban a user without sufficient permission.
+//
+// It is returned by (*Client).Unban.
+var ErrNoUnbanPerm = errors.New("cannot unban the user from the room due to insufficient permission")
+
 // Rooms returns a list of the user's current rooms.
 //
 // It implements the `GET /_matrix/client/r0/joined_rooms` endpoint.
@@ -101,6 +116,77 @@ func (c *Client) RoomForget(roomID matrix.RoomID) error {
 	switch matrix.StatusCode(err) {
 	case 400:
 		return ErrUserStillInRoom
+	default:
+		return err
+	}
+}
+
+// Kick kicks the user from the provided room.
+//
+// It implements the `POST /_matrix/client/r0/rooms/{roomId}/kick` endpoint.
+func (c *Client) Kick(roomID matrix.RoomID, userID matrix.UserID, reason string) error {
+	param := struct {
+		UserID matrix.UserID `json:"user_id"`
+		Reason string        `json:"reason,omitempty"`
+	}{userID, reason}
+
+	err := c.Request(
+		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/kick", nil,
+		httputil.WithToken(), httputil.WithBody(param),
+	)
+	if err == nil {
+		return nil
+	}
+	switch matrix.StatusCode(err) {
+	case 403:
+		return ErrNoKickPerm
+	default:
+		return err
+	}
+}
+
+// Ban bans the user from the provided room.
+//
+// It implements the `POST /_matrix/client/r0/rooms/{roomId}/ban` endpoint.
+func (c *Client) Ban(roomID matrix.RoomID, userID string, reason string) error {
+	param := struct {
+		UserID matrix.UserID `json:"user_id"`
+		Reason string        `json:"reason,omitempty"`
+	}{userID, reason}
+
+	err := c.Request(
+		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/ban", nil,
+		httputil.WithToken(), httputil.WithBody(param),
+	)
+	if err == nil {
+		return nil
+	}
+	switch matrix.StatusCode(err) {
+	case 403:
+		return ErrNoBanPerm
+	default:
+		return err
+	}
+}
+
+// Unban unbans the user from the provided room.
+//
+// It implements the `POST /_matrix/client/r0/rooms/{roomId}/unban` endpoint.
+func (c *Client) Unban(roomID matrix.RoomID, userID string) error {
+	param := struct {
+		UserID matrix.UserID `json:"user_id"`
+	}{userID}
+
+	err := c.Request(
+		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/unban", nil,
+		httputil.WithToken(), httputil.WithBody(param),
+	)
+	if err == nil {
+		return nil
+	}
+	switch matrix.StatusCode(err) {
+	case 403:
+		return ErrNoUnbanPerm
 	default:
 		return err
 	}
