@@ -148,7 +148,7 @@ func (c *Client) Kick(roomID matrix.RoomID, userID matrix.UserID, reason string)
 // Ban bans the user from the provided room.
 //
 // It implements the `POST /_matrix/client/r0/rooms/{roomId}/ban` endpoint.
-func (c *Client) Ban(roomID matrix.RoomID, userID string, reason string) error {
+func (c *Client) Ban(roomID matrix.RoomID, userID matrix.UserID, reason string) error {
 	param := struct {
 		UserID matrix.UserID `json:"user_id"`
 		Reason string        `json:"reason,omitempty"`
@@ -172,7 +172,7 @@ func (c *Client) Ban(roomID matrix.RoomID, userID string, reason string) error {
 // Unban unbans the user from the provided room.
 //
 // It implements the `POST /_matrix/client/r0/rooms/{roomId}/unban` endpoint.
-func (c *Client) Unban(roomID matrix.RoomID, userID string) error {
+func (c *Client) Unban(roomID matrix.RoomID, userID matrix.UserID) error {
 	param := struct {
 		UserID matrix.UserID `json:"user_id"`
 	}{userID}

@@ -14,8 +14,8 @@ import (
 
 const (
 	eventsToFetchPerRoom = 50
-	minBackoffTime       = 1
-	maxBackoffTime       = 300
+	minBackoffTime       = 1 * time.Second
+	maxBackoffTime       = 300 * time.Second
 	syncTimeout          = 5000
 )
 
@@ -61,11 +61,49 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) readLoop(ctx context.Context, filter string) {
+	client := c.WithContext(ctx)
 	next := ""
+
+	handleWithRoomID := func(e []event.RawEvent, roomID matrix.RoomID) {
+		// Handle all events in the list.
+		for _, v := range e {
+			v := v
+			v.RoomID = roomID
+			concrete, err := v.Parse()
+
+			if stateEvent, ok := concrete.(event.StateEvent); ok {
+				_ = c.State.RoomStateSet(roomID, stateEvent)
+			}
+
+			switch {
+			case next == "":
+				// Don't handle historical events.
+				continue
+			case errors.Is(err, event.ErrUnknownEventType):
+				debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
+				continue
+			case err != nil:
+				debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
+				continue
+			}
+			c.Handler.Handle(c, concrete)
+		}
+	}
+	handle := func(e []event.RawEvent) {
+		handleWithRoomID(e, "")
+	}
+
+	var nextRetryTime time.Duration
+
+	timer := time.NewTimer(0)
+	defer timer.Stop()
+
+	<-timer.C
+
 	for {
 		// Fetch next set of events.
 		debug.Debug("Fetching new events. Next: " + next)
-		resp, err := c.WithContext(ctx).Sync(api.SyncArg{
+		resp, err := client.Sync(api.SyncArg{
 			Filter:  filter,
 			Since:   next,
 			Timeout: syncTimeout,
@@ -77,46 +115,22 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 				return
 			}
 			// Exponentially backoff with a cap of 5 minutes.
-			c.nextRetryTime *= 2
-			if c.nextRetryTime < minBackoffTime {
-				c.nextRetryTime = minBackoffTime
+			nextRetryTime *= 2
+			if nextRetryTime < minBackoffTime {
+				nextRetryTime = minBackoffTime
 			}
-			if c.nextRetryTime > maxBackoffTime {
-				c.nextRetryTime = maxBackoffTime
+			if nextRetryTime > maxBackoffTime {
+				nextRetryTime = maxBackoffTime
 			}
 
-			debug.Error(fmt.Errorf("error in event loop (retrying in %d seconds): %w", c.nextRetryTime, err))
-			time.Sleep(time.Duration(c.nextRetryTime) * time.Second)
-			continue
-		}
-
-		handleWithRoomID := func(e []event.RawEvent, roomID matrix.RoomID) {
-			// Handle all events in the list.
-			for _, v := range e {
-				v := v
-				v.RoomID = roomID
-				concrete, err := v.Parse()
-
-				if stateEvent, ok := concrete.(event.StateEvent); ok {
-					_ = c.State.RoomStateSet(roomID, stateEvent)
-				}
-
-				switch {
-				case next == "":
-					// Don't handle historical events.
-					continue
-				case errors.Is(err, event.ErrUnknownEventType):
-					debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
-					continue
-				case err != nil:
-					debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
-					continue
-				}
-				c.Handler.Handle(c, concrete)
+			debug.Error(fmt.Errorf("error in event loop (retrying in %s): %w", nextRetryTime, err))
+			timer.Reset(nextRetryTime)
+			select {
+			case <-timer.C:
+				continue
+			case <-ctx.Done():
+				return
 			}
-		}
-		handle := func(e []event.RawEvent) {
-			handleWithRoomID(e, "")
 		}
 
 		handle(resp.Presence.Events)

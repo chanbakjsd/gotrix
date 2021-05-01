@@ -3,6 +3,7 @@ package gotrix
 import (
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/chanbakjsd/gotrix/debug"
 	"github.com/chanbakjsd/gotrix/event"
@@ -20,12 +21,17 @@ func (c *Client) AddHandler(function interface{}) error {
 }
 
 type defaultHandler struct {
+	mut      sync.RWMutex
 	handlers map[event.Type][]reflect.Value
 }
 
 func (d *defaultHandler) Handle(cli *Client, event event.Event) {
-	handlers, ok := d.handlers[event.Type()]
 	debug.Debug("new event: " + event.Type())
+
+	d.mut.RLock()
+	defer d.mut.RUnlock()
+
+	handlers, ok := d.handlers[event.Type()]
 	if !ok {
 		return
 	}
@@ -62,11 +68,15 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	// Get event type
 	eventType := content.Type()
 
+	d.mut.Lock()
+	defer d.mut.Unlock()
+
 	// Add it to the list of handlers
 	if _, ok := d.handlers[eventType]; !ok {
 		d.handlers[eventType] = make([]reflect.Value, 0, 1)
 	}
 	d.handlers[eventType] = append(d.handlers[eventType], val)
+
 	debug.Debug("added handler: event=" + eventType)
 	return nil
 }
