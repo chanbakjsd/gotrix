@@ -21,9 +21,8 @@ type Client struct {
 	Handler Handler
 	State   State
 
-	nextRetryTime int
-	cancelFunc    func()
-	closeDone     chan struct{}
+	cancelFunc func()
+	closeDone  chan struct{}
 }
 
 // New creates a client with the provided host URL and the default HTTP client.
