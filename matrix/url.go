@@ -16,8 +16,6 @@ var (
 // URL is a URI which is likely to be MXC URI.
 type URL string
 
-// TODO Maybe provide a method to convert it to a normal HTTP.
-
 // GeoURI is a geographic URI.
 type GeoURI string
 
