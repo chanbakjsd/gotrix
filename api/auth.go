@@ -67,7 +67,7 @@ func (c *Client) Login(arg LoginArg) error {
 		DeviceID    matrix.DeviceID       `json:"device_id"`
 		WellKnown   DiscoveryInfoResponse `json:"well_known"`
 	}
-	err := c.Request("POST", "_matrix/client/r0/login", &resp, httputil.WithBody(arg))
+	err := c.Request("POST", "_matrix/client/r0/login", &resp, httputil.WithJSONBody(arg))
 	if err != nil {
 		return fmt.Errorf("error logging in: %w", matrix.MapAPIError(
 			err, matrix.ErrorMap{

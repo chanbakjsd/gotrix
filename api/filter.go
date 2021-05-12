@@ -19,7 +19,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 	err := c.Request(
 		"POST", "_matrix/client/r0/user/"+url.PathEscape(string(c.UserID))+"/filter", &resp,
 		httputil.WithToken(),
-		httputil.WithBody(filterToUpload),
+		httputil.WithJSONBody(filterToUpload),
 	)
 	if err != nil {
 		return "", fmt.Errorf("error adding filter: %w", err)

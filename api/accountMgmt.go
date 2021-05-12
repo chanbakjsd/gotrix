@@ -32,7 +32,7 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) (*UserIn
 		err := c.Request(
 			"POST", "_matrix/client/r0/account/password", to,
 			httputil.WithToken(),
-			httputil.WithBody(req),
+			httputil.WithJSONBody(req),
 		)
 		return matrix.MapAPIError(err, matrix.ErrorMap{
 			matrix.CodeWeakPassword: ErrNewPasswordTooWeak,
@@ -41,7 +41,7 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) (*UserIn
 	uiaa.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
 			"POST", "_matrix/client/r0/account/password/"+authType+"/requestToken",
-			httputil.WithBody(auth),
+			httputil.WithJSONBody(auth),
 		)
 	}
 	err := uiaa.Auth(nil)
@@ -73,7 +73,7 @@ func (c *Client) DeactivateAccount(idServer string) (InteractiveDeactivate, erro
 		return c.Request(
 			"POST", "_matrix/client/r0/account/deactivate", to,
 			httputil.WithToken(),
-			httputil.WithBody(req),
+			httputil.WithJSONBody(req),
 		)
 	}
 	err := uiaa.Auth(nil)

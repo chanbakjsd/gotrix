@@ -72,7 +72,7 @@ func (c *Client) RoomCreate(arg RoomCreateArg) (matrix.RoomID, error) {
 	}{}
 	err := c.Request(
 		"POST", "_matrix/client/r0/createRoom", resp,
-		httputil.WithToken(), httputil.WithBody(arg),
+		httputil.WithToken(), httputil.WithJSONBody(arg),
 	)
 	if err != nil {
 		return "", fmt.Errorf(

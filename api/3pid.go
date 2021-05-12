@@ -50,14 +50,14 @@ func (c *Client) ThreePIDAdd(clientSecret string, sessionID string) (*UserIntera
 		req.Auth = auth
 		return c.Request(
 			"POST", "_matrix/client/r0/account/3pid/add", to,
-			httputil.WithBody(req),
+			httputil.WithJSONBody(req),
 			httputil.WithToken(),
 		)
 	}
 	uiaa.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
 			"POST", "_matrix/client/r0/account/3pid/"+authType+"/requestToken", to,
-			httputil.WithBody(auth),
+			httputil.WithJSONBody(auth),
 		)
 	}
 
@@ -82,7 +82,7 @@ func (c *Client) ThreePIDBind(req ThreePIDBindArg) error {
 	err := c.Request(
 		"POST", "_matrix/client/r0/account/3pid/bind", nil,
 		httputil.WithToken(),
-		httputil.WithBody(req),
+		httputil.WithJSONBody(req),
 	)
 	if err != nil {
 		return fmt.Errorf("error binding 3PID: %w", err)
@@ -108,7 +108,7 @@ func (c *Client) ThreePIDDelete(req ThreePIDDeleteArg) (matrix.IDServerUnbindRes
 	err := c.Request(
 		"POST", "_matrix/client/r0/account/3pid/delete", &resp,
 		httputil.WithToken(),
-		httputil.WithBody(req),
+		httputil.WithJSONBody(req),
 	)
 	if err != nil {
 		return "", fmt.Errorf("error deleting 3PID: %w", err)
@@ -135,7 +135,7 @@ func (c *Client) ThreePIDUnbind(req ThreePIDUnbindArg) (matrix.IDServerUnbindRes
 	err := c.Request(
 		"POST", "_matrix/client/r0/account/3pid/unbind", &resp,
 		httputil.WithToken(),
-		httputil.WithBody(req),
+		httputil.WithJSONBody(req),
 	)
 	if err != nil {
 		return "", fmt.Errorf("error unbinding 3PID: %w", err)

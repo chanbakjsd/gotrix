@@ -70,7 +70,7 @@ func (c *Client) RoomAliasCreate(alias string, roomID matrix.RoomID) error {
 	}
 	err := c.Request(
 		"PUT", "_matrix/client/r0/directory/room/"+url.PathEscape(alias), nil,
-		httputil.WithToken(), httputil.WithBody(req),
+		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 
 	if matrix.StatusCode(err) == http.StatusGone {

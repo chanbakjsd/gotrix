@@ -65,7 +65,7 @@ func (c *Client) Invite(roomID matrix.RoomID, userID matrix.UserID) error {
 	}{string(userID)}
 	err := c.Request(
 		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/invite", nil,
-		httputil.WithToken(), httputil.WithBody(body),
+		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	return matrix.MapAPIError(err, matrix.ErrorMap{
 		// matrix.CodeBadJSON, matrix.CodeNotJSON shouldn't happen.
@@ -132,7 +132,7 @@ func (c *Client) Kick(roomID matrix.RoomID, userID matrix.UserID, reason string)
 
 	err := c.Request(
 		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/kick", nil,
-		httputil.WithToken(), httputil.WithBody(param),
+		httputil.WithToken(), httputil.WithJSONBody(param),
 	)
 	if err == nil {
 		return nil
@@ -156,7 +156,7 @@ func (c *Client) Ban(roomID matrix.RoomID, userID matrix.UserID, reason string) 
 
 	err := c.Request(
 		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/ban", nil,
-		httputil.WithToken(), httputil.WithBody(param),
+		httputil.WithToken(), httputil.WithJSONBody(param),
 	)
 	if err == nil {
 		return nil
@@ -179,7 +179,7 @@ func (c *Client) Unban(roomID matrix.RoomID, userID matrix.UserID) error {
 
 	err := c.Request(
 		"POST", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/unban", nil,
-		httputil.WithToken(), httputil.WithBody(param),
+		httputil.WithToken(), httputil.WithJSONBody(param),
 	)
 	if err == nil {
 		return nil

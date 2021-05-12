@@ -54,7 +54,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 		req.Auth = auth
 		err := c.Request(
 			"POST", "_matrix/client/r0/register", to,
-			httputil.WithBody(req),
+			httputil.WithJSONBody(req),
 			httputil.WithQuery(map[string]string{
 				"kind": kind,
 			}),
@@ -71,7 +71,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 	ir.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
 			"POST", "_matrix/client/r0/register/"+authType+"/requestToken",
-			httputil.WithBody(auth),
+			httputil.WithJSONBody(auth),
 		)
 	}
 

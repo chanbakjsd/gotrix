@@ -30,7 +30,7 @@ func (c *Client) RoomStateSend(roomID matrix.RoomID, event RoomStateSendArg) (*m
 		EventID *matrix.EventID `json:"event_id"`
 	}
 
-	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithBody(event.Content))
+	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithJSONBody(event.Content))
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error sending state event: %w",
@@ -52,7 +52,7 @@ func (c *Client) RoomEventSend(roomID matrix.RoomID, eventType event.Type, body 
 		EventID matrix.EventID `json:"event_id"`
 	}
 
-	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithBody(body))
+	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithJSONBody(body))
 	if err != nil {
 		return "", fmt.Errorf(
 			"error sending room event: %w",
@@ -79,7 +79,7 @@ func (c *Client) RoomEventRedact(roomID matrix.RoomID, eventID matrix.EventID, r
 	if reason == "" {
 		err = c.Request("PUT", path, &resp, httputil.WithToken())
 	} else {
-		err = c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithBody(struct {
+		err = c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithJSONBody(struct {
 			Reason string `json:"reason"`
 		}{
 			Reason: reason,
