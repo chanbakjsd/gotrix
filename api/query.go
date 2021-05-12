@@ -71,7 +71,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/state` endpoint.
 func (c *Client) RoomStates(roomID matrix.RoomID) (*[]event.RawEvent, error) {
-	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID))
+	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/state"
 
 	resp := &[]event.RawEvent{}
 	err := c.Request("GET", path, resp, httputil.WithToken())
@@ -100,7 +100,7 @@ type RoomMemberFilter struct {
 //
 // It implements the `GET _matrix/client/r0/rooms/{roomId}/members` endpoint.
 func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) (*[]event.RoomMemberEvent, error) {
-	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID))
+	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/members"
 	var resp struct {
 		Chunk *[]event.RoomMemberEvent `json:"chunk,omitempty"`
 	}
@@ -130,13 +130,13 @@ func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) (*[]
 
 // RoomMember represents a member in a room as returned by (*Client).RoomJoinedMembers.
 type RoomMember struct {
-	DisplayName string `json:"display_name"`
-	AvatarURL   string `json:"avatar_url"`
+	DisplayName string     `json:"display_name"`
+	AvatarURL   matrix.URL `json:"avatar_url"`
 }
 
 // RoomJoinedMembers fetches all the joined members and return them as a map of user ID to room member.
 //
-// It implements the `GET _matrix/client/r0/rooms/{roomId}/joinedMembers` endpoint.
+// It implements the `GET _matrix/client/r0/rooms/{roomId}/joined_members` endpoint.
 func (c *Client) RoomJoinedMembers(roomID matrix.RoomID) (*map[matrix.UserID]RoomMember, error) {
 	resp := &map[matrix.UserID]RoomMember{}
 	err := c.Request(

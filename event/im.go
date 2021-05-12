@@ -33,8 +33,8 @@ type RoomTopicEvent struct {
 // It has the type ID of `m.room.avatar` and a zero-length state key.
 type RoomAvatarEvent struct {
 	RoomEventInfo
-	Info ImageInfo `json:"info,omitempty"`
-	URL  string    `json:"url"`
+	Info ImageInfo  `json:"info,omitempty"`
+	URL  matrix.URL `json:"url"`
 }
 
 // RoomPinnedEvent represents a state event where the list of events pinned are modified.
