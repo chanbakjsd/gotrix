@@ -74,8 +74,7 @@ var (
 		return EndpointRoom(roomID) + "/redact/" + url.PathEscape(string(eventID)) + "/" + url.PathEscape(transactionID)
 	}
 	EndpointRoomSend = func(roomID matrix.RoomID, eventType event.Type, transactionID string) string {
-		return EndpointRoom(roomID) + "/send/" + url.PathEscape(string(eventType)) + "/send/" +
-			url.PathEscape(transactionID)
+		return EndpointRoom(roomID) + "/send/" + url.PathEscape(string(eventType)) + "/" + url.PathEscape(transactionID)
 	}
 	EndpointRoomTyping = func(roomID matrix.RoomID, userID matrix.UserID) string {
 		return EndpointRoom(roomID) + "/typing/" + url.PathEscape(string(userID))
