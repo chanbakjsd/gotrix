@@ -105,4 +105,8 @@ var (
 	}
 
 	EndpointVOIPTurnServers = EndpointMedia + "/voip/turnServer"
+
+	EndpointPresenceStatus = func(userID matrix.UserID) string {
+		return EndpointBase + "/presence/" + url.PathEscape(string(userID)) + "/status"
+	}
 )

@@ -3,6 +3,7 @@ package event
 import (
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -117,6 +118,13 @@ func (e RawEvent) Parse() (Event, error) {
 			RoomID: e.RoomID,
 		}
 		err := json.Unmarshal(e.Content, &c.Events)
+		return c, err
+	case TypePresence:
+		c := PresenceEvent{
+			User:        e.Sender,
+			receiveTime: time.Now(),
+		}
+		err := json.Unmarshal(e.Content, &c)
 		return c, err
 	}
 

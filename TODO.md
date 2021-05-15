@@ -40,7 +40,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [X] Typing Notifications
 [X] Receipts
 [ ] Fully Read Marker
-[ ] Presence (Online/Unavailable/Offline)
+[X] Presence (Online/Unavailable/Offline)
 [X] Content Repository
 [ ] Send-to-Device Messaging
 [ ] Device Management

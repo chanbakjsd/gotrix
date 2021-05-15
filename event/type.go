@@ -31,4 +31,7 @@ const (
 
 	// Events from Receipts module.
 	TypeReceipt Type = "m.receipt"
+
+	// Events from Presence module.
+	TypePresence Type = "m.presence"
 )
