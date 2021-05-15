@@ -43,4 +43,7 @@ const (
 
 	// Events from the Guest Access module.
 	TypeRoomGuestAccess Type = "m.room.guest_access"
+
+	// Events from the Room Upgrade module.
+	TypeRoomTombstone Type = "m.room.tombstone"
 )

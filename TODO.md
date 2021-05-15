@@ -71,6 +71,6 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] OpenID
 [ ] Server ACL
 [X] User, Room and Group mentions
-[ ] Room Upgrades
+[X] Room Upgrades
 [ ] Server Notices
 [ ] Moderation Policy

@@ -61,6 +61,7 @@ var (
 	EndpointRoomMessages      = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/messages" }
 	EndpointRoomState         = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/state" }
 	EndpointRoomUnban         = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/unban" }
+	EndpointRoomUpgrade       = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/upgrade" }
 	EndpointRoomEvent         = func(roomID matrix.RoomID, eventID matrix.EventID) string {
 		return EndpointRoom(roomID) + "/event/" + url.PathEscape(string(eventID))
 	}

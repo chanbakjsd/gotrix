@@ -142,6 +142,12 @@ func (e RawEvent) Parse() (Event, error) {
 		var c DirectEvent
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
+	case TypeRoomTombstone:
+		c := RoomTombstoneEvent{
+			RoomEventInfo: e.toRoomEventInfo(),
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
 	}
 
 	return nil, ErrUnknownEventType
