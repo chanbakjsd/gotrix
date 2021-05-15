@@ -81,6 +81,12 @@ var (
 		return EndpointDirectory + "/list/room/" + url.PathEscape(string(roomID))
 	}
 
+	EndpointUserDirectorySearch = EndpointBase + "/user_directory/search"
+
+	EndpointProfile            = func(userID matrix.UserID) string { return EndpointBase + "/profile/" + url.PathEscape(string(userID)) }
+	EndpointProfileAvatarURL   = func(userID matrix.UserID) string { return EndpointProfile(userID) + "/avatar_url" }
+	EndpointProfileDisplayName = func(userID matrix.UserID) string { return EndpointProfile(userID) + "/displayname" }
+
 	EndpointMedia           = "_matrix/media/" + Version
 	EndpointMediaConfig     = EndpointMedia + "/config"
 	EndpointMediaPreviewURL = EndpointMedia + "/preview_url"

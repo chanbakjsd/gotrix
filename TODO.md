@@ -28,7 +28,7 @@ Core specification includes anything that are not modules and the spec deem nece
 		[X] Ban
 		[X] Unban
 	[X] Listing Rooms
-[ ] User Data
+[X] User Data
 [X] Rate Limiting
 
 # Modules
