@@ -109,4 +109,12 @@ var (
 	EndpointPresenceStatus = func(userID matrix.UserID) string {
 		return EndpointBase + "/presence/" + url.PathEscape(string(userID)) + "/status"
 	}
+
+	EndpointAccountDataGlobal = func(userID matrix.UserID, dataType string) string {
+		return EndpointBase + "/user/" + url.PathEscape(string(userID)) + "/account_data/" + url.PathEscape(dataType)
+	}
+	EndpointAccountDataRoom = func(userID matrix.UserID, roomID matrix.RoomID, dataType string) string {
+		return EndpointBase + "/user/" + url.PathEscape(string(userID)) + "/rooms/" + url.PathEscape(string(roomID)) +
+			"/account_data/" + url.PathEscape(dataType)
+	}
 )

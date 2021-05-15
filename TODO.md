@@ -59,7 +59,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] Guest Access
 [ ] Room Previews
 [ ] Room Tagging
-[ ] Client Config
+[X] Client Config
 [ ] Server Administration
 [ ] Event Context
 [ ] SSO Client Login
