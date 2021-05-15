@@ -67,6 +67,9 @@ var (
 	EndpointRoomStateExact = func(roomID matrix.RoomID, eventType event.Type, stateKey string) string {
 		return EndpointRoomState(roomID) + "/" + url.PathEscape(string(eventType)) + "/" + url.PathEscape(stateKey)
 	}
+	EndpointRoomReceipt = func(roomID matrix.RoomID, receiptType ReceiptType, eventID matrix.EventID) string {
+		return EndpointRoomState(roomID) + "/" + url.PathEscape(string(receiptType)) + "/" + url.PathEscape(string(eventID))
+	}
 	EndpointRoomRedact = func(roomID matrix.RoomID, eventID matrix.EventID, transactionID string) string {
 		return EndpointRoom(roomID) + "/redact/" + url.PathEscape(string(eventID)) + "/" + url.PathEscape(transactionID)
 	}

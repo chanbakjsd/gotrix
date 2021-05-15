@@ -112,6 +112,12 @@ func (e RawEvent) Parse() (Event, error) {
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
+	case TypeReceipt:
+		c := ReceiptEvent{
+			RoomID: e.RoomID,
+		}
+		err := json.Unmarshal(e.Content, &c.Events)
+		return c, err
 	}
 
 	return nil, ErrUnknownEventType

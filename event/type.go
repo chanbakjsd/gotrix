@@ -28,4 +28,7 @@ const (
 
 	// Events from Typing Notifications module.
 	TypeTyping Type = "m.typing"
+
+	// Events from Receipts module.
+	TypeReceipt Type = "m.receipt"
 )
