@@ -34,4 +34,7 @@ const (
 
 	// Events from Presence module.
 	TypePresence Type = "m.presence"
+
+	// Events from the History Visibility module.
+	TypeRoomHistoryVisibility Type = "m.room.history_visibility"
 )

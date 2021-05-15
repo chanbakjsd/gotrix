@@ -56,6 +56,10 @@ type RoomCreateInvite struct {
 }
 
 // RoomCreate creates the room with the provided arguments.
+//
+// Note: For backwards compatibility reasons, the default setting for history visibility is such that users
+// can view all messages as long as they were a member at some point. This might be undesirable and the client
+// should prompt the user to decide, sending RoomHistoryVisibilityEvent as necessary.
 func (c *Client) RoomCreate(arg RoomCreateArg) (matrix.RoomID, error) {
 	resp := &struct {
 		RoomID matrix.RoomID `json:"room_id"`

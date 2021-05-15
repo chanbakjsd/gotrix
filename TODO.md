@@ -52,7 +52,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 	[ ] Key Sharing
 	[ ] Curve25519 Message Encryption
 	[ ] MegOlm Message Encryption
-[ ] History Visibility
+[X] History Visibility
 [ ] Push Notification
 [ ] Third Party Invites
 [ ] Server Side Search
