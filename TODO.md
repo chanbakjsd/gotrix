@@ -70,7 +70,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] Third Party Networks
 [ ] OpenID
 [ ] Server ACL
-[ ] User, Room and Group mentions
+[X] User, Room and Group mentions
 [ ] Room Upgrades
 [ ] Server Notices
 [ ] Moderation Policy
