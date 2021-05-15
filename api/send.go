@@ -1,17 +1,12 @@
 package api
 
 import (
-	"errors"
 	"fmt"
-	"net/url"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
-
-// ErrNoSendPerm represents an error where the user does not have permission to send an event to a room.
-var ErrNoSendPerm = errors.New("no permission to send event")
 
 // RoomStateSendArg represents all required arguments to (*Client).RoomStateSend.
 type RoomStateSendArg struct {
@@ -21,77 +16,60 @@ type RoomStateSendArg struct {
 }
 
 // RoomStateSend sends the provided state event to the provided room ID.
-//
-// It implements the `PUT _matrix/client/r0/rooms/{roomId}/state/{eventType}/{stateKey}` endpoint.
-func (c *Client) RoomStateSend(roomID matrix.RoomID, event RoomStateSendArg) (*matrix.EventID, error) {
-	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/state/" +
-		url.PathEscape(string(event.Type)) + "/" + url.PathEscape(event.StateKey)
+func (c *Client) RoomStateSend(roomID matrix.RoomID, event RoomStateSendArg) (matrix.EventID, error) {
 	var resp struct {
-		EventID *matrix.EventID `json:"event_id"`
+		EventID matrix.EventID `json:"event_id"`
 	}
-
-	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithJSONBody(event.Content))
+	err := c.Request(
+		"PUT", EndpointRoomStateExact(roomID, event.Type, event.StateKey), &resp,
+		httputil.WithToken(), httputil.WithJSONBody(event.Content),
+	)
 	if err != nil {
-		return nil, fmt.Errorf(
-			"error sending state event: %w",
-			matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeForbidden: ErrNoSendPerm,
-			}),
-		)
+		return "", fmt.Errorf("error sending state event: %w", err)
 	}
 	return resp.EventID, nil
 }
 
 // RoomEventSend sends the provided one-off event to the provided room ID.
-//
-// It implements the `PUT _matrix/client/r0/rooms/{roomId}/send/{eventType}/{txnId}` endpoint.
 func (c *Client) RoomEventSend(roomID matrix.RoomID, eventType event.Type, body interface{}) (matrix.EventID, error) {
-	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/send/" +
-		url.PathEscape(string(eventType)) + "/" + NextTransactionID()
 	var resp struct {
 		EventID matrix.EventID `json:"event_id"`
 	}
 
-	err := c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithJSONBody(body))
+	err := c.Request(
+		"PUT", EndpointRoomSend(roomID, eventType, NextTransactionID()), &resp,
+		httputil.WithToken(), httputil.WithJSONBody(body),
+	)
 	if err != nil {
-		return "", fmt.Errorf(
-			"error sending room event: %w",
-			matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeForbidden: ErrNoSendPerm,
-			}),
-		)
+		return "", fmt.Errorf("error sending room event: %w", err)
 	}
 	return resp.EventID, nil
 }
 
 // RoomEventRedact redacts a room event as specified by the room ID and event ID.
 // A user can redact events they sent out or other people's event provided they have the power level to.
-//
-// It implements the `PUT _matrix/client/r0/rooms/{roomId}/redact/{eventId}/{txnId}` endpoint.
 func (c *Client) RoomEventRedact(roomID matrix.RoomID, eventID matrix.EventID, reason string) (matrix.EventID, error) {
-	path := "_matrix/client/r0/rooms/" + url.PathEscape(string(roomID)) + "/redact/" +
-		url.PathEscape(string(eventID)) + "/" + NextTransactionID()
 	var resp struct {
 		EventID matrix.EventID `json:"event_id"`
 	}
 	var err error
 
 	if reason == "" {
-		err = c.Request("PUT", path, &resp, httputil.WithToken())
+		err = c.Request(
+			"PUT", EndpointRoomRedact(roomID, eventID, NextTransactionID()), &resp,
+			httputil.WithToken(),
+		)
 	} else {
-		err = c.Request("PUT", path, &resp, httputil.WithToken(), httputil.WithJSONBody(struct {
-			Reason string `json:"reason"`
-		}{
-			Reason: reason,
-		}))
+		err = c.Request(
+			"PUT", EndpointRoomRedact(roomID, eventID, NextTransactionID()), &resp,
+			httputil.WithToken(), httputil.WithJSONBody(struct {
+				Reason string `json:"reason"`
+			}{
+				Reason: reason,
+			}))
 	}
 	if err != nil {
-		return "", fmt.Errorf(
-			"error redacting room event: %w",
-			matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeForbidden: ErrNoSendPerm,
-			}),
-		)
+		return "", fmt.Errorf("error redacting room event: %w", err)
 	}
 	return resp.EventID, nil
 }

@@ -1,21 +1,11 @@
 package api
 
 import (
-	"errors"
-	"net/http"
-	"net/url"
+	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
-
-// ErrRoomAliasNotFound represents an error where the requested room alias is not found.
-// It is returned by (*Client).RoomAlias and (*Client).RoomAliasDelete.
-var ErrRoomAliasNotFound = errors.New("requested room alias is not found")
-
-// ErrRoomAliasAlreadyExists represents an error where the room alias requested to be created already exist.
-// It is returned by (*Client).RoomAliasCreate.
-var ErrRoomAliasAlreadyExists = errors.New("room alias already exists")
 
 // RoomAliasResponse represents the response to (*Client).RoomAlias.
 type RoomAliasResponse struct {
@@ -24,44 +14,34 @@ type RoomAliasResponse struct {
 }
 
 // RoomAlias fetches information about a room alias.
-//
-// It implements the `GET /_matrix/client/r0/directory/room/{roomAlias}` endpoint.
-func (c *Client) RoomAlias(alias string) (*RoomAliasResponse, error) {
+func (c *Client) RoomAlias(alias string) (RoomAliasResponse, error) {
 	var resp RoomAliasResponse
 	err := c.Request(
-		"GET", "_matrix/client/r0/directory/room/"+url.PathEscape(alias), &resp,
+		"GET", EndpointDirectoryRoomAlias(alias), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
-		return nil, matrix.MapAPIError(err, matrix.ErrorMap{
-			matrix.CodeNotFound: ErrRoomAliasNotFound,
-		})
+		return RoomAliasResponse{}, fmt.Errorf("error fetching room alias: %w", err)
 	}
-	return &resp, err
+	return resp, err
 }
 
 // RoomAliases fetches all alias of a given room.
-//
-// It implements the `GET /_matrix/client/r0/rooms/{roomId}/aliases` endpoint.
 func (c *Client) RoomAliases(roomID matrix.RoomID) ([]string, error) {
 	var resp struct {
 		Aliases []string `json:"aliases"`
 	}
 	err := c.Request(
-		"GET", "_matrix/client/r0/rooms/"+url.PathEscape(string(roomID))+"/aliases", &resp,
+		"GET", EndpointRoomAliases(roomID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
-		return nil, matrix.MapAPIError(err, matrix.ErrorMap{
-			matrix.CodeForbidden: ErrRoomNotFound,
-		})
+		return nil, fmt.Errorf("error fetching room aliases: %w", err)
 	}
 	return resp.Aliases, nil
 }
 
 // RoomAliasCreate creates a room alias.
-//
-// It implements the `PUT /_matrix/client/r0/directory/room/{roomAlias}` endpoint.
 func (c *Client) RoomAliasCreate(alias string, roomID matrix.RoomID) error {
 	req := struct {
 		RoomID matrix.RoomID `json:"room_id"`
@@ -69,26 +49,23 @@ func (c *Client) RoomAliasCreate(alias string, roomID matrix.RoomID) error {
 		RoomID: roomID,
 	}
 	err := c.Request(
-		"PUT", "_matrix/client/r0/directory/room/"+url.PathEscape(alias), nil,
+		"PUT", EndpointDirectoryRoomAlias(alias), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
-
-	if matrix.StatusCode(err) == http.StatusGone {
-		return ErrRoomAliasAlreadyExists
+	if err != nil {
+		return fmt.Errorf("error creating room alias: %w", err)
 	}
-	return err
+	return nil
 }
 
 // RoomAliasDelete deletes a room alias.
-//
-// It implements the `DELETE /_matrix/client/r0/directory/room/{roomAlias}` endpoint.
-func (c *Client) RoomAliasDelete(alias string, roomID matrix.RoomID) error {
+func (c *Client) RoomAliasDelete(alias string) error {
 	err := c.Request(
-		"DELETE", "_matrix/client/r0/directory/room/"+url.PathEscape(alias), nil,
+		"DELETE", EndpointDirectoryRoomAlias(alias), nil,
 		httputil.WithToken(),
 	)
-
-	return matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeNotFound: ErrRoomAliasNotFound,
-	})
+	if err != nil {
+		return fmt.Errorf("error deleting room alias: %w", err)
+	}
+	return nil
 }

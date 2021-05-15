@@ -3,18 +3,10 @@ package api
 import (
 	"errors"
 	"fmt"
-
-	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-// Errors returned by (*UserInteractiveAuthAPI).RequestEmailToken or (*UserInteractiveAuthAPI).RequestPhoneToken.
-var (
-	ErrEmailAddressInUse = errors.New("requested email address is already in use")
-	ErrPhoneNumberInUse  = errors.New("requested phone number is already in use")
-	ErrInvalidIDServer   = errors.New("the requested identity server is not trusted by the server")
-	ErrThreePIDDisabled  = errors.New("the homeserver does not support third-party identifiers")
-	ErrUnsupported       = errors.New("current interactive auth session does not support third-party identifier tokens")
-)
+// ErrUnsupportedAuthType is returned when a 3PID auth is attempted on an endpoint that doesn't support it.
+var ErrUnsupportedAuthType = errors.New("current interactive auth session does not support third-party identifier tokens")
 
 // RequestEmailTokenArg represents all possible argument to RequestEmailToken.
 type RequestEmailTokenArg struct {
@@ -37,18 +29,12 @@ type RequestEmailTokenResponse struct {
 // It returns the session ID needed in 3PID auth and the submit URL (if applicable).
 func (u *UserInteractiveAuthAPI) RequestEmailToken(req RequestEmailTokenArg) (*RequestEmailTokenResponse, error) {
 	if u.RequestThreePID == nil {
-		return nil, ErrUnsupported
+		return nil, ErrUnsupportedAuthType
 	}
 	response := &RequestEmailTokenResponse{}
 	err := u.RequestThreePID("email", req, response)
 	if err != nil {
-		return nil, fmt.Errorf("uiaa: error requesting email token: %w",
-			matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeThreePIDInUse:    ErrPhoneNumberInUse,
-				matrix.CodeServerNotTrusted: ErrInvalidIDServer,
-				matrix.CodeThreePIDDenied:   ErrThreePIDDisabled,
-			}),
-		)
+		return nil, fmt.Errorf("uiaa: error requesting email token: %w", err)
 	}
 	return response, nil
 }
@@ -74,18 +60,12 @@ type RequestPhoneTokenResponse struct {
 // It returns the session ID needed in 3PID auth and the submit URL (if applicable).
 func (u *UserInteractiveAuthAPI) RequestPhoneToken(req RequestPhoneTokenArg) (*RequestPhoneTokenResponse, error) {
 	if u.RequestThreePID == nil {
-		return nil, ErrUnsupported
+		return nil, ErrUnsupportedAuthType
 	}
 	response := &RequestPhoneTokenResponse{}
 	err := u.RequestThreePID("phone", req, response)
 	if err != nil {
-		return nil, fmt.Errorf("uiaa: error requesting phone token: %w",
-			matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeThreePIDInUse:    ErrPhoneNumberInUse,
-				matrix.CodeServerNotTrusted: ErrInvalidIDServer,
-				matrix.CodeThreePIDDenied:   ErrThreePIDDisabled,
-			}),
-		)
+		return nil, fmt.Errorf("uiaa: error requesting phone token: %w", err)
 	}
 	return response, nil
 }

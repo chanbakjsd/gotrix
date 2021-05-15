@@ -2,17 +2,10 @@ package api
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
-)
-
-// Errors returned by (*Client).Whoami.
-var (
-	ErrInvalidToken         = errors.New("the access token is not recognized")
-	ErrTokenAndUserMismatch = errors.New("the stored access token cannot masquerade as the stored user")
 )
 
 // Client represents a session that can be established to the server.
@@ -32,28 +25,19 @@ func (c Client) WithContext(ctx context.Context) *Client {
 
 // Whoami queries the homeserver to check if the token is still valid.
 // The user ID is returned if it's successful.
-//
-// This implements the `GET _matrix/client/r0/account/whoami` endpoint.
 func (c *Client) Whoami() (matrix.UserID, error) {
 	var resp struct {
 		UserID matrix.UserID `json:"user_id"`
 	}
 
 	err := c.Request(
-		"GET", "_matrix/client/r0/account/whoami", &resp,
-		httputil.WithQuery(map[string]string{
+		"GET", EndpointAccountWhoami, &resp,
+		httputil.WithToken(), httputil.WithQuery(map[string]string{
 			"user_id": string(c.UserID),
 		}),
-		httputil.WithToken(),
 	)
 	if err != nil {
-		return "", fmt.Errorf(
-			"error fetching whoami: %w",
-			matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeUnknownToken: ErrInvalidToken,
-				matrix.CodeForbidden:    ErrTokenAndUserMismatch,
-			}),
-		)
+		return "", fmt.Errorf("error fetching whoami: %w", err)
 	}
 	return resp.UserID, nil
 }
@@ -65,7 +49,7 @@ func (c *Client) ServerCapabilities() (*matrix.Capabilities, error) {
 	}
 
 	err := c.Request(
-		"GET", "_matrix/client/r0/capabilities", &resp,
+		"GET", EndpointCapabilities, &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {

@@ -1,27 +1,13 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-// Errors returned by (*Client).Login.
-var (
-	// ErrInvalidRequest means that an invalid request has been provided.
-	// Examples are when an unsupported login method is provided.
-	ErrInvalidRequest = errors.New("invalid request provided")
-	// ErrInvalidCreds means that invalid credentials have been provided.
-	ErrInvalidCreds = errors.New("invalid credentials provided")
-	// ErrUserDeactivated means that the user being logged in to has already been deactivated.
-	ErrUserDeactivated = errors.New("user being logged in to has been deactivated")
-)
-
 // GetLoginMethods return the login methods supported by the homeserver.
-//
-// It implements the `GET _matrix/client/r0/login` endpoint.
 func (c *Client) GetLoginMethods() ([]matrix.LoginMethod, error) {
 	var response struct {
 		Flows []struct {
@@ -29,7 +15,7 @@ func (c *Client) GetLoginMethods() ([]matrix.LoginMethod, error) {
 		} `json:"flows"`
 	}
 
-	err := c.Request("GET", "_matrix/client/r0/login", &response)
+	err := c.Request("GET", EndpointLogin, &response)
 	if err != nil {
 		return nil, fmt.Errorf("error getting login methods: %w", err)
 	}
@@ -58,8 +44,6 @@ type LoginArg struct {
 }
 
 // Login logs the client into the homeserver with the provided arguments.
-//
-// It implements the `POST _matrix/client/r0/login` endpoint.
 func (c *Client) Login(arg LoginArg) error {
 	var resp struct {
 		UserID      matrix.UserID         `json:"user_id"`
@@ -67,15 +51,10 @@ func (c *Client) Login(arg LoginArg) error {
 		DeviceID    matrix.DeviceID       `json:"device_id"`
 		WellKnown   DiscoveryInfoResponse `json:"well_known"`
 	}
-	err := c.Request("POST", "_matrix/client/r0/login", &resp, httputil.WithJSONBody(arg))
+
+	err := c.Request("POST", EndpointLogin, &resp, httputil.WithJSONBody(arg))
 	if err != nil {
-		return fmt.Errorf("error logging in: %w", matrix.MapAPIError(
-			err, matrix.ErrorMap{
-				matrix.CodeUnknown:         ErrInvalidRequest,
-				matrix.CodeForbidden:       ErrInvalidCreds,
-				matrix.CodeUserDeactivated: ErrUserDeactivated,
-			}),
-		)
+		return fmt.Errorf("error logging in: %w", err)
 	}
 
 	c.UserID = resp.UserID
@@ -87,10 +66,8 @@ func (c *Client) Login(arg LoginArg) error {
 
 // Logout clears the AccessToken field in the client and attempts to invalidate the
 // token on the server-side.
-//
-// It implements the `POST _matrix/client/r0/logout` endpoint.
 func (c *Client) Logout() error {
-	err := c.Request("POST", "_matrix/client/r0/logout", nil, httputil.WithToken())
+	err := c.Request("POST", EndpointLogout, nil, httputil.WithToken())
 	c.AccessToken = ""
 	if err != nil {
 		return fmt.Errorf("error logging out: %w", err)
@@ -100,10 +77,8 @@ func (c *Client) Logout() error {
 
 // LogoutAll clears the AccessToken field in the client and attempts to invalidate all
 // tokens on the server-side.
-//
-// It implements the `POST _matrix/client/r0/logout/all` endpoint.
 func (c *Client) LogoutAll() error {
-	err := c.Request("POST", "_matrix/client/r0/logout/all", nil, httputil.WithToken())
+	err := c.Request("POST", EndpointLogoutAll, nil, httputil.WithToken())
 	c.AccessToken = ""
 	if err != nil {
 		return fmt.Errorf("error logging out all tokens: %w", err)

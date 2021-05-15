@@ -2,20 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
-)
-
-// Errors returned by (*Client).Register or (*Client).UsernameAvailable.
-// It may also be returned by any auth functions in InteractiveRegister.
-var (
-	ErrUserIDTaken          = errors.New("requested user ID has already been taken")
-	ErrMalformedUserID      = errors.New("invalid characters found in user ID")
-	ErrReservedUserID       = errors.New("the user ID has been reserved for other purposes")
-	ErrRegistrationDisabled = errors.New("registration for the specified user type has been disabled")
-	ErrPasswordTooWeak      = errors.New("password used in registration is too weak")
 )
 
 // RegisterArg represents arguments for the Register function.
@@ -39,12 +29,8 @@ type RegisterResponse struct {
 // Once the authentication is successful, the client is automatically logged in
 // if InhibitLogin is set to false in RegisterArg.
 //
-// It returns an InteractiveRegister object which implements the User Interactive
-// Authentication API.
-// Users may choose to call InteractiveRegister.RegisterResponse() to inspect the
-// RegisterResponse.
-//
-// It implements the `POST _matrix/client/r0/register` endpoint.
+// It returns an InteractiveRegister object which should be used to interactively
+// fulfill authentication requirements of the server.
 func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, error) {
 	ir := InteractiveRegister{
 		UserInteractiveAuthAPI: &UserInteractiveAuthAPI{},
@@ -53,24 +39,17 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 	ir.Request = func(auth, to interface{}) error {
 		req.Auth = auth
 		err := c.Request(
-			"POST", "_matrix/client/r0/register", to,
-			httputil.WithJSONBody(req),
-			httputil.WithQuery(map[string]string{
+			"POST", EndpointRegister, to,
+			httputil.WithJSONBody(req), httputil.WithQuery(map[string]string{
 				"kind": kind,
 			}),
 		)
-		return matrix.MapAPIError(err, matrix.ErrorMap{
-			matrix.CodeUserInUse:       ErrUserIDTaken,
-			matrix.CodeInvalidUsername: ErrMalformedUserID,
-			matrix.CodeExclusive:       ErrReservedUserID,
-			matrix.CodeForbidden:       ErrRegistrationDisabled,
-			matrix.CodeWeakPassword:    ErrPasswordTooWeak,
-		})
+		return fmt.Errorf("error while registering: %w", err)
 	}
 
 	ir.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
-			"POST", "_matrix/client/r0/register/"+authType+"/requestToken",
+			"POST", EndpointRegisterRequestToken(authType), to,
 			httputil.WithJSONBody(auth),
 		)
 	}
@@ -78,7 +57,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 	ir.SuccessCallback = func(json.RawMessage) error {
 		resp, err := ir.RegisterResponse()
 		if err != nil {
-			return err
+			return fmt.Errorf("error retrieving registration response: %w", err)
 		}
 		// If inhibitLogin is set, the homeserver probably does not supply us
 		// with the info we want.
@@ -95,15 +74,14 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 	return ir, err
 }
 
-// InteractiveRegister is a struct that adds helper functions onto UserInteractiveAuthAPI.
+// InteractiveRegister is a struct that adds response parsing helper functions onto UserInteractiveAuthAPI.
 // To see functions on authenticating, refer to it instead.
 type InteractiveRegister struct {
 	*UserInteractiveAuthAPI
 }
 
 // RegisterResponse formats the Result() as a RegisterResponse.
-//
-// It returns an error if there isn't any result yet.
+// It returns an error if there isn't any result yet or the response is malformed.
 func (i InteractiveRegister) RegisterResponse() (*RegisterResponse, error) {
 	msg, err := i.Result()
 	if err != nil {
@@ -119,22 +97,15 @@ func (i InteractiveRegister) RegisterResponse() (*RegisterResponse, error) {
 //
 // Clients should be aware that this might be racey as registration can take place
 // between UsernameAvailable() and actual registration.
-//
-// This implements the `GET _matrix/client/r0/register/available` endpoint.
 func (c *Client) UsernameAvailable(username string) (bool, error) {
 	err := c.Request(
-		"GET", "_matrix/client/r0/register/available", nil,
+		"GET", EndpointRegisterAvailable, nil,
 		httputil.WithQuery(map[string]string{
 			"username": username,
 		}),
 	)
-	if err == nil {
-		return true, nil
+	if err != nil {
+		return false, fmt.Errorf("username is not available: %w", err)
 	}
-
-	return false, matrix.MapAPIError(err, matrix.ErrorMap{
-		matrix.CodeUserInUse:       ErrUserIDTaken,
-		matrix.CodeInvalidUsername: ErrMalformedUserID,
-		matrix.CodeExclusive:       ErrReservedUserID,
-	})
+	return true, nil
 }

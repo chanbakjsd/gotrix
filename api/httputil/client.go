@@ -51,15 +51,18 @@ func (c Client) WithContext(ctx context.Context) Client {
 	return c
 }
 
+// FullRoute creates the full route from the provided route.
+func (c *Client) FullRoute(route string) string {
+	return c.HomeServerScheme + "://" + c.HomeServer + "/" + route
+}
+
 // Request makes the request and returns the result.
 //
 // It may return any HTTP request errors or a matrix.HTTPError which may possibly
 // wrap a matrix.APIError.
 func (c *Client) Request(method, route string, to interface{}, mods ...Modifier) error {
 	// Generate the request.
-	req, err := http.NewRequestWithContext(
-		c.ctx, method, c.HomeServerScheme+"://"+c.HomeServer+"/"+route, nil,
-	)
+	req, err := http.NewRequestWithContext(c.ctx, method, c.FullRoute(route), nil)
 	if err != nil {
 		return err
 	}

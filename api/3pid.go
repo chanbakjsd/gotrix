@@ -18,12 +18,10 @@ type ThirdpartyIdentifier struct {
 
 // ThreePID returns all thirdparty identifiers associated with
 // the current token.
-//
-// It implements the `GET _matrix/client/r0/account/3pid` endpoint.
 func (c *Client) ThreePID() ([]ThirdpartyIdentifier, error) {
 	resp := []ThirdpartyIdentifier{}
 	err := c.Request(
-		"GET", "_matrix/client/r0/account/3pid", &resp,
+		"GET", EndpointAccount3PID, &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -34,8 +32,6 @@ func (c *Client) ThreePID() ([]ThirdpartyIdentifier, error) {
 
 // ThreePIDAdd adds the third party identifier associated with
 // the client secret and session ID to the current token.
-//
-// It implements the `POST _matrix/client/r0/account/3pid/add` endpoint.
 func (c *Client) ThreePIDAdd(clientSecret string, sessionID string) (*UserInteractiveAuthAPI, error) {
 	var req struct {
 		Auth         interface{} `json:"auth,omitempty"`
@@ -49,14 +45,13 @@ func (c *Client) ThreePIDAdd(clientSecret string, sessionID string) (*UserIntera
 	uiaa.Request = func(auth, to interface{}) error {
 		req.Auth = auth
 		return c.Request(
-			"POST", "_matrix/client/r0/account/3pid/add", to,
-			httputil.WithJSONBody(req),
-			httputil.WithToken(),
+			"POST", EndpointAccount3PIDAdd, to,
+			httputil.WithToken(), httputil.WithJSONBody(req),
 		)
 	}
 	uiaa.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
-			"POST", "_matrix/client/r0/account/3pid/"+authType+"/requestToken", to,
+			"POST", EndpointAccount3PIDRequestToken(authType), to,
 			httputil.WithJSONBody(auth),
 		)
 	}
@@ -76,13 +71,10 @@ type ThreePIDBindArg struct {
 
 // ThreePIDBind binds a third party identifier connected to an identity server
 // to the current token.
-//
-// It implements the `POST _matrix/client/r0/account/3pid/bind` endpoint.
 func (c *Client) ThreePIDBind(req ThreePIDBindArg) error {
 	err := c.Request(
-		"POST", "_matrix/client/r0/account/3pid/bind", nil,
-		httputil.WithToken(),
-		httputil.WithJSONBody(req),
+		"POST", EndpointAccount3PIDBind, nil,
+		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
 		return fmt.Errorf("error binding 3PID: %w", err)
@@ -98,8 +90,6 @@ type ThreePIDDeleteArg struct {
 }
 
 // ThreePIDDelete deletes a third party identifier from the current token.
-//
-// This implements the `POST _matrix/client/r0/account/3pid/delete` endpoint.
 func (c *Client) ThreePIDDelete(req ThreePIDDeleteArg) (matrix.IDServerUnbindResult, error) {
 	var resp struct {
 		IDServerUnbindResult matrix.IDServerUnbindResult `json:"id_server_unbind_result"`
@@ -107,8 +97,7 @@ func (c *Client) ThreePIDDelete(req ThreePIDDeleteArg) (matrix.IDServerUnbindRes
 
 	err := c.Request(
 		"POST", "_matrix/client/r0/account/3pid/delete", &resp,
-		httputil.WithToken(),
-		httputil.WithJSONBody(req),
+		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
 		return "", fmt.Errorf("error deleting 3PID: %w", err)
@@ -125,8 +114,6 @@ type ThreePIDUnbindArg struct {
 }
 
 // ThreePIDUnbind unbinds a third party identifier from the current token.
-//
-// This implements the `POST _matrix/client/r0/account/3pid/unbind` endpoint.
 func (c *Client) ThreePIDUnbind(req ThreePIDUnbindArg) (matrix.IDServerUnbindResult, error) {
 	var resp struct {
 		IDServerUnbindResult matrix.IDServerUnbindResult `json:"id_server_unbind_result"`
@@ -134,8 +121,7 @@ func (c *Client) ThreePIDUnbind(req ThreePIDUnbindArg) (matrix.IDServerUnbindRes
 
 	err := c.Request(
 		"POST", "_matrix/client/r0/account/3pid/unbind", &resp,
-		httputil.WithToken(),
-		httputil.WithJSONBody(req),
+		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
 		return "", fmt.Errorf("error unbinding 3PID: %w", err)

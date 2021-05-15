@@ -99,8 +99,6 @@ type SyncDeviceLists struct {
 }
 
 // Sync requests the latest state changes from the server.
-//
-// It implements the `GET _matrix/client/r0/sync` endpoint.
 func (c *Client) Sync(req SyncArg) (*SyncResponse, error) {
 	resp := &SyncResponse{}
 	args := make(map[string]string)
@@ -120,7 +118,7 @@ func (c *Client) Sync(req SyncArg) (*SyncResponse, error) {
 		args["timeout"] = strconv.Itoa(req.Timeout)
 	}
 	err := c.Request(
-		"GET", "_matrix/client/r0/sync", resp,
+		"GET", EndpointSync, resp,
 		httputil.WithToken(), httputil.WithQuery(args),
 	)
 	if err != nil {

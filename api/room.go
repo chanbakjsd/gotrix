@@ -1,19 +1,11 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
-)
-
-// List of errors returned by (*Client).RoomCreate.
-var (
-	ErrUnsupportedRoomVersion = errors.New("homeserver or invited user's homeserver does not support room version")
-	ErrRoomAlreadyExists      = errors.New("requested alias name is already taken")
-	ErrInvalidRoomState       = errors.New("invalid initial room state")
 )
 
 // RoomCreateArg represents all arguments to (*Client).RoomCreate.
@@ -64,24 +56,16 @@ type RoomCreateInvite struct {
 }
 
 // RoomCreate creates the room with the provided arguments.
-//
-// It implements the `POST _matrix/client/r0/createRoom` endpoint.
 func (c *Client) RoomCreate(arg RoomCreateArg) (matrix.RoomID, error) {
 	resp := &struct {
 		RoomID matrix.RoomID `json:"room_id"`
 	}{}
 	err := c.Request(
-		"POST", "_matrix/client/r0/createRoom", resp,
+		"POST", EndpointRoomCreate, resp,
 		httputil.WithToken(), httputil.WithJSONBody(arg),
 	)
 	if err != nil {
-		return "", fmt.Errorf(
-			"error creating room: %w", matrix.MapAPIError(err, matrix.ErrorMap{
-				matrix.CodeUnsupportedRoomVersion: ErrUnsupportedRoomVersion,
-				matrix.CodeRoomInUse:              ErrRoomAlreadyExists,
-				matrix.CodeInvalidRoomState:       ErrInvalidRoomState,
-			}),
-		)
+		return "", fmt.Errorf("error creating room: %w", err)
 	}
 	return resp.RoomID, nil
 }

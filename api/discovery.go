@@ -37,8 +37,8 @@ type DiscoveryInfoResponse struct {
 // It implements https://matrix.org/docs/spec/client_server/r0.6.1#well-known-uri.
 func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	// Check well-known URI.
-	result := &DiscoveryInfoResponse{}
-	err := c.Request("GET", ".well-known/matrix/client", result)
+	var result DiscoveryInfoResponse
+	err := c.Request("GET", ".well-known/matrix/client", &result)
 	if err != nil {
 		switch matrix.StatusCode(err) {
 		case -1:
@@ -69,7 +69,7 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 
 	// TODO: Check identity server when it's implemented.
 
-	return result, nil
+	return &result, nil
 }
 
 // SupportedVersionsResponse represents the response to (*Client).SupportedVersions.
@@ -81,13 +81,11 @@ type SupportedVersionsResponse struct {
 // SupportedVersions returns the list of versions supported by a homeserver.
 //
 // The homeserver is inferred from (*Client).HomeServer and should be set before calling this function.
-//
-// It implements the `GET _matrix/client/versions` endpoint.
-func (c *Client) SupportedVersions() (*SupportedVersionsResponse, error) {
-	result := &SupportedVersionsResponse{}
+func (c *Client) SupportedVersions() (SupportedVersionsResponse, error) {
+	var result SupportedVersionsResponse
 	err := c.Request("GET", "_matrix/client/versions", &result)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching homeserver supported versions: %w", err)
+		return SupportedVersionsResponse{}, fmt.Errorf("error fetching homeserver supported versions: %w", err)
 	}
 
 	return result, nil
