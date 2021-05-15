@@ -64,7 +64,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] Event Context
 [ ] SSO Client Login
 [ ] Direct Messaging
-[ ] Ignoring Users
+[X] Ignoring Users
 [ ] Sticker Messages
 [ ] Reporting Content
 [ ] Third Party Networks
