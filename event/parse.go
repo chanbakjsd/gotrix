@@ -106,6 +106,12 @@ func (e RawEvent) Parse() (Event, error) {
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
+	case TypeTyping:
+		c := TypingEvent{
+			RoomID: e.RoomID,
+		}
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
 	}
 
 	return nil, ErrUnknownEventType

@@ -37,7 +37,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [X] Instant Messaging
 [/] Voice over IP
 	// Note: Need to provide user-friendly API.
-[ ] Typing Notifications
+[X] Typing Notifications
 [ ] Receipts
 [ ] Fully Read Marker
 [ ] Presence (Online/Unavailable/Offline)

@@ -74,6 +74,9 @@ var (
 		return EndpointRoom(roomID) + "/send/" + url.PathEscape(string(eventType)) + "/send/" +
 			url.PathEscape(transactionID)
 	}
+	EndpointRoomTyping = func(roomID matrix.RoomID, userID matrix.UserID) string {
+		return EndpointRoom(roomID) + "/typing/" + url.PathEscape(string(userID))
+	}
 
 	EndpointDirectory          = EndpointBase + "/directory"
 	EndpointDirectoryRoomAlias = func(roomAlias string) string { return EndpointDirectory + "/room/" + url.PathEscape(roomAlias) }

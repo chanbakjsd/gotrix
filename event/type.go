@@ -25,4 +25,7 @@ const (
 	TypeCallCandidates Type = "m.call.candidates"
 	TypeCallAnswer     Type = "m.call.answer"
 	TypeCallHangup     Type = "m.call.hangup"
+
+	// Events from Typing Notifications module.
+	TypeTyping Type = "m.typing"
 )
