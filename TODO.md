@@ -18,7 +18,7 @@ Core specification includes anything that are not modules and the spec deem nece
 	[X] Getting Events for a Room
 	[X] Sending Events
 	[X] Redaction
-[ ] Rooms
+[X] Rooms
 	[X] Creation
 	[X] Room Aliases
 	[X] Room Membership
@@ -27,7 +27,7 @@ Core specification includes anything that are not modules and the spec deem nece
 		[X] Kick
 		[X] Ban
 		[X] Unban
-	[ ] Listing Rooms
+	[X] Listing Rooms
 [ ] User Data
 [X] Rate Limiting
 

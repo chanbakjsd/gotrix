@@ -10,29 +10,29 @@ import (
 
 // RoomCreateArg represents all arguments to (*Client).RoomCreate.
 type RoomCreateArg struct {
-	Visibility       RoomCreateVisibility `json:"visibility,omitempty"`
-	AliasName        string               `json:"room_alias_name,omitempty"` // Desired local part of room alias
-	Name             string               `json:"name,omitempty"`            // The displayed name
-	Topic            string               `json:"topic,omitempty"`           // The displayed topic
-	Invite           []matrix.UserID      `json:"invite,omitempty"`          // A list of users to invite
-	ThirdpartyInvite []RoomCreateInvite   `json:"invite_3pid,omitempty"`     // List of third party invites
-	Version          string               `json:"room_version,omitempty"`    // Room Version
-	InitialState     []event.Event        `json:"initial_state,omitempty"`   // Initial State
-	Preset           RoomPreset           `json:"preset,omitempty"`          // The preset to use for permissions.
-	IsDirectMessage  bool                 `json:"is_direct,omitempty"`       // True if this should be a Direct Message
+	Visibility       RoomVisibility     `json:"visibility,omitempty"`
+	AliasName        string             `json:"room_alias_name,omitempty"` // Desired local part of room alias
+	Name             string             `json:"name,omitempty"`            // The displayed name
+	Topic            string             `json:"topic,omitempty"`           // The displayed topic
+	Invite           []matrix.UserID    `json:"invite,omitempty"`          // A list of users to invite
+	ThirdpartyInvite []RoomCreateInvite `json:"invite_3pid,omitempty"`     // List of third party invites
+	Version          string             `json:"room_version,omitempty"`    // Room Version
+	InitialState     []event.Event      `json:"initial_state,omitempty"`   // Initial State
+	Preset           RoomPreset         `json:"preset,omitempty"`          // The preset to use for permissions.
+	IsDirectMessage  bool               `json:"is_direct,omitempty"`       // True if this should be a Direct Message
 	// Extra keys to add to the RoomCreate event.
 	CreationContent    map[string]interface{}      `json:"creation_content,omitempty"`
 	PowerLevelOverride *event.RoomPowerLevelsEvent `json:"power_level_content_override,omitempty"`
 }
 
-// RoomCreateVisibility represents the initial visibility of the room.
-type RoomCreateVisibility string
+// RoomVisibility represents the initial visibility of the room.
+type RoomVisibility string
 
 const (
 	// RoomPublic will publish the room into the published room list.
-	RoomPublic RoomCreateVisibility = "public"
+	RoomPublic RoomVisibility = "public"
 	// RoomPrivate will NOT publish the room into the published room list.
-	RoomPrivate RoomCreateVisibility = "private"
+	RoomPrivate RoomVisibility = "private"
 )
 
 // RoomPreset is the preset of room settings that can be used for sane defaults.

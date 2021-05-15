@@ -37,6 +37,7 @@ var (
 
 	EndpointCapabilities = EndpointBase + "/capabilities"
 	EndpointJoinedRooms  = EndpointBase + "/joined_rooms"
+	EndpointPublicRooms  = EndpointBase + "/publicRooms"
 	EndpointSync         = EndpointBase + "/sync"
 
 	EndpointFilter = func(userID matrix.UserID) string {
@@ -76,6 +77,9 @@ var (
 
 	EndpointDirectory          = EndpointBase + "/directory"
 	EndpointDirectoryRoomAlias = func(roomAlias string) string { return EndpointDirectory + "/room/" + url.PathEscape(roomAlias) }
+	EndpointDirectoryListRoom  = func(roomID matrix.RoomID) string {
+		return EndpointDirectory + "/list/room/" + url.PathEscape(string(roomID))
+	}
 
 	EndpointMedia           = "_matrix/media/" + Version
 	EndpointMediaConfig     = EndpointMedia + "/config"
