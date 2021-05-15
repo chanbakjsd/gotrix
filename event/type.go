@@ -37,4 +37,7 @@ const (
 
 	// Events from the History Visibility module.
 	TypeRoomHistoryVisibility Type = "m.room.history_visibility"
+
+	// Events from the Guest Access module.
+	TypeRoomGuestAccess Type = "m.room.guest_access"
 )

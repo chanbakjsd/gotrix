@@ -56,7 +56,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] Push Notification
 [ ] Third Party Invites
 [ ] Server Side Search
-[ ] Guest Access
+[X] Guest Access
 [ ] Room Previews
 [ ] Room Tagging
 [X] Client Config
