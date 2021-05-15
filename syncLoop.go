@@ -76,14 +76,15 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 			}
 
 			switch {
-			case next == "":
-				// Don't handle historical events.
-				continue
 			case errors.Is(err, event.ErrUnknownEventType):
 				debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
 				continue
 			case err != nil:
 				debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
+				continue
+			}
+			if next == "" {
+				// Don't handle historical events.
 				continue
 			}
 			c.Handler.Handle(c, concrete)
