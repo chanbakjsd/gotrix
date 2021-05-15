@@ -63,7 +63,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] Server Administration
 [ ] Event Context
 [ ] SSO Client Login
-[ ] Direct Messaging
+[X] Direct Messaging
 [X] Ignoring Users
 [ ] Sticker Messages
 [ ] Reporting Content

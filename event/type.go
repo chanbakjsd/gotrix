@@ -20,6 +20,9 @@ const (
 	TypeRoomAvatar  Type = "m.room.avatar"
 	TypeRoomPinned  Type = "m.room.pinned_events"
 
+	// Events from Direct Messaging module.
+	TypeDirect Type = "m.direct"
+
 	// Events from Voice over IP module.
 	TypeCallInvite     Type = "m.call.invite"
 	TypeCallCandidates Type = "m.call.candidates"

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
+	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
@@ -94,6 +95,39 @@ func (c *Client) IgnoredUsersSet(userID matrix.UserID, newList []matrix.UserID) 
 	err := c.ClientConfigSet(userID, "m.ignored_user_list", req)
 	if err != nil {
 		return fmt.Errorf("error setting ignored users: %w", err)
+	}
+	return nil
+}
+
+// DMRooms fetches the list of DM rooms as saved in 'm.direct'.
+func (c *Client) DMRooms(userID matrix.UserID) (event.DirectEvent, error) {
+	var resp event.RawEvent
+	err := c.ClientConfig(userID, "m.direct", &resp)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching DM room list: %w", err)
+	}
+
+	ev, err := resp.Parse()
+	if err != nil {
+		return nil, fmt.Errorf("error parsing DM room list: %w", err)
+	}
+
+	directEvent, ok := ev.(event.DirectEvent)
+	if !ok {
+		return nil, fmt.Errorf("error parsing DM room list: got %T instead of m.direct", ev)
+	}
+	return directEvent, nil
+}
+
+// DMRoomsSet updates the DM rooms saved in 'm.direct'.
+func (c *Client) DMRoomsSet(userID matrix.UserID, newRooms event.DirectEvent) error {
+	raw, err := newRooms.Raw()
+	if err != nil {
+		return fmt.Errorf("error encoding DM rooms: %w", err)
+	}
+	err = c.ClientConfigSet(userID, "m.direct", raw)
+	if err != nil {
+		return fmt.Errorf("error setting DM rooms: %w", err)
 	}
 	return nil
 }

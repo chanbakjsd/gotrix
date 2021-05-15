@@ -36,7 +36,7 @@ type RawEvent struct {
 
 	// Data for state events.
 	StateKey    string          `json:"state_key,omitempty"`
-	PrevContent json.RawMessage `json:"prev_content"` // Optional previous content, if available.
+	PrevContent json.RawMessage `json:"prev_content,omitempty"` // Optional previous content, if available.
 
 	// Data for `m.room.redaction`. The ID of the event that was actually redacted.
 	Redacts string `json:"redacts,omitempty"`

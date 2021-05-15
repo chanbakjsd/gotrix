@@ -138,6 +138,10 @@ func (e RawEvent) Parse() (Event, error) {
 		}
 		err := json.Unmarshal(e.Content, &c)
 		return c, err
+	case TypeDirect:
+		var c DirectEvent
+		err := json.Unmarshal(e.Content, &c)
+		return c, err
 	}
 
 	return nil, ErrUnknownEventType
