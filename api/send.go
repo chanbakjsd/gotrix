@@ -73,3 +73,22 @@ func (c *Client) RoomEventRedact(roomID matrix.RoomID, eventID matrix.EventID, r
 	}
 	return resp.EventID, nil
 }
+
+// DeviceMessages are a set of messages that can be sent through the SendToDevice function.
+type DeviceMessages map[matrix.UserID]map[matrix.DeviceID]interface{}
+
+// SendToDevice sends the provided event to the specified devices.
+func (c *Client) SendToDevice(eventType event.Type, messages DeviceMessages) error {
+	body := map[string]interface{}{
+		"messages": messages,
+	}
+
+	err := c.Request(
+		"PUT", EndpointSendToDevice(eventType, NextTransactionID()), nil,
+		httputil.WithToken(), httputil.WithJSONBody(body),
+	)
+	if err != nil {
+		return fmt.Errorf("error sending to device: %w", err)
+	}
+	return nil
+}

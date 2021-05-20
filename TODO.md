@@ -42,7 +42,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 [ ] Fully Read Marker
 [X] Presence (Online/Unavailable/Offline)
 [X] Content Repository
-[ ] Send-to-Device Messaging
+[X] Send-to-Device Messaging
 [ ] Device Management
 [ ] End-to-end Encryption
 	[ ] Key Upload

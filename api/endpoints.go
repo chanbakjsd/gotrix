@@ -118,4 +118,8 @@ var (
 		return EndpointBase + "/user/" + url.PathEscape(string(userID)) + "/rooms/" + url.PathEscape(string(roomID)) +
 			"/account_data/" + url.PathEscape(dataType)
 	}
+
+	EndpointSendToDevice = func(eventType event.Type, transactionID string) string {
+		return EndpointBase + "/sendToDevice/" + url.PathEscape(string(eventType)) + "/" + url.PathEscape(transactionID)
+	}
 )
