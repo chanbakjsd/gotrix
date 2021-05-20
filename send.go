@@ -27,21 +27,27 @@ func (c *Client) SendNotice(roomID matrix.RoomID, content string) (matrix.EventI
 	return c.sendMessage(roomID, event.RoomMessageNotice, content)
 }
 
+// File is a file that can be uploaded to Matrix homeserver.
+type File struct {
+	Name     string
+	MIMEType string
+	Content  io.ReadCloser
+	Caption  string // Set to filename if empty.
+}
+
 // SendImage uploads the provided image to the server and sends a message containing it to the designated room.
-func (c *Client) SendImage(roomID matrix.RoomID, mime string, name string, file io.ReadCloser,
-	caption string) (matrix.EventID, error) {
-	return c.sendFile(roomID, event.RoomMessageImage, mime, name, file, caption)
+func (c *Client) SendImage(roomID matrix.RoomID, file File) (matrix.EventID, error) {
+	return c.sendFile(roomID, event.RoomMessageImage, file)
 }
 
 // SendFile uploads the provided file to the server and sends a message containing it to the designated room.
-func (c *Client) SendFile(roomID matrix.RoomID, mime string, name string, file io.ReadCloser) (matrix.EventID, error) {
-	return c.sendFile(roomID, event.RoomMessageFile, mime, name, file, name)
+func (c *Client) SendFile(roomID matrix.RoomID, file File) (matrix.EventID, error) {
+	return c.sendFile(roomID, event.RoomMessageFile, file)
 }
 
 // SendAudio uploads the provided audio file to the server and sends a message containing it to the designated room.
-func (c *Client) SendAudio(roomID matrix.RoomID, mime string, name string, file io.ReadCloser,
-	caption string) (matrix.EventID, error) {
-	return c.sendFile(roomID, event.RoomMessageAudio, mime, name, file, caption)
+func (c *Client) SendAudio(roomID matrix.RoomID, file File) (matrix.EventID, error) {
+	return c.sendFile(roomID, event.RoomMessageAudio, file)
 }
 
 // SendLocation sends the provided location to the provided room ID.
@@ -54,9 +60,8 @@ func (c *Client) SendLocation(roomID matrix.RoomID, geoURI matrix.GeoURI, captio
 }
 
 // SendVideo uploads the provided video file to the server and sends a message containing it to the designated room.
-func (c *Client) SendVideo(roomID matrix.RoomID, mime string, name string, file io.ReadCloser,
-	caption string) (matrix.EventID, error) {
-	return c.sendFile(roomID, event.RoomMessageVideo, mime, name, file, caption)
+func (c *Client) SendVideo(roomID matrix.RoomID, file File) (matrix.EventID, error) {
+	return c.sendFile(roomID, event.RoomMessageVideo, file)
 }
 
 func (c *Client) sendMessage(roomID matrix.RoomID, msgType event.MessageType, content string) (matrix.EventID, error) {
@@ -67,16 +72,19 @@ func (c *Client) sendMessage(roomID matrix.RoomID, msgType event.MessageType, co
 }
 
 // sendFile sends the image to the provided room ID with the provided content.
-func (c *Client) sendFile(roomID matrix.RoomID, msgType event.MessageType, fileMime string, fileName string,
-	file io.ReadCloser, caption string) (matrix.EventID, error) {
-	url, err := c.MediaUpload(fileMime, fileName, file)
+func (c *Client) sendFile(roomID matrix.RoomID, msgType event.MessageType, file File) (matrix.EventID, error) {
+	url, err := c.MediaUpload(file.MIMEType, file.Name, file.Content)
 	if err != nil {
 		return "", err
 	}
 
+	if file.Caption == "" {
+		file.Caption = file.Name
+	}
+
 	return c.RoomEventSend(roomID, event.TypeRoomMessage, event.RoomMessageEvent{
 		MsgType: msgType,
-		Body:    caption,
+		Body:    file.Caption,
 		URL:     url,
 	})
 }
