@@ -1,6 +1,8 @@
 package event
 
 import (
+	"encoding/json"
+
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
@@ -165,6 +167,11 @@ func (RoomCanonicalAliasEvent) StateKey() string {
 	return ""
 }
 
+// SetRoomEventInfo sets the room event info.
+func (r *RoomCanonicalAliasEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}
+
 // Type satisfies StateEvent.
 func (RoomCreateEvent) Type() Type {
 	return TypeRoomCreate
@@ -173,6 +180,11 @@ func (RoomCreateEvent) Type() Type {
 // StateKey satisfies StateEvent.
 func (RoomCreateEvent) StateKey() string {
 	return ""
+}
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomCreateEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
 }
 
 // Type satisfies StateEvent.
@@ -185,6 +197,11 @@ func (RoomJoinRulesEvent) StateKey() string {
 	return ""
 }
 
+// SetRoomEventInfo sets the room event info.
+func (r *RoomJoinRulesEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}
+
 // Type satisfies StateEvent.
 func (RoomMemberEvent) Type() Type {
 	return TypeRoomMember
@@ -193,6 +210,15 @@ func (RoomMemberEvent) Type() Type {
 // StateKey satisfies StateEvent.
 func (e RoomMemberEvent) StateKey() string {
 	return string(e.UserID)
+}
+
+func parseRoomMemberEvent(e RawEvent) (Event, error) {
+	c := RoomMemberEvent{
+		RoomEventInfo: e.toRoomEventInfo(),
+		UserID:        matrix.UserID(e.StateKey),
+	}
+	err := json.Unmarshal(e.Content, &c)
+	return c, err
 }
 
 // Type satisfies StateEvent.
@@ -205,7 +231,17 @@ func (RoomPowerLevelsEvent) StateKey() string {
 	return ""
 }
 
+// SetRoomEventInfo sets the room event info.
+func (r *RoomPowerLevelsEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}
+
 // Type satisfies RoomEvent.
 func (RoomRedactionEvent) Type() Type {
 	return TypeRoomRedaction
+}
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomRedactionEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
 }

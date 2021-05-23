@@ -165,4 +165,9 @@ func (e RoomMessageEvent) StrippedBody() string {
 	return strings.Join(split[line:], "\n")
 }
 
+// SetRoomEventInfo sets the room event info.
+func (e *RoomMessageEvent) SetRoomEventInfo(i RoomEventInfo) {
+	e.RoomEventInfo = i
+}
+
 // TODO Add helper method to parse RoomMessageHTML messages.

@@ -4,7 +4,7 @@ package event
 type Type string
 
 // List of all known room events.
-// NOTE: Update event/parse.go as well.
+// NOTE: Update the 'parser' variable below as well.
 const (
 	TypeRoomCanonicalAlias Type = "m.room.canonical_alias"
 	TypeRoomCreate         Type = "m.room.create"
@@ -47,3 +47,37 @@ const (
 	// Events from the Room Upgrade module.
 	TypeRoomTombstone Type = "m.room.tombstone"
 )
+
+var parser = map[Type]func(RawEvent) (Event, error){
+	TypeRoomCanonicalAlias: roomEventParse(func() eventWithRoomEventInfo { return new(RoomCanonicalAliasEvent) }),
+	TypeRoomCreate:         roomEventParse(func() eventWithRoomEventInfo { return new(RoomCreateEvent) }),
+	TypeRoomJoinRules:      roomEventParse(func() eventWithRoomEventInfo { return new(RoomJoinRulesEvent) }),
+	TypeRoomMember:         parseRoomMemberEvent,
+	TypeRoomPowerLevels:    roomEventParse(func() eventWithRoomEventInfo { return new(RoomPowerLevelsEvent) }),
+	TypeRoomRedaction:      roomEventParse(func() eventWithRoomEventInfo { return new(RoomRedactionEvent) }),
+
+	TypeRoomMessage: roomEventParse(func() eventWithRoomEventInfo { return new(RoomMessageEvent) }),
+	TypeRoomName:    roomEventParse(func() eventWithRoomEventInfo { return new(RoomNameEvent) }),
+	TypeRoomTopic:   roomEventParse(func() eventWithRoomEventInfo { return new(RoomTopicEvent) }),
+	TypeRoomAvatar:  roomEventParse(func() eventWithRoomEventInfo { return new(RoomAvatarEvent) }),
+	TypeRoomPinned:  roomEventParse(func() eventWithRoomEventInfo { return new(RoomPinnedEvent) }),
+
+	TypeDirect: eventParse(func() Event { return new(DirectEvent) }),
+
+	TypeCallInvite:     roomEventParse(func() eventWithRoomEventInfo { return new(CallInviteEvent) }),
+	TypeCallCandidates: roomEventParse(func() eventWithRoomEventInfo { return new(CallCandidatesEvent) }),
+	TypeCallAnswer:     roomEventParse(func() eventWithRoomEventInfo { return new(CallAnswerEvent) }),
+	TypeCallHangup:     roomEventParse(func() eventWithRoomEventInfo { return new(CallHangupEvent) }),
+
+	TypeTyping: parseTypingEvent,
+
+	TypeReceipt: parseReceiptEvent,
+
+	TypePresence: parsePresenceEvent,
+
+	TypeRoomHistoryVisibility: parseHistoryVisibilityEvent,
+
+	TypeRoomGuestAccess: roomEventParse(func() eventWithRoomEventInfo { return new(RoomGuestAccessEvent) }),
+
+	TypeRoomTombstone: roomEventParse(func() eventWithRoomEventInfo { return new(RoomTombstoneEvent) }),
+}

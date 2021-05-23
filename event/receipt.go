@@ -1,6 +1,8 @@
 package event
 
 import (
+	"encoding/json"
+
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
@@ -22,4 +24,12 @@ type Receipt struct {
 // Type implements Event.
 func (ReceiptEvent) Type() Type {
 	return TypeReceipt
+}
+
+func parseReceiptEvent(e RawEvent) (Event, error) {
+	c := ReceiptEvent{
+		RoomID: e.RoomID,
+	}
+	err := json.Unmarshal(e.Content, &c)
+	return c, err
 }

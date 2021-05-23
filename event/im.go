@@ -84,3 +84,23 @@ func (RoomAvatarEvent) StateKey() string {
 func (RoomPinnedEvent) StateKey() string {
 	return ""
 }
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomNameEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomTopicEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomAvatarEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomPinnedEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}

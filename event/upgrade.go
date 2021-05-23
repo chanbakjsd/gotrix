@@ -22,3 +22,8 @@ func (RoomTombstoneEvent) Type() Type {
 func (RoomTombstoneEvent) StateKey() string {
 	return ""
 }
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomTombstoneEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}

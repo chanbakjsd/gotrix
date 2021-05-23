@@ -1,5 +1,7 @@
 package event
 
+import "encoding/json"
+
 var _ StateEvent = RoomHistoryVisibilityEvent{}
 
 // HistoryVisibility specifies the group that can view the room history.
@@ -34,4 +36,12 @@ func (RoomHistoryVisibilityEvent) Type() Type {
 // StateKey implements StateEvent.
 func (RoomHistoryVisibilityEvent) StateKey() string {
 	return ""
+}
+
+func parseHistoryVisibilityEvent(e RawEvent) (Event, error) {
+	c := RoomHistoryVisibilityEvent{
+		RoomEventInfo: e.toRoomEventInfo(),
+	}
+	err := json.Unmarshal(e.Content, &c)
+	return c, err
 }

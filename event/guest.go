@@ -27,3 +27,8 @@ func (RoomGuestAccessEvent) Type() Type {
 func (RoomGuestAccessEvent) StateKey() string {
 	return ""
 }
+
+// SetRoomEventInfo sets the room event info.
+func (r *RoomGuestAccessEvent) SetRoomEventInfo(i RoomEventInfo) {
+	r.RoomEventInfo = i
+}

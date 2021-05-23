@@ -3,154 +3,58 @@ package event
 import (
 	"encoding/json"
 	"errors"
-	"time"
-
-	"github.com/chanbakjsd/gotrix/matrix"
+	"reflect"
 )
 
 // ErrUnknownEventType represents an error where the event type is unknown and therefore
 // cannot be mapped to its concrete type.
 var ErrUnknownEventType = errors.New("unknown event type")
 
+// Register registers a parser for the provided event type.
+func Register(eventType Type, p func(RawEvent) (Event, error)) {
+	parser[eventType] = p
+}
+
 // Parse returns the concrete type of the provided event's type and sets its Event
 // field to the provided event.
 func (e RawEvent) Parse() (Event, error) {
-	switch e.Type {
-	case TypeRoomCanonicalAlias:
-		c := RoomCanonicalAliasEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomCreate:
-		c := RoomCreateEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomJoinRules:
-		c := RoomJoinRulesEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomMember:
-		c := RoomMemberEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-			UserID:        matrix.UserID(e.StateKey),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomPowerLevels:
-		c := RoomPowerLevelsEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomRedaction:
-		c := RoomRedactionEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomMessage:
-		c := RoomMessageEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomName:
-		c := RoomNameEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomTopic:
-		c := RoomTopicEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomAvatar:
-		c := RoomAvatarEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomPinned:
-		c := RoomPinnedEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeCallInvite:
-		c := CallInviteEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeCallCandidates:
-		c := CallCandidatesEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeCallAnswer:
-		c := CallAnswerEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeCallHangup:
-		c := CallHangupEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeTyping:
-		c := TypingEvent{
-			RoomID: e.RoomID,
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeReceipt:
-		c := ReceiptEvent{
-			RoomID: e.RoomID,
-		}
-		err := json.Unmarshal(e.Content, &c.Events)
-		return c, err
-	case TypePresence:
-		c := PresenceEvent{
-			User:        e.Sender,
-			receiveTime: time.Now(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomHistoryVisibility:
-		c := RoomHistoryVisibilityEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomGuestAccess:
-		c := RoomGuestAccessEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeDirect:
-		var c DirectEvent
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
-	case TypeRoomTombstone:
-		c := RoomTombstoneEvent{
-			RoomEventInfo: e.toRoomEventInfo(),
-		}
-		err := json.Unmarshal(e.Content, &c)
-		return c, err
+	p, ok := parser[e.Type]
+	if !ok {
+		return nil, ErrUnknownEventType
 	}
 
-	return nil, ErrUnknownEventType
+	parsed, err := p(e)
+	if err != nil {
+		return nil, err
+	}
+	if parsed.Type() != e.Type {
+		return nil, ErrUnknownEventType
+	}
+	return parsed, nil
+}
+
+type eventWithRoomEventInfo interface {
+	Event
+	SetRoomEventInfo(RoomEventInfo)
+}
+
+func eventParse(zeroValue func() Event) func(RawEvent) (Event, error) {
+	return func(e RawEvent) (Event, error) {
+		v := zeroValue()
+		err := json.Unmarshal(e.Content, &v)
+		w := reflect.Indirect(reflect.ValueOf(v))
+		return w.Interface().(Event), err
+	}
+}
+
+func roomEventParse(zeroValue func() eventWithRoomEventInfo) func(RawEvent) (Event, error) {
+	return func(e RawEvent) (Event, error) {
+		v := zeroValue()
+		v.SetRoomEventInfo(e.toRoomEventInfo())
+		err := json.Unmarshal(e.Content, &v)
+		w := reflect.Indirect(reflect.ValueOf(v))
+		return w.Interface().(Event), err
+	}
 }
 
 // toRoomEventInfo creates a RoomEventInfo from the provided event.

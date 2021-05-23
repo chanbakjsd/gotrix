@@ -97,3 +97,23 @@ func (CallAnswerEvent) Type() Type {
 func (CallHangupEvent) Type() Type {
 	return TypeCallHangup
 }
+
+// SetRoomEventInfo sets the room event info.
+func (c *CallInviteEvent) SetRoomEventInfo(i RoomEventInfo) {
+	c.RoomEventInfo = i
+}
+
+// SetRoomEventInfo sets the room event info.
+func (c *CallCandidatesEvent) SetRoomEventInfo(i RoomEventInfo) {
+	c.RoomEventInfo = i
+}
+
+// SetRoomEventInfo sets the room event info.
+func (c *CallAnswerEvent) SetRoomEventInfo(i RoomEventInfo) {
+	c.RoomEventInfo = i
+}
+
+// SetRoomEventInfo sets the room event info.
+func (c *CallHangupEvent) SetRoomEventInfo(i RoomEventInfo) {
+	c.RoomEventInfo = i
+}
