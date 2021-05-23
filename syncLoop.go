@@ -60,38 +60,44 @@ func (c *Client) Close() error {
 	return nil
 }
 
+func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHistorical bool) {
+	for _, v := range e {
+		v := v
+		v.RoomID = roomID
+		concrete, err := v.Parse()
+
+		// Update state if it's a state event.
+		if stateEvent, ok := concrete.(event.StateEvent); ok {
+			_ = c.State.RoomStateSet(roomID, stateEvent)
+		}
+
+		// Print out warnings.
+		switch {
+		case errors.Is(err, event.ErrUnknownEventType):
+			debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
+		case err != nil:
+			debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
+		}
+
+		// Don't call handlers on historical events.
+		if isHistorical {
+			continue
+		}
+
+		c.Handler.HandleRaw(c, v)
+		if err != nil {
+			return
+		}
+		c.Handler.Handle(c, concrete)
+	}
+}
+
 func (c *Client) readLoop(ctx context.Context, filter string) {
 	client := c.WithContext(ctx)
 	next := ""
 
-	handleWithRoomID := func(e []event.RawEvent, roomID matrix.RoomID) {
-		// Handle all events in the list.
-		for _, v := range e {
-			v := v
-			v.RoomID = roomID
-			concrete, err := v.Parse()
-
-			if stateEvent, ok := concrete.(event.StateEvent); ok {
-				_ = c.State.RoomStateSet(roomID, stateEvent)
-			}
-
-			switch {
-			case errors.Is(err, event.ErrUnknownEventType):
-				debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
-				continue
-			case err != nil:
-				debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
-				continue
-			}
-			if next == "" {
-				// Don't handle historical events.
-				continue
-			}
-			c.Handler.Handle(c, concrete)
-		}
-	}
 	handle := func(e []event.RawEvent) {
-		handleWithRoomID(e, "")
+		c.handleWithRoomID(e, "", next == "")
 	}
 
 	var nextRetryTime time.Duration
@@ -138,22 +144,22 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 		handle(resp.AccountData.Events)
 		handle(resp.ToDevice.Events)
 		for k, v := range resp.Rooms.Joined {
-			handleWithRoomID(v.State.Events, k)
-			handleWithRoomID(v.Timeline.Events, k)
-			handleWithRoomID(v.Ephemeral.Events, k)
-			handleWithRoomID(v.AccountData.Events, k)
+			c.handleWithRoomID(v.State.Events, k, next == "")
+			c.handleWithRoomID(v.Timeline.Events, k, next == "")
+			c.handleWithRoomID(v.Ephemeral.Events, k, next == "")
+			c.handleWithRoomID(v.AccountData.Events, k, next == "")
 		}
 		for k, v := range resp.Rooms.Invited {
 			events := make([]event.RawEvent, len(v.State.Events))
 			for k, v := range v.State.Events {
 				events[k] = v.RawEvent
 			}
-			handleWithRoomID(events, k)
+			c.handleWithRoomID(events, k, next == "")
 		}
 		for k, v := range resp.Rooms.Left {
-			handleWithRoomID(v.State.Events, k)
-			handleWithRoomID(v.Timeline.Events, k)
-			handleWithRoomID(v.AccountData.Events, k)
+			c.handleWithRoomID(v.State.Events, k, next == "")
+			c.handleWithRoomID(v.Timeline.Events, k, next == "")
+			c.handleWithRoomID(v.AccountData.Events, k, next == "")
 		}
 
 		next = resp.NextBatch

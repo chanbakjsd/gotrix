@@ -10,8 +10,10 @@ import (
 )
 
 // Handler is the interface that represents the methods the client needs from the handler.
+// An event is always passed into HandleRaw and is passed into Handle when it is successfully parsed.
 type Handler interface {
 	Handle(cli *Client, event event.Event)
+	HandleRaw(cli *Client, event event.RawEvent)
 	AddHandler(toCall interface{}) error
 }
 
@@ -21,8 +23,9 @@ func (c *Client) AddHandler(function interface{}) error {
 }
 
 type defaultHandler struct {
-	mut      sync.RWMutex
-	handlers map[event.Type][]reflect.Value
+	mut        sync.RWMutex
+	handlers   map[event.Type][]reflect.Value
+	rawHandler []reflect.Value
 }
 
 func (d *defaultHandler) Handle(cli *Client, event event.Event) {
@@ -36,6 +39,17 @@ func (d *defaultHandler) Handle(cli *Client, event event.Event) {
 		return
 	}
 	for _, v := range handlers {
+		go v.Call([]reflect.Value{reflect.ValueOf(cli), reflect.ValueOf(event)})
+	}
+}
+
+func (d *defaultHandler) HandleRaw(cli *Client, event event.RawEvent) {
+	debug.Debug("new raw event: " + event.Type)
+
+	d.mut.RLock()
+	defer d.mut.RUnlock()
+
+	for _, v := range d.rawHandler {
 		go v.Call([]reflect.Value{reflect.ValueOf(cli), reflect.ValueOf(event)})
 	}
 }
@@ -57,6 +71,15 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	}
 
 	contentInterface := reflect.Zero(typ.In(1)).Interface()
+	if _, ok := contentInterface.(event.RawEvent); ok {
+		d.mut.Lock()
+		defer d.mut.Unlock()
+
+		d.rawHandler = append(d.rawHandler, val)
+		debug.Debug("added raw handler")
+		return nil
+	}
+
 	content, ok := contentInterface.(event.Event)
 	if !ok {
 		return fmt.Errorf(
@@ -72,9 +95,6 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	defer d.mut.Unlock()
 
 	// Add it to the list of handlers
-	if _, ok := d.handlers[eventType]; !ok {
-		d.handlers[eventType] = make([]reflect.Value, 0, 1)
-	}
 	d.handlers[eventType] = append(d.handlers[eventType], val)
 
 	debug.Debug("added handler: event=" + eventType)
