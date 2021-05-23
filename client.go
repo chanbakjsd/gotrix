@@ -34,7 +34,7 @@ func New(homeServerHost string) (*Client, error) {
 // NewWithClient creates a client with the provided host URL and the provided client.
 // It assumes https if the scheme is not provided.
 func NewWithClient(httpClient httputil.Client, serverName string) (*Client, error) {
-	if strings.Count(serverName, ":") < 2 {
+	if !strings.Contains(serverName, "://") {
 		// First is protocol while second is port.
 		serverName = "https://" + serverName
 	}
