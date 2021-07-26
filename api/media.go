@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
 	"github.com/chanbakjsd/gotrix/matrix"
@@ -46,6 +47,8 @@ func (c *Client) MediaDownloadURL(matrixURL matrix.URL, allowRemote bool, filena
 		return string(matrixURL), nil
 	}
 
+	parsed.Path = strings.TrimPrefix(parsed.Path, "/")
+
 	return c.FullRoute(EndpointMediaDownload(parsed.Host, parsed.Path, filename)) +
 			"?allow_remote=" + strconv.FormatBool(allowRemote),
 		nil
@@ -73,6 +76,8 @@ func (c *Client) MediaThumbnailURL(matrixURL matrix.URL, allowRemote bool,
 	if parsed.Scheme != "mxc" {
 		return string(matrixURL), nil
 	}
+
+	parsed.Path = strings.TrimPrefix(parsed.Path, "/")
 
 	query := url.Values{
 		"width":        {strconv.Itoa(width)},
