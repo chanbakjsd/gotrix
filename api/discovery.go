@@ -59,7 +59,7 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	}
 
 	// Probe provided homeserver to make sure it's valid.
-	checkClient := &Client{}
+	checkClient := &Client{Client: c.Client}
 	checkClient.HomeServer = parsedURL.Host
 
 	_, err = checkClient.SupportedVersions()
