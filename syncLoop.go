@@ -86,7 +86,7 @@ func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHi
 
 		c.Handler.HandleRaw(c, v)
 		if err != nil {
-			return
+			continue
 		}
 		c.Handler.Handle(c, concrete)
 	}
@@ -105,6 +105,8 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 	timer := time.NewTimer(0)
 	defer timer.Stop()
 
+	defer close(c.closeDone)
+
 	<-timer.C
 
 	for {
@@ -118,7 +120,6 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 		if err != nil {
 			if ctx.Err() != nil {
 				// The context has finished.
-				close(c.closeDone)
 				return
 			}
 			// Exponentially backoff with a cap of 5 minutes.
