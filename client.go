@@ -21,6 +21,7 @@ type Client struct {
 	Handler Handler
 	State   State
 
+	next       string
 	cancelFunc func()
 	closeDone  chan struct{}
 }

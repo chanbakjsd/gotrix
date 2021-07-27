@@ -1,6 +1,9 @@
 package state
 
 import (
+	"sync"
+
+	"github.com/chanbakjsd/gotrix/api"
 	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -10,40 +13,124 @@ type RoomState map[event.Type]map[string]event.StateEvent
 
 // DefaultState is the default used implementation of state by the gotrix package.
 type DefaultState struct {
-	TrackedState map[matrix.RoomID]RoomState
+	mu           sync.RWMutex
+	roomStateMap map[matrix.RoomID]RoomState
 }
 
 // NewDefault returns a DefaultState that has been initialized empty.
 func NewDefault() *DefaultState {
 	return &DefaultState{
-		TrackedState: make(map[matrix.RoomID]RoomState),
+		roomStateMap: make(map[matrix.RoomID]RoomState),
 	}
 }
 
 // RoomState returns the last event set by RoomEventSet.
 // It never returns an error as it does not forget state.
-func (d DefaultState) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (event.StateEvent, error) {
-	return d.TrackedState[roomID][eventType][key], nil
+func (d *DefaultState) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (event.StateEvent, error) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	return d.roomStateMap[roomID][eventType][key], nil
 }
 
 // RoomStates returns the last set of events set by RoomEventSet.
-func (d DefaultState) RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error) {
-	return d.TrackedState[roomID][eventType], nil
+func (d *DefaultState) RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	events, ok := d.roomStateMap[roomID][eventType]
+	if !ok {
+		return nil, nil
+	}
+
+	eventsCopy := make(map[string]event.StateEvent, len(events))
+	for k, v := range events {
+		eventsCopy[k] = v
+	}
+
+	return eventsCopy, nil
 }
 
-// RoomStateSet sets the state inside a DefaultState to be returned by DefaultState later.
-func (d *DefaultState) RoomStateSet(roomID matrix.RoomID, e event.StateEvent) error {
-	eventType := e.Type()
-	stateKey := e.StateKey()
+func accumulateRaw(dst []event.StateEvent, roomID matrix.RoomID, raws []event.RawEvent) []event.StateEvent {
+	for _, raw := range raws {
+		raw.RoomID = roomID
 
-	if _, ok := d.TrackedState[roomID]; !ok {
-		d.TrackedState[roomID] = make(RoomState)
+		e, err := raw.Parse()
+		if err != nil {
+			continue
+		}
+		state, ok := e.(event.StateEvent)
+		if ok {
+			dst = append(dst, state)
+		}
 	}
 
-	if _, ok := d.TrackedState[roomID][eventType]; !ok {
-		d.TrackedState[roomID][eventType] = make(map[string]event.StateEvent)
+	return dst
+}
+
+func accumulateStripped(dst []event.StateEvent, roomID matrix.RoomID, evs []event.StrippedEvent) []event.StateEvent {
+	for _, ev := range evs {
+		ev.RoomID = roomID
+
+		e, err := ev.Parse()
+		if err != nil {
+			continue
+		}
+		state, ok := e.(event.StateEvent)
+		if ok {
+			dst = append(dst, state)
+		}
 	}
 
-	d.TrackedState[roomID][eventType][stateKey] = e
+	return dst
+}
+
+// AddEvent sets the room state events inside a DefaultState to be returned by DefaultState later.
+func (d *DefaultState) AddEvents(sync *api.SyncResponse) error {
+	var eventCount int
+	for _, v := range sync.Rooms.Joined {
+		eventCount += len(v.State.Events)
+	}
+	for _, v := range sync.Rooms.Invited {
+		eventCount += len(v.State.Events)
+	}
+	for _, v := range sync.Rooms.Left {
+		eventCount += len(v.State.Events)
+	}
+
+	stateEvents := make([]event.StateEvent, 0, eventCount)
+	for k, v := range sync.Rooms.Joined {
+		stateEvents = accumulateRaw(stateEvents, k, v.State.Events)
+	}
+	for k, v := range sync.Rooms.Invited {
+		stateEvents = accumulateStripped(stateEvents, k, v.State.Events)
+	}
+	for k, v := range sync.Rooms.Left {
+		stateEvents = accumulateRaw(stateEvents, k, v.State.Events)
+	}
+
+	if len(stateEvents) == 0 {
+		return nil
+	}
+
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	for _, state := range stateEvents {
+		roomID := state.Room()
+		stateKey := state.StateKey()
+		eventType := state.Type()
+
+		if _, ok := d.roomStateMap[roomID]; !ok {
+			d.roomStateMap[roomID] = make(RoomState, 1)
+		}
+
+		if _, ok := d.roomStateMap[roomID][eventType]; !ok {
+			d.roomStateMap[roomID][eventType] = make(map[string]event.StateEvent, 1)
+		}
+
+		d.roomStateMap[roomID][eventType][stateKey] = state
+	}
+
 	return nil
 }

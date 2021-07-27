@@ -3,6 +3,7 @@ package gotrix
 import (
 	"errors"
 
+	"github.com/chanbakjsd/gotrix/api"
 	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -16,12 +17,13 @@ type State interface {
 	// RoomState returns the latest event in a room with the specified type.
 	// If it is found in the cache, error will be nil.
 	// Note that (nil, nil) should be returned if the cache can be certain the event type never occurred.
-	RoomState(roomID matrix.RoomID, eventType event.Type, stateKey string) (e event.StateEvent, err error)
+	RoomState(roomID matrix.RoomID, eventType event.Type, stateKey string) (event.StateEvent, error)
 	// RoomStates returns all the events with the given event type.
 	// If there is duplicate events with the same state key, the newer one should be returned.
 	RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error)
-	// RoomStateSet creates a room event in the specified room.
-	RoomStateSet(roomID matrix.RoomID, e event.StateEvent) error
+	// AddEvent adds the needed events from the given sync response.
+	// It is up to the implementation to pick and add the needed events inside the response.
+	AddEvents(*api.SyncResponse) error
 }
 
 // RoomState queries the internal State for the given RoomEvent.

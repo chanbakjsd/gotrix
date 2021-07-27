@@ -33,15 +33,29 @@ var DefaultFilter = event.GlobalFilter{
 	},
 }
 
-// Open starts the event loop of the client with a background context.
-func (c *Client) Open() error {
-	return c.OpenCtx(context.Background())
+// Next returns the current Next synchronization argument. Next can ONLY be
+// called once the Client is closed, otherwise a panic will occur.
+func (c *Client) Next() string {
+	select {
+	case <-c.closeDone:
+		return c.next
+	default:
+		panic("Next called on unclosed Client")
+	}
 }
 
-// OpenCtx starts the event loop of the client with the provided context.
-func (c *Client) OpenCtx(ctx context.Context) error {
+// Open starts the event loop of the client with a background context.
+func (c *Client) Open() error {
+	return c.OpenWithNext("")
+}
+
+// OpenWithNext starts the event loop with the given next string that resumes the sync loop.
+// If next is empty, then an initial sync will be done.
+func (c *Client) OpenWithNext(next string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	c.closeDone = make(chan struct{})
-	ctx, c.cancelFunc = context.WithCancel(ctx)
+	c.cancelFunc = cancel
 
 	filterID, err := c.FilterAdd(c.Filter)
 	if err != nil {
@@ -65,11 +79,6 @@ func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHi
 		v := v
 		v.RoomID = roomID
 		concrete, err := v.Parse()
-
-		// Update state if it's a state event.
-		if stateEvent, ok := concrete.(event.StateEvent); ok {
-			_ = c.State.RoomStateSet(roomID, stateEvent)
-		}
 
 		// Print out warnings.
 		switch {
@@ -139,6 +148,10 @@ func (c *Client) readLoop(ctx context.Context, filter string) {
 			case <-ctx.Done():
 				return
 			}
+		}
+
+		if err := c.State.AddEvents(resp); err != nil {
+			debug.Debug(fmt.Errorf("error adding sync events to state: %w", err))
 		}
 
 		handle(resp.Presence.Events)
