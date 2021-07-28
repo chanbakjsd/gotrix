@@ -12,7 +12,7 @@ import (
 // 'v' is a pointer that is directly passed into json.Unmarshal.
 func (c *Client) ClientConfig(userID matrix.UserID, configType string, v interface{}) error {
 	err := c.Request(
-		"PUT", EndpointAccountDataGlobal(userID, configType), v,
+		"GET", EndpointAccountDataGlobal(userID, configType), v,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -39,7 +39,7 @@ func (c *Client) ClientConfigSet(userID matrix.UserID, configType string, config
 // 'v' is a pointer that is directly passed into json.Unmarshal.
 func (c *Client) ClientConfigRoom(userID matrix.UserID, roomID matrix.RoomID, configType string, v interface{}) error {
 	err := c.Request(
-		"PUT", EndpointAccountDataRoom(userID, roomID, configType), v,
+		"GET", EndpointAccountDataRoom(userID, roomID, configType), v,
 		httputil.WithToken(),
 	)
 	if err != nil {
