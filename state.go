@@ -21,6 +21,8 @@ type State interface {
 	// RoomStates returns all the events with the given event type.
 	// If there is duplicate events with the same state key, the newer one should be returned.
 	RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error)
+	// RoomSummary returns the summary of a room as received in sync response.
+	RoomSummary(roomID matrix.RoomID) (api.SyncRoomSummary, error)
 	// AddEvent adds the needed events from the given sync response.
 	// It is up to the implementation to pick and add the needed events inside the response.
 	AddEvents(*api.SyncResponse) error
@@ -55,4 +57,10 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 // RoomStates queries the internal State for all state events that match RoomEvents.
 func (c *Client) RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error) {
 	return c.State.RoomStates(roomID, eventType)
+}
+
+// RoomSummary queries the State for the summary of a room, commonly used for generating room name.
+// To follow the room name generation strategy of the specification, use Client.RoomName instead.
+func (c *Client) RoomSummary(roomID matrix.RoomID) (api.SyncRoomSummary, error) {
+	return c.State.RoomSummary(roomID)
 }

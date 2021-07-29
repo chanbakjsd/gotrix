@@ -13,8 +13,9 @@ type RoomState map[event.Type]map[string]event.StateEvent
 
 // DefaultState is the default used implementation of state by the gotrix package.
 type DefaultState struct {
-	mu           sync.RWMutex
-	roomStateMap map[matrix.RoomID]RoomState
+	mu             sync.RWMutex
+	roomStateMap   map[matrix.RoomID]RoomState
+	roomSummaryMap map[matrix.RoomID]api.SyncRoomSummary
 }
 
 // NewDefault returns a DefaultState that has been initialized empty.
@@ -24,7 +25,7 @@ func NewDefault() *DefaultState {
 	}
 }
 
-// RoomState returns the last event set by RoomEventSet.
+// RoomState returns the last event added in AddEvents.
 // It never returns an error as it does not forget state.
 func (d *DefaultState) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (event.StateEvent, error) {
 	d.mu.RLock()
@@ -33,7 +34,7 @@ func (d *DefaultState) RoomState(roomID matrix.RoomID, eventType event.Type, key
 	return d.roomStateMap[roomID][eventType][key], nil
 }
 
-// RoomStates returns the last set of events set by RoomEventSet.
+// RoomStates returns the last set of events added in AddEvents.
 func (d *DefaultState) RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error) {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
@@ -49,6 +50,14 @@ func (d *DefaultState) RoomStates(roomID matrix.RoomID, eventType event.Type) (m
 	}
 
 	return eventsCopy, nil
+}
+
+// RoomSummary returns the summaries set in AddEvents.
+func (d *DefaultState) RoomSummary(roomID matrix.RoomID) (api.SyncRoomSummary, error) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	return d.roomSummaryMap[roomID], nil
 }
 
 func accumulateRaw(dst []event.StateEvent, roomID matrix.RoomID, raws []event.RawEvent) []event.StateEvent {
@@ -85,7 +94,7 @@ func accumulateStripped(dst []event.StateEvent, roomID matrix.RoomID, evs []even
 	return dst
 }
 
-// AddEvent sets the room state events inside a DefaultState to be returned by DefaultState later.
+// AddEvents sets the room state events inside a DefaultState to be returned by DefaultState later.
 func (d *DefaultState) AddEvents(sync *api.SyncResponse) error {
 	var eventCount int
 	for _, v := range sync.Rooms.Joined {
@@ -130,6 +139,13 @@ func (d *DefaultState) AddEvents(sync *api.SyncResponse) error {
 		}
 
 		d.roomStateMap[roomID][eventType][stateKey] = state
+	}
+
+	for k, v := range sync.Rooms.Joined {
+		// Should always be larger than 0 as the user is in the room. If it is 0, it's empty.
+		if v.Summary.JoinedCount > 0 {
+			d.roomSummaryMap[k] = v.Summary
+		}
 	}
 
 	return nil
