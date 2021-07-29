@@ -9,20 +9,63 @@ import (
 )
 
 // MemberName calculates the display name of a member.
+// Note that a user joining might invalidate some names if they share the same display name as disambiguation
+// will become necessary.
+//
+// Use the Client.MemberNames variant when generating member name for multiple users to reduce duplicate work.
 func (c *Client) MemberName(roomID matrix.RoomID, userID matrix.UserID) (string, error) {
-	// Step 1: Inspect m.room.member state event.
-	e, _ := c.RoomState(roomID, event.TypeRoomMember, string(userID))
-	if e == nil {
-		return string(userID), nil
+	names, err := c.MemberNames(roomID, []matrix.UserID{userID})
+	if err != nil {
+		return "", err
+	}
+	return names[0], nil
+}
+
+// MemberNames calculates the display name of all the users provided.
+func (c *Client) MemberNames(roomID matrix.RoomID, userIDs []matrix.UserID) ([]string, error) {
+	// Build the hashmap of display names to locate duplicate display names.
+	all, err := c.RoomStates(roomID, event.TypeRoomMember)
+	if err != nil {
+		return nil, err
+	}
+	dupe := make(map[string]int, len(all))
+	for _, v := range all {
+		memberEvent := v.(event.RoomMemberEvent)
+		if memberEvent.DisplayName == nil {
+			continue
+		}
+		dupe[*memberEvent.DisplayName]++
 	}
 
-	memberEvent := e.(event.RoomMemberEvent)
-	if memberEvent.DisplayName == nil || *memberEvent.DisplayName == "" {
-		return string(userID), nil
+	// Start generating display names.
+	result := make([]string, 0, len(userIDs))
+	for _, userID := range userIDs {
+		// Step 1: Inspect m.room.member state event.
+		e, _ := c.RoomState(roomID, event.TypeRoomMember, string(userID))
+		if e == nil {
+			result = append(result, string(userID))
+			continue
+		}
+
+		// Step 2: If there are no display name field, use raw user ID as display name.
+		memberEvent := e.(event.RoomMemberEvent)
+		if memberEvent.DisplayName == nil || *memberEvent.DisplayName == "" {
+			result = append(result, string(userID))
+			continue
+		}
+
+		displayName := *memberEvent.DisplayName
+		// Step 3: Use display name if it is unique.
+		if dupe[displayName] == 1 {
+			result = append(result, displayName)
+			continue
+		}
+
+		// Step 4: Disambiguate if the display name is not unique.
+		result = append(result, displayName+" ("+string(userID)+")")
 	}
 
-	// TODO: Check for the need to disambiguate as requested by the spec 13.2.2.3.
-	return *memberEvent.DisplayName, nil
+	return result, nil
 }
 
 // RoomName calculates the display name of a room.
