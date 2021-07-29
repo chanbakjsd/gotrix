@@ -69,9 +69,9 @@ type SyncLeftRoomEvents struct {
 //
 // Heroes are users that are allowed to set a name/canonical alias to a room.
 type SyncRoomSummary struct {
-	Heroes       []string `json:"m.heroes,omitempty"`
-	JoinedCount  int      `json:"m.joined_member_count,omitempty"`
-	InvitedCount int      `json:"m.invited_member_count,omitempty"`
+	Heroes       []matrix.UserID `json:"m.heroes,omitempty"`
+	JoinedCount  int             `json:"m.joined_member_count,omitempty"`
+	InvitedCount int             `json:"m.invited_member_count,omitempty"`
 }
 
 // SyncTimeline consists of a timeline of events.
