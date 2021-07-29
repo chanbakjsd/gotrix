@@ -11,10 +11,12 @@ var _ Event = PresenceEvent{}
 
 // PresenceEvent is an event where the presence of a user is updated.
 type PresenceEvent struct {
-	User            matrix.UserID   `json:"-"`
-	AvatarURL       *matrix.URL     `json:"avatar_url,omitempty"`
-	DisplayName     *string         `json:"displayname,omitempty"`
-	LastActiveAgo   *int            `json:"last_active_ago,omitempty"` // Last time since user performed some action, in ms.
+	User        matrix.UserID `json:"-"`
+	AvatarURL   *matrix.URL   `json:"avatar_url,omitempty"`
+	DisplayName *string       `json:"displayname,omitempty"`
+
+	// Last time since user performed some action, in ms.
+	LastActiveAgo   *int            `json:"last_active_ago,omitempty"`
 	Presence        matrix.Presence `json:"presence"`
 	CurrentlyActive *bool           `json:"currently_active,omitempty"`
 	Status          *string         `json:"status_msg,omitempty"`

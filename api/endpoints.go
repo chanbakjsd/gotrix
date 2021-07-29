@@ -11,6 +11,7 @@ import (
 var Version = "r0"
 
 // Known Matrix Client-Server API endpoints.
+//nolint:lll
 var (
 	EndpointBase = "_matrix/client/" + Version
 

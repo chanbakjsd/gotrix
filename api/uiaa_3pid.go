@@ -6,7 +6,7 @@ import (
 )
 
 // ErrUnsupportedAuthType is returned when a 3PID auth is attempted on an endpoint that doesn't support it.
-var ErrUnsupportedAuthType = errors.New("current interactive auth session does not support third-party identifier tokens")
+var ErrUnsupportedAuthType = errors.New("3PID tokens are unsupported by the current interactive auth session")
 
 // RequestEmailTokenArg represents all possible argument to RequestEmailToken.
 type RequestEmailTokenArg struct {

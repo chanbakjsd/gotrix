@@ -41,6 +41,6 @@ func (c *Client) MentionRoom(roomID matrix.RoomID) (body string, formatted strin
 // TODO Implement group mention
 
 func formatMention(id, name string) (string, string) {
-	formatted := "<a href='https://matrix.to/#/" + url.PathEscape(string(id)) + "'>" + name + "</a>"
+	formatted := "<a href='https://matrix.to/#/" + url.PathEscape(id) + "'>" + name + "</a>"
 	return name, formatted
 }
