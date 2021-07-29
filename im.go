@@ -24,17 +24,17 @@ func (c *Client) MemberName(roomID matrix.RoomID, userID matrix.UserID) (string,
 // MemberNames calculates the display name of all the users provided.
 func (c *Client) MemberNames(roomID matrix.RoomID, userIDs []matrix.UserID) ([]string, error) {
 	// Build the hashmap of display names to locate duplicate display names.
-	all, err := c.RoomStates(roomID, event.TypeRoomMember)
-	if err != nil {
-		return nil, err
-	}
-	dupe := make(map[string]int, len(all))
-	for _, v := range all {
+	dupe := make(map[string]int)
+	err := c.EachRoomState(roomID, event.TypeRoomMember, func(key string, v event.StateEvent) error {
 		memberEvent := v.(event.RoomMemberEvent)
 		if memberEvent.DisplayName == nil {
-			continue
+			return nil
 		}
 		dupe[*memberEvent.DisplayName]++
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	// Start generating display names.

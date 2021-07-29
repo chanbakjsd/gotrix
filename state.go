@@ -6,11 +6,19 @@ import (
 	"github.com/chanbakjsd/gotrix/api"
 	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
+	"github.com/chanbakjsd/gotrix/state"
 )
 
 // ErrInvalidStateEvent is returned by (*Client).RoomState and (*Client).RoomStates when homeserver returns an event
 // that is not a known state event when a state event is expected.
 var ErrInvalidStateEvent = errors.New("invalid state event has been returned by homeserver")
+
+// ErrStopIter is an error used to denote that the iteration on EachRoomState should be stopped.
+var ErrStopIter = errors.New("stop iterating on EachRoomState")
+
+func init() {
+	state.ErrStopIter = ErrStopIter
+}
 
 // State represents the required functions for a state.
 type State interface {
@@ -18,9 +26,10 @@ type State interface {
 	// If it is found in the cache, error will be nil.
 	// Note that (nil, nil) should be returned if the cache can be certain the event type never occurred.
 	RoomState(roomID matrix.RoomID, eventType event.Type, stateKey string) (event.StateEvent, error)
-	// RoomStates returns all the events with the given event type.
-	// If there is duplicate events with the same state key, the newer one should be returned.
-	RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error)
+	// EachRoomState calls f for every event stored in the state.
+	// To abort iteration, f should return ErrStopIter.
+	// This function can return the error returned by f or errors while getting data for iteration.
+	EachRoomState(roomID matrix.RoomID, eventType event.Type, f func(key string, e event.StateEvent) error) error
 	// RoomSummary returns the summary of a room as received in sync response.
 	RoomSummary(roomID matrix.RoomID) (api.SyncRoomSummary, error)
 	// AddEvent adds the needed events from the given sync response.
@@ -54,9 +63,9 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 	return stateEvent, nil
 }
 
-// RoomStates queries the internal State for all state events that match RoomEvents.
-func (c *Client) RoomStates(roomID matrix.RoomID, eventType event.Type) (map[string]event.StateEvent, error) {
-	return c.State.RoomStates(roomID, eventType)
+// EachRoomState iterates through all events with the specified type, stopping if f returns ErrIterStop.
+func (c *Client) EachRoomState(roomID matrix.RoomID, typ event.Type, f func(string, event.StateEvent) error) error {
+	return c.State.EachRoomState(roomID, typ, f)
 }
 
 // RoomSummary queries the State for the summary of a room, commonly used for generating room name.

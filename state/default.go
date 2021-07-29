@@ -8,6 +8,9 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
+// ErrStopIter is a copy of gotrix.ErrStopIter.
+var ErrStopIter error
+
 // RoomState is the state kept by a DefaultState for each room.
 type RoomState map[event.Type]map[string]event.StateEvent
 
@@ -32,6 +35,28 @@ func (d *DefaultState) RoomState(roomID matrix.RoomID, eventType event.Type, key
 	defer d.mu.RUnlock()
 
 	return d.roomStateMap[roomID][eventType][key], nil
+}
+
+// EachRoomState calls f for every event of the specified type.
+// It terminates iteration when an error is returned. Use ErrStopIter to denote a non-failure condition.
+// It makes a copy internally and calls f on it.
+func (d *DefaultState) EachRoomState(id matrix.RoomID, typ event.Type, f func(string, event.StateEvent) error) error {
+	states, err := d.RoomStates(id, typ)
+	if err != nil {
+		return err
+	}
+
+	for k, v := range states {
+		err = f(k, v)
+		switch {
+		case err == ErrStopIter:
+			return nil
+		case err != nil:
+			return err
+		}
+	}
+
+	return nil
 }
 
 // RoomStates returns the last set of events added in AddEvents.
