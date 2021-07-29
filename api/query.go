@@ -65,9 +65,9 @@ type RoomMemberFilter struct {
 
 // RoomMembers fetches the member list for a room from the homeserver.
 // The returned member list is in the form of an array of RoomMember events.
-func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) ([]event.RoomMemberEvent, error) {
+func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) ([]event.RawEvent, error) {
 	var resp struct {
-		Chunk []event.RoomMemberEvent `json:"chunk,omitempty"`
+		Chunk []event.RawEvent `json:"chunk,omitempty"`
 	}
 
 	arg := make(map[string]string)
