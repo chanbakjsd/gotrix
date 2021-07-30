@@ -21,6 +21,7 @@ type Client struct {
 	Handler Handler
 	State   State
 
+	ctx        context.Context
 	next       string
 	cancelFunc func()
 	closeDone  chan struct{}
@@ -62,5 +63,6 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 // WithContext creates a copy of the client that uses the provided context.
 func (c Client) WithContext(ctx context.Context) *Client {
 	c.Client = c.Client.WithContext(ctx)
+	c.ctx = ctx
 	return &c
 }

@@ -123,4 +123,8 @@ var (
 	EndpointSendToDevice = func(eventType event.Type, transactionID string) string {
 		return EndpointBase + "/sendToDevice/" + url.PathEscape(string(eventType)) + "/" + url.PathEscape(transactionID)
 	}
+
+	EndpointSSOLogin = func(redirectURL string) string {
+		return EndpointBase + "/login/sso/redirect?redirectUrl=" + url.QueryEscape(redirectURL)
+	}
 )
