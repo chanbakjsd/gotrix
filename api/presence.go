@@ -28,8 +28,8 @@ func (c *Client) Presence(userID matrix.UserID) (Presence, error) {
 	return resp, nil
 }
 
-// PresenceSet sets the presence of the provided user to the provided presence and status message.
-func (c *Client) PresenceSet(userID matrix.UserID, presence matrix.Presence, statusMsg string) error {
+// PresenceSet sets the presence of the current user to the provided presence and status message.
+func (c *Client) PresenceSet(presence matrix.Presence, statusMsg string) error {
 	req := struct {
 		Presence  matrix.Presence `json:"presence"`
 		StatusMsg string          `json:"status_msg,omitempty"`
@@ -39,7 +39,7 @@ func (c *Client) PresenceSet(userID matrix.UserID, presence matrix.Presence, sta
 	}
 
 	err := c.Request(
-		"PUT", EndpointPresenceStatus(userID), nil,
+		"PUT", EndpointPresenceStatus(c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

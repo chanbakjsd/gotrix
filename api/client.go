@@ -10,6 +10,8 @@ import (
 
 // Client represents a session that can be established to the server.
 // It contains every info the server expects to be persisted on client-side.
+//
+// For routes expecting user ID, the UserID field is used unless otherwise provided.
 type Client struct {
 	httputil.Client
 	IdentityServer string
@@ -20,6 +22,12 @@ type Client struct {
 // WithContext creates a copy of Client that uses the provided context when creating a HTTP request.
 func (c Client) WithContext(ctx context.Context) *Client {
 	c.Client = c.Client.WithContext(ctx)
+	return &c
+}
+
+// WithUserID creates a copy of Client that uses the provided user ID when user IDs are being inferred.
+func (c Client) WithUserID(userID matrix.UserID) *Client {
+	c.UserID = userID
 	return &c
 }
 

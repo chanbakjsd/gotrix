@@ -69,13 +69,13 @@ func (c *Client) DisplayName(userID matrix.UserID) (*string, error) {
 }
 
 // DisplayNameSet sets the display name of the provided user.
-func (c *Client) DisplayNameSet(userID matrix.UserID, displayName string) error {
+func (c *Client) DisplayNameSet(displayName string) error {
 	req := map[string]string{
 		"displayname": displayName,
 	}
 
 	err := c.Request(
-		"PUT", EndpointProfileDisplayName(userID), nil,
+		"PUT", EndpointProfileDisplayName(c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -99,13 +99,13 @@ func (c *Client) AvatarURL(userID matrix.UserID) (*matrix.URL, error) {
 }
 
 // AvatarURLSet sets the avatar URL of the provided user.
-func (c *Client) AvatarURLSet(userID matrix.UserID, avatarURL matrix.URL) error {
+func (c *Client) AvatarURLSet(avatarURL matrix.URL) error {
 	req := map[string]interface{}{
 		"avatar_url": avatarURL,
 	}
 
 	err := c.Request(
-		"PUT", EndpointProfileAvatarURL(userID), nil,
+		"PUT", EndpointProfileAvatarURL(c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

@@ -10,14 +10,14 @@ import (
 
 // TypingStart notifies the server that the user is typing in a specific room.
 // It should be repeated while the user is typing with preferably a few seconds of safety margin from timeout.
-func (c *Client) TypingStart(roomID matrix.RoomID, userID matrix.UserID, timeout time.Duration) error {
+func (c *Client) TypingStart(roomID matrix.RoomID, timeout time.Duration) error {
 	req := map[string]interface{}{
 		"typing":  true,
 		"timeout": timeout / time.Millisecond,
 	}
 
 	err := c.Request(
-		"PUT", EndpointRoomTyping(roomID, userID), nil,
+		"PUT", EndpointRoomTyping(roomID, c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -27,13 +27,13 @@ func (c *Client) TypingStart(roomID matrix.RoomID, userID matrix.UserID, timeout
 }
 
 // TypingStop notifies the server that the user has stopped typing in a specific room.
-func (c *Client) TypingStop(roomID matrix.RoomID, userID matrix.UserID) error {
+func (c *Client) TypingStop(roomID matrix.RoomID) error {
 	req := map[string]interface{}{
 		"typing": false,
 	}
 
 	err := c.Request(
-		"PUT", EndpointRoomTyping(roomID, userID), nil,
+		"PUT", EndpointRoomTyping(roomID, c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

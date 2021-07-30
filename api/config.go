@@ -9,10 +9,10 @@ import (
 )
 
 // ClientConfig retrieves the client config previously stored with ClientConfigSet.
-// 'v' is a pointer that is directly passed into json.Unmarshal.
-func (c *Client) ClientConfig(userID matrix.UserID, configType string, v interface{}) error {
+// 'v' is a pointer that is directly passed into json.Unmarshal to unmarshal the content of the config.
+func (c *Client) ClientConfig(configType string, v interface{}) error {
 	err := c.Request(
-		"GET", EndpointAccountDataGlobal(userID, configType), v,
+		"GET", EndpointAccountDataGlobal(c.UserID, configType), v,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -24,9 +24,12 @@ func (c *Client) ClientConfig(userID matrix.UserID, configType string, v interfa
 // ClientConfigSet sets the client config to the provided value.
 // 'configType' should be namespaced Java-style (com.example.someData) to prevent clashes.
 // 'config' is JSON-encoded before sent to the server.
-func (c *Client) ClientConfigSet(userID matrix.UserID, configType string, config interface{}) error {
+//
+// The provided config will be provided as an event with type 'configType' and content 'config' in AccountData
+// of SyncResponse.
+func (c *Client) ClientConfigSet(configType string, config interface{}) error {
 	err := c.Request(
-		"PUT", EndpointAccountDataGlobal(userID, configType), nil,
+		"PUT", EndpointAccountDataGlobal(c.UserID, configType), nil,
 		httputil.WithToken(), httputil.WithJSONBody(config),
 	)
 	if err != nil {
@@ -36,10 +39,10 @@ func (c *Client) ClientConfigSet(userID matrix.UserID, configType string, config
 }
 
 // ClientConfigRoom retrieves the client config previously stored with ClientConfigRoomSet.
-// 'v' is a pointer that is directly passed into json.Unmarshal.
-func (c *Client) ClientConfigRoom(userID matrix.UserID, roomID matrix.RoomID, configType string, v interface{}) error {
+// 'v' is a pointer that is directly passed into json.Unmarshal to unmarshal the content of the config.
+func (c *Client) ClientConfigRoom(roomID matrix.RoomID, configType string, v interface{}) error {
 	err := c.Request(
-		"GET", EndpointAccountDataRoom(userID, roomID, configType), v,
+		"GET", EndpointAccountDataRoom(c.UserID, roomID, configType), v,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -52,10 +55,13 @@ func (c *Client) ClientConfigRoom(userID matrix.UserID, roomID matrix.RoomID, co
 // scoped to a Matrix room.
 // 'configType' should be namespaced Java-style (com.example.someData) to prevent clashes.
 // 'config' is JSON-encoded before sent to the server.
-func (c *Client) ClientConfigRoomSet(userID matrix.UserID, roomID matrix.RoomID, configType string,
+//
+// The provided config will be provided as an event with type 'configType' and content 'config' in AccountData
+// of rooms in SyncResponse.
+func (c *Client) ClientConfigRoomSet(roomID matrix.RoomID, configType string,
 	config interface{}) error {
 	err := c.Request(
-		"PUT", EndpointAccountDataRoom(userID, roomID, configType), nil,
+		"PUT", EndpointAccountDataRoom(c.UserID, roomID, configType), nil,
 		httputil.WithToken(), httputil.WithJSONBody(config),
 	)
 	if err != nil {
@@ -69,9 +75,9 @@ type ignoredUsers struct {
 }
 
 // IgnoredUsers returns the list of users configured to be ignored.
-func (c *Client) IgnoredUsers(userID matrix.UserID) ([]matrix.UserID, error) {
+func (c *Client) IgnoredUsers() ([]matrix.UserID, error) {
 	var resp ignoredUsers
-	err := c.ClientConfig(userID, "m.ignored_user_list", &resp)
+	err := c.ClientConfig("m.ignored_user_list", &resp)
 	if err != nil {
 		return nil, fmt.Errorf("error getting ignored users: %w", err)
 	}
@@ -84,7 +90,7 @@ func (c *Client) IgnoredUsers(userID matrix.UserID) ([]matrix.UserID, error) {
 }
 
 // IgnoredUsersSet sets the list of users configured to be ignored.
-func (c *Client) IgnoredUsersSet(userID matrix.UserID, newList []matrix.UserID) error {
+func (c *Client) IgnoredUsersSet(newList []matrix.UserID) error {
 	req := ignoredUsers{
 		IgnoredUsers: make(map[matrix.UserID]struct{}),
 	}
@@ -92,7 +98,7 @@ func (c *Client) IgnoredUsersSet(userID matrix.UserID, newList []matrix.UserID) 
 		req.IgnoredUsers[v] = struct{}{}
 	}
 
-	err := c.ClientConfigSet(userID, "m.ignored_user_list", req)
+	err := c.ClientConfigSet("m.ignored_user_list", req)
 	if err != nil {
 		return fmt.Errorf("error setting ignored users: %w", err)
 	}
@@ -100,9 +106,9 @@ func (c *Client) IgnoredUsersSet(userID matrix.UserID, newList []matrix.UserID) 
 }
 
 // DMRooms fetches the list of DM rooms as saved in 'm.direct'.
-func (c *Client) DMRooms(userID matrix.UserID) (event.DirectEvent, error) {
+func (c *Client) DMRooms() (event.DirectEvent, error) {
 	var resp event.RawEvent
-	err := c.ClientConfig(userID, "m.direct", &resp)
+	err := c.ClientConfig("m.direct", &resp)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching DM room list: %w", err)
 	}
@@ -120,12 +126,12 @@ func (c *Client) DMRooms(userID matrix.UserID) (event.DirectEvent, error) {
 }
 
 // DMRoomsSet updates the DM rooms saved in 'm.direct'.
-func (c *Client) DMRoomsSet(userID matrix.UserID, newRooms event.DirectEvent) error {
+func (c *Client) DMRoomsSet(newRooms event.DirectEvent) error {
 	raw, err := newRooms.Raw()
 	if err != nil {
 		return fmt.Errorf("error encoding DM rooms: %w", err)
 	}
-	err = c.ClientConfigSet(userID, "m.direct", raw)
+	err = c.ClientConfigSet("m.direct", raw)
 	if err != nil {
 		return fmt.Errorf("error setting DM rooms: %w", err)
 	}
