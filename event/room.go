@@ -78,7 +78,7 @@ type RoomMemberEvent struct {
 	// The ID of the user for this event.
 	UserID matrix.UserID `json:"-"`
 	// The avatar URL of the user, if any.
-	AvatarURL string `json:"avatar_url,omitempty"`
+	AvatarURL matrix.URL `json:"avatar_url,omitempty"`
 	// The display name of the user, if any.
 	DisplayName *string `json:"displayname,omitempty"`
 	// The new state of the user in the room.
