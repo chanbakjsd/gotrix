@@ -8,7 +8,7 @@ import (
 
 // Discover is a helper function that calls DiscoverWithClient with the default HTTP client.
 func Discover(serverName string) (*Client, error) {
-	return NewWithClient(httputil.NewClient(), serverName)
+	return DiscoverWithClient(httputil.NewClient(), serverName)
 }
 
 // DiscoverWithClient  attempts to discover the homeserver using the provided server name.
