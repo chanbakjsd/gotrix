@@ -58,7 +58,7 @@ These are modules that are "optional" but somewhat required to figure out what i
 - [ ] Server Side Search
 - [X] Guest Access
 - [ ] Room Previews
-- [ ] Room Tagging
+- [X] Room Tagging
 - [X] Client Config
 - [ ] Server Administration
 - [ ] Event Context

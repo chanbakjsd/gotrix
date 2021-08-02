@@ -17,6 +17,12 @@ var (
 
 	EndpointSupportedVersions = "_matrix/client/versions"
 
+	EndpointUser     = func(id matrix.UserID) string { return EndpointBase + "/user/" + url.PathEscape(string(id)) }
+	EndpointRoom     = func(id matrix.RoomID) string { return EndpointBase + "/rooms/" + url.PathEscape(string(id)) }
+	EndpointUserRoom = func(userID matrix.UserID, roomID matrix.RoomID) string {
+		return EndpointUser(userID) + "/rooms/" + url.PathEscape(string(roomID))
+	}
+
 	EndpointLogin     = EndpointBase + "/login"
 	EndpointLogout    = EndpointBase + "/logout"
 	EndpointLogoutAll = EndpointLogout + "/all"
@@ -42,14 +48,13 @@ var (
 	EndpointSync         = EndpointBase + "/sync"
 
 	EndpointFilter = func(userID matrix.UserID) string {
-		return EndpointBase + "/user/" + url.PathEscape(string(userID)) + "/filter"
+		return EndpointUser(userID) + "/filter"
 	}
 	EndpointFilterGet = func(userID matrix.UserID, filterID string) string {
 		return EndpointFilter(userID) + "/" + url.PathEscape(filterID)
 	}
 
 	EndpointRoomCreate        = EndpointBase + "/createRoom"
-	EndpointRoom              = func(id matrix.RoomID) string { return EndpointBase + "/rooms/" + url.PathEscape(string(id)) }
 	EndpointRoomAliases       = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/aliases" }
 	EndpointRoomBan           = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/ban" }
 	EndpointRoomForget        = func(roomID matrix.RoomID) string { return EndpointRoom(roomID) + "/forget" }
@@ -113,15 +118,22 @@ var (
 	}
 
 	EndpointAccountDataGlobal = func(userID matrix.UserID, dataType string) string {
-		return EndpointBase + "/user/" + url.PathEscape(string(userID)) + "/account_data/" + url.PathEscape(dataType)
+		return EndpointUser(userID) + "/account_data/" + url.PathEscape(dataType)
 	}
 	EndpointAccountDataRoom = func(userID matrix.UserID, roomID matrix.RoomID, dataType string) string {
-		return EndpointBase + "/user/" + url.PathEscape(string(userID)) + "/rooms/" + url.PathEscape(string(roomID)) +
-			"/account_data/" + url.PathEscape(dataType)
+		return EndpointUserRoom(userID, roomID) + "/account_data/" + url.PathEscape(dataType)
 	}
 
 	EndpointSendToDevice = func(eventType event.Type, transactionID string) string {
 		return EndpointBase + "/sendToDevice/" + url.PathEscape(string(eventType)) + "/" + url.PathEscape(transactionID)
+	}
+
+	EndpointTags = func(userID matrix.UserID, roomID matrix.RoomID) string {
+		return EndpointUserRoom(userID, roomID) + "/tags"
+	}
+
+	EndpointTag = func(userID matrix.UserID, roomID matrix.RoomID, name matrix.TagName) string {
+		return EndpointTags(userID, roomID) + "/" + url.PathEscape(string(name))
 	}
 
 	EndpointSSOLogin = func(redirectURL string) string {

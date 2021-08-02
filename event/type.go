@@ -13,29 +13,29 @@ const (
 	TypeRoomPowerLevels    Type = "m.room.power_levels"
 	TypeRoomRedaction      Type = "m.room.redaction"
 
-	// Events from Instant Messaging module.
+	// Events from the Instant Messaging module.
 	TypeRoomMessage Type = "m.room.message"
 	TypeRoomName    Type = "m.room.name"
 	TypeRoomTopic   Type = "m.room.topic"
 	TypeRoomAvatar  Type = "m.room.avatar"
 	TypeRoomPinned  Type = "m.room.pinned_events"
 
-	// Events from Direct Messaging module.
+	// Events from the Direct Messaging module.
 	TypeDirect Type = "m.direct"
 
-	// Events from Voice over IP module.
+	// Events from the Voice over IP module.
 	TypeCallInvite     Type = "m.call.invite"
 	TypeCallCandidates Type = "m.call.candidates"
 	TypeCallAnswer     Type = "m.call.answer"
 	TypeCallHangup     Type = "m.call.hangup"
 
-	// Events from Typing Notifications module.
+	// Events from the Typing Notifications module.
 	TypeTyping Type = "m.typing"
 
-	// Events from Receipts module.
+	// Events from the Receipts module.
 	TypeReceipt Type = "m.receipt"
 
-	// Events from Presence module.
+	// Events from the Presence module.
 	TypePresence Type = "m.presence"
 
 	// Events from the History Visibility module.
@@ -43,6 +43,9 @@ const (
 
 	// Events from the Guest Access module.
 	TypeRoomGuestAccess Type = "m.room.guest_access"
+
+	// Events from the Tag module.
+	TypeTag = "m.tag"
 
 	// Events from the Room Upgrade module.
 	TypeRoomTombstone Type = "m.room.tombstone"
@@ -78,6 +81,8 @@ var parser = map[Type]func(RawEvent) (Event, error){
 	TypeRoomHistoryVisibility: parseHistoryVisibilityEvent,
 
 	TypeRoomGuestAccess: roomEventParse(func() eventWithRoomEventInfo { return new(RoomGuestAccessEvent) }),
+
+	TypeTag: parseTagEvent,
 
 	TypeRoomTombstone: roomEventParse(func() eventWithRoomEventInfo { return new(RoomTombstoneEvent) }),
 }
