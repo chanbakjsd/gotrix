@@ -61,7 +61,7 @@ func (c *Client) OpenWithNext(next string) error {
 	if err != nil {
 		return err
 	}
-	go c.readLoop(ctx, filterID)
+	go c.readLoop(ctx, next, filterID)
 
 	return nil
 }
@@ -101,9 +101,8 @@ func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHi
 	}
 }
 
-func (c *Client) readLoop(ctx context.Context, filter string) {
+func (c *Client) readLoop(ctx context.Context, next, filter string) {
 	client := c.WithContext(ctx)
-	next := ""
 
 	handle := func(e []event.RawEvent) {
 		c.handleWithRoomID(e, "", next == "")
