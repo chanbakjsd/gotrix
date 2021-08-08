@@ -53,12 +53,12 @@ func (c *Client) LoginSSO() (string, func() error, error) {
 	srv := http.Server{
 		Handler: handleSSOResult(ssoURL, success),
 	}
-	go srv.Serve(listener)
+	go func() {
+		_ = srv.Serve(listener)
+	}()
 
 	go func() {
-		defer func() {
-			_ = srv.Close()
-		}()
+		defer srv.Close()
 
 		var token string
 		if c.ctx != nil {
