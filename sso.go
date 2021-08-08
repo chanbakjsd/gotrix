@@ -56,7 +56,9 @@ func (c *Client) LoginSSO() (string, func() error, error) {
 	go srv.Serve(listener)
 
 	go func() {
-		defer srv.Close()
+		defer func() {
+			_ = srv.Close()
+		}()
 
 		var token string
 		if c.ctx != nil {
