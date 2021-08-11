@@ -9,8 +9,9 @@ func (t TagName) Namespace(n string) bool {
 	return strings.HasPrefix(string(t), n+".")
 }
 
+// Tags defined in the matrix namespace.
 var (
-	TagFavourites   TagName = "m.favourites"
+	TagFavourite    TagName = "m.favourite"
 	TagLowPriority  TagName = "m.lowpriority"
 	TagServerNotice TagName = "m.server_notice"
 )
