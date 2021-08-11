@@ -4,8 +4,8 @@ import "strings"
 
 type TagName string
 
-// Namespace returns whether the specified tagname has the namespace.
-func (t TagName) Namespace(n string) bool {
+// HasNamespace returns whether the specified tagname has the namespace.
+func (t TagName) HasNamespace(n string) bool {
 	return strings.HasPrefix(string(t), n+".")
 }
 
