@@ -16,33 +16,33 @@ var (
 //
 // It has the type ID of `m.room.name` and a zero-length state key.
 type RoomNameEvent struct {
-	RoomEventInfo
-	Name string `json:"name,omitempty"` // This must not exceed 255 bytes.
+	RoomEventInfo `json:"-"`
+	Name          string `json:"name,omitempty"` // This must not exceed 255 bytes.
 }
 
 // RoomTopicEvent represents a state event where the room topic is set.
 //
 // It has the type ID of `m.room.topic` and a zero-length state key.
 type RoomTopicEvent struct {
-	RoomEventInfo
-	Topic string `json:"topic,omitempty"`
+	RoomEventInfo `json:"-"`
+	Topic         string `json:"topic,omitempty"`
 }
 
 // RoomAvatarEvent represents a state event where the room avatar is set.
 //
 // It has the type ID of `m.room.avatar` and a zero-length state key.
 type RoomAvatarEvent struct {
-	RoomEventInfo
-	Info ImageInfo  `json:"info,omitempty"`
-	URL  matrix.URL `json:"url"`
+	RoomEventInfo `json:"-"`
+	Info          ImageInfo  `json:"info,omitempty"`
+	URL           matrix.URL `json:"url"`
 }
 
 // RoomPinnedEvent represents a state event where the list of events pinned are modified.
 //
 // It has the type ID of `m.room.pinned_events` and a zero-length state key.
 type RoomPinnedEvent struct {
-	RoomEventInfo
-	Pinned []matrix.EventID `json:"pinned"`
+	RoomEventInfo `json:"-"`
+	Pinned        []matrix.EventID `json:"pinned"`
 }
 
 // Type satisfies StateEvent.

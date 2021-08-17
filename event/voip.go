@@ -14,7 +14,7 @@ var (
 //
 // It has the type ID of `m.call.invite`.
 type CallInviteEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID   string `json:"call_id"`
 	Version  int    `json:"version"`  // Currently always 0.
@@ -30,7 +30,7 @@ type CallInviteEvent struct {
 //
 // It has the type ID of `m.call.candidates`.
 type CallCandidatesEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID     string `json:"call_id"`
 	Version    int    `json:"version"` // Currently always 0.
@@ -45,7 +45,7 @@ type CallCandidatesEvent struct {
 //
 // It has the type ID of `m.call.answer`.
 type CallAnswerEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID  string `json:"call_id"`
 	Version int    `json:"int"`
@@ -60,7 +60,7 @@ type CallAnswerEvent struct {
 //
 // It has the type ID of `m.call.hangup`.
 type CallHangupEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID  string           `json:"call_id"`
 	Version int              `json:"version"` // Currently always 0.

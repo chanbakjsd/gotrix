@@ -14,7 +14,7 @@ var _ RoomEvent = RoomMessageEvent{}
 //
 // It has the type ID of `m.room.message`.
 type RoomMessageEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	Body    string      `json:"body"`
 	MsgType MessageType `json:"msgtype"`
@@ -30,8 +30,8 @@ type RoomMessageEvent struct {
 	GeoURI matrix.GeoURI `json:"geo_uri,omitempty"`
 
 	// These fields are present in Image, File, Audio, Video.
-	URL  matrix.URL   `json:"url,omitempty"`  // Present if content is not encrypted.
-	File encrypt.File `json:"file,omitempty"` // Present if content is encrypted.
+	URL  matrix.URL    `json:"url,omitempty"`  // Present if content is not encrypted.
+	File *encrypt.File `json:"file,omitempty"` // Present if content is encrypted.
 
 	// This field is present in Image, File, Audio, Video, Location.
 	// The relevant parsing functions should be used.

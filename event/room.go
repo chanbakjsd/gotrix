@@ -20,7 +20,7 @@ var (
 // It has the type ID of `m.room.canonical_alias`.
 // It has a zero-length StateKey.
 type RoomCanonicalAliasEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	// The canonical alias for the room. May be empty.
 	Alias string `json:"alias,omitempty"`
@@ -35,7 +35,7 @@ type RoomCanonicalAliasEvent struct {
 //
 // It has the type ID of `m.room.create` and a zero-length StateKey.
 type RoomCreateEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	// The user ID of the room creator. This is set by the homeserver.
 	Creator matrix.UserID `json:"creator"`
@@ -49,7 +49,7 @@ type RoomCreateEvent struct {
 //
 // It has the type ID of `m.room.join_rules` and a zero-length StateKey.
 type RoomJoinRulesEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	// The new rules to be applied to users wishing to join the room.
 	JoinRule JoinRule `json:"join_rule"`
@@ -73,7 +73,7 @@ const (
 //
 // It has the type ID of `m.room.member` and the StateKey of the user ID.
 type RoomMemberEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	// The ID of the user for this event.
 	UserID matrix.UserID `json:"-"`
@@ -119,7 +119,7 @@ const (
 //
 // It has the type ID of `m.room.power_levels` and a zero-length StateKey.
 type RoomPowerLevelsEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	// Ban, invite, kick and redact defaults to 50 if unspecified.
 	BanRequirement    *int `json:"ban,omitempty"`
@@ -152,7 +152,7 @@ type RoomPowerLevelsEvent struct {
 //
 // It has the type ID of `m.room.redaction`. The Redacts key will be present.
 type RoomRedactionEvent struct {
-	RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	Reason string `json:"reason,omitempty"`
 }

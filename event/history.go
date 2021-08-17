@@ -24,8 +24,8 @@ const (
 
 // RoomHistoryVisibilityEvent is an event where the visibility of history is changed.
 type RoomHistoryVisibilityEvent struct {
-	RoomEventInfo
-	Visibility HistoryVisibility `json:"history_visibility,omitempty"`
+	RoomEventInfo `json:"-"`
+	Visibility    HistoryVisibility `json:"history_visibility,omitempty"`
 }
 
 // Type implements StateEvent.
