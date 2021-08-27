@@ -20,7 +20,7 @@ type RoomMessageEvent struct {
 	MsgType MessageType `json:"msgtype"`
 
 	// This message is a reply to RelatesTo if present.
-	RelatesTo matrix.EventID `json:"relates_to,omitempty"`
+	RelatesTo json.RawMessage `json:"m.relates_to,omitempty"`
 
 	// Optionally present in Text, Emote and Notice.
 	Format        MessageFormat `json:"format,omitempty"`
@@ -168,6 +168,23 @@ func (e RoomMessageEvent) StrippedBody() string {
 // SetRoomEventInfo sets the room event info.
 func (e *RoomMessageEvent) SetRoomEventInfo(i RoomEventInfo) {
 	e.RoomEventInfo = i
+}
+
+// InReplyTo parses the message's RelatesTo object and returns the event ID that the message replies
+// to, if any. An empty event string is returned if the message does not reply to another event in a
+// valid way.
+func (e *RoomMessageEvent) InReplyTo() matrix.EventID {
+	var relatesTo struct {
+		InReplyTo struct {
+			EventID matrix.EventID `json:"event_id"`
+		} `json:"m.in_reply_to"`
+	}
+
+	if err := json.Unmarshal(e.RelatesTo, &relatesTo); err != nil {
+		return ""
+	}
+
+	return relatesTo.InReplyTo.EventID
 }
 
 // TODO Add helper method to parse RoomMessageHTML messages.
