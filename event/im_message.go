@@ -21,6 +21,8 @@ type RoomMessageEvent struct {
 
 	// This message is a reply to RelatesTo if present.
 	RelatesTo json.RawMessage `json:"m.relates_to,omitempty"`
+	// NewContent is the new message content if RelatesTo.RelType is m.replace.
+	NewContent *RoomMessageEvent `json:"m.new_content,omitempty"`
 
 	// Optionally present in Text, Emote and Notice.
 	Format        MessageFormat `json:"format,omitempty"`
