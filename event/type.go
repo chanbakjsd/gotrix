@@ -57,7 +57,7 @@ var parser = map[Type]func(RawEvent) (Event, error){
 	TypeRoomJoinRules:      roomEventParse(func() eventWithRoomEventInfo { return new(RoomJoinRulesEvent) }),
 	TypeRoomMember:         parseRoomMemberEvent,
 	TypeRoomPowerLevels:    roomEventParse(func() eventWithRoomEventInfo { return new(RoomPowerLevelsEvent) }),
-	TypeRoomRedaction:      roomEventParse(func() eventWithRoomEventInfo { return new(RoomRedactionEvent) }),
+	TypeRoomRedaction:      parseRoomRedactionEvent,
 
 	TypeRoomMessage: roomEventParse(func() eventWithRoomEventInfo { return new(RoomMessageEvent) }),
 	TypeRoomName:    roomEventParse(func() eventWithRoomEventInfo { return new(RoomNameEvent) }),

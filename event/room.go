@@ -154,7 +154,21 @@ type RoomPowerLevelsEvent struct {
 type RoomRedactionEvent struct {
 	RoomEventInfo `json:"-"`
 
-	Reason string `json:"reason,omitempty"`
+	Redacts matrix.EventID `json:"-"`
+	Reason  string         `json:"reason,omitempty"`
+}
+
+func parseRoomRedactionEvent(e RawEvent) (Event, error) {
+	c := RoomRedactionEvent{
+		RoomEventInfo: e.toRoomEventInfo(),
+		Redacts:       e.Redacts,
+	}
+
+	if err := json.Unmarshal(e.Content, &c); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 // Type satisfies StateEvent.

@@ -45,7 +45,7 @@ type RawEvent struct {
 	PrevContent json.RawMessage `json:"prev_content,omitempty"` // Optional previous content, if available.
 
 	// Data for `m.room.redaction`. The ID of the event that was actually redacted.
-	Redacts string `json:"redacts,omitempty"`
+	Redacts matrix.EventID `json:"redacts,omitempty"`
 }
 
 // Event is a parsed instance of events in Matrix.
