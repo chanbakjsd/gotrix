@@ -12,25 +12,33 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-const (
-	eventsToFetchPerRoom = 50
-	minBackoffTime       = 1 * time.Second
-	maxBackoffTime       = 300 * time.Second
-	syncTimeout          = 5000
-)
+// SyncOptions contains options for the /sync endpoint that is used once the
+// Client is opened.
+type SyncOptions struct {
+	Filter         event.GlobalFilter
+	Timeout        time.Duration
+	MinBackoffTime time.Duration
+	MaxBackoffTime time.Duration
+}
 
-// DefaultFilter is the default filter used by the client.
-var DefaultFilter = event.GlobalFilter{
-	Room: event.RoomFilter{
-		IncludeLeave: false,
-		State: event.StateFilter{
-			LazyLoadMembers: true,
-		},
-		Timeline: event.RoomEventFilter{
-			Limit:           eventsToFetchPerRoom,
-			LazyLoadMembers: true,
+// DefaultSyncOptions is the default sync options instance used on every Client
+// creation.
+var DefaultSyncOptions = SyncOptions{
+	Filter: event.GlobalFilter{
+		Room: event.RoomFilter{
+			IncludeLeave: false,
+			State: event.StateFilter{
+				LazyLoadMembers: true,
+			},
+			Timeline: event.RoomEventFilter{
+				Limit:           50,
+				LazyLoadMembers: true,
+			},
 		},
 	},
+	Timeout:        5 * time.Second,
+	MinBackoffTime: 1 * time.Second,
+	MaxBackoffTime: 300 * time.Second,
 }
 
 // Next returns the current Next synchronization argument. Next can ONLY be
@@ -49,6 +57,13 @@ func (c *Client) Open() error {
 	return c.OpenWithNext("")
 }
 
+// syncOpts is the internal copy of the sync states.
+type syncOpts struct {
+	SyncOptions
+	next     string
+	filterID string
+}
+
 // OpenWithNext starts the event loop with the given next string that resumes the sync loop.
 // If next is empty, then an initial sync will be done.
 func (c *Client) OpenWithNext(next string) error {
@@ -57,11 +72,16 @@ func (c *Client) OpenWithNext(next string) error {
 	c.closeDone = make(chan struct{})
 	c.cancelFunc = cancel
 
-	filterID, err := c.FilterAdd(c.Filter)
+	filterID, err := c.FilterAdd(c.SyncOpts.Filter)
 	if err != nil {
 		return err
 	}
-	go c.readLoop(ctx, next, filterID)
+
+	go c.readLoop(ctx, syncOpts{
+		SyncOptions: c.SyncOpts,
+		next:        next,
+		filterID:    filterID,
+	})
 
 	return nil
 }
@@ -101,8 +121,11 @@ func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHi
 	}
 }
 
-func (c *Client) readLoop(ctx context.Context, next, filter string) {
+func (c *Client) readLoop(ctx context.Context, opts syncOpts) {
 	client := c.WithContext(ctx)
+
+	timeout := int(opts.Timeout / time.Millisecond)
+	next := opts.next
 
 	handle := func(e []event.RawEvent) {
 		c.handleWithRoomID(e, "", next == "")
@@ -121,9 +144,9 @@ func (c *Client) readLoop(ctx context.Context, next, filter string) {
 		// Fetch next set of events.
 		debug.Debug("Fetching new events. Next: " + next)
 		resp, err := client.Sync(api.SyncArg{
-			Filter:  filter,
+			Filter:  opts.filterID,
 			Since:   next,
-			Timeout: syncTimeout,
+			Timeout: timeout,
 		})
 		if err != nil {
 			if ctx.Err() != nil {
@@ -132,11 +155,11 @@ func (c *Client) readLoop(ctx context.Context, next, filter string) {
 			}
 			// Exponentially backoff with a cap of 5 minutes.
 			nextRetryTime *= 2
-			if nextRetryTime < minBackoffTime {
-				nextRetryTime = minBackoffTime
+			if nextRetryTime < opts.MinBackoffTime {
+				nextRetryTime = opts.MinBackoffTime
 			}
-			if nextRetryTime > maxBackoffTime {
-				nextRetryTime = maxBackoffTime
+			if nextRetryTime > opts.MaxBackoffTime {
+				nextRetryTime = opts.MaxBackoffTime
 			}
 
 			debug.Error(fmt.Errorf("error in event loop (retrying in %s): %w", nextRetryTime, err))

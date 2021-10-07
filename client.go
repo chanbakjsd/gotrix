@@ -17,9 +17,9 @@ import (
 type Client struct {
 	*api.Client
 
-	Filter  event.GlobalFilter
-	Handler Handler
-	State   State
+	SyncOpts SyncOptions
+	Handler  Handler
+	State    State
 
 	ctx        context.Context
 	next       string
@@ -51,8 +51,8 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 	apiClient.HomeServer = parsed.Host
 	apiClient.HomeServerScheme = parsed.Scheme
 	return &Client{
-		Client: apiClient,
-		Filter: DefaultFilter,
+		Client:   apiClient,
+		SyncOpts: DefaultSyncOptions,
 		Handler: &defaultHandler{
 			handlers: make(map[event.Type][]reflect.Value),
 		},
