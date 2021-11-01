@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -89,12 +90,51 @@ func (c *Client) MediaThumbnailURL(matrixURL matrix.URL, allowRemote bool,
 	return c.FullRoute(EndpointMediaThumbnail(parsed.Host, parsed.Path)) + "?" + query.Encode(), nil
 }
 
+// URLMetadata contains the basic OpenGraph metadata that the Matrix backend
+// gives us using PreviewURL, as well as the raw JSON for the user to parse it
+// further.
+type URLMetadata struct {
+	Title       string `json:"og:title,omitempty"`
+	Type        string `json:"og:type,omitempty"`
+	Description string `json:"og:description,omitempty"`
+	URL         string `json:"og:url,omitempty"`
+
+	Image       matrix.URL `json:"og:image,omitempty"`
+	ImageType   string     `json:"og:image:type,omitempty"`
+	ImageWidth  int        `json:"og:image:width,omitempty"`
+	ImageHeight int        `json:"og:image:height,omitempty"`
+	ImageSize   int        `json:"matrix:image:size,omitempty"`
+
+	// Raw is the raw URL metadata received.
+	Raw json.RawMessage `json:"-"`
+}
+
+// UnmarshalJSON parses b into u while keeping the raw JSON inside u.Raw.
+func (u *URLMetadata) UnmarshalJSON(b []byte) error {
+	// Copy the JSON.
+	u.Raw = append(u.Raw[:0], b...)
+
+	type urlMetadata URLMetadata
+	return json.Unmarshal(b, (*urlMetadata)(u))
+}
+
+// MarshalJSON returns u.Raw if available, otherwise it marshals u.
+func (u *URLMetadata) MarshalJSON() ([]byte, error) {
+	if u.Raw != nil {
+		return u.Raw, nil
+	}
+
+	type urlMetadata URLMetadata
+	return json.Marshal((*urlMetadata)(u))
+}
+
 // PreviewURL requests the homeserver to generate a preview of the provided URL.
 // It should be handled with care especially in an encrypted channel to prevent leaking URLs.
 // ts is the preferred point in time to return a preview for. If it's zero value, the constraint is not passed on.
 //
-// The returned map is a map of OpenGraph info. og:image will be an MXC URI to the image instead if available.
-func (c *Client) PreviewURL(url string, ts matrix.Timestamp) (map[string]interface{}, error) {
+// The returned structure is a URLMetadata containing basic OpenGraph info, as well as the bundled
+// JSON for further parsing.
+func (c *Client) PreviewURL(url string, ts matrix.Timestamp) (*URLMetadata, error) {
 	query := map[string]string{
 		"url": url,
 	}
@@ -102,7 +142,7 @@ func (c *Client) PreviewURL(url string, ts matrix.Timestamp) (map[string]interfa
 		query["ts"] = strconv.Itoa(int(ts))
 	}
 
-	var resp map[string]interface{}
+	var resp *URLMetadata
 	err := c.Request(
 		"GET", EndpointMediaPreviewURL, &resp,
 		httputil.WithToken(), httputil.WithQuery(query),
