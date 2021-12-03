@@ -42,6 +42,7 @@ func NewClient() Client {
 func NewCustomClient(d ClientDriver) Client {
 	return Client{
 		ClientDriver: d,
+		ctx:          context.Background(),
 	}
 }
 
