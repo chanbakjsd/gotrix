@@ -1,5 +1,7 @@
 package event
 
+import "encoding/json"
+
 // Type is the type of the event that is contained in the contents field.
 type Type string
 
@@ -51,38 +53,4 @@ const (
 	TypeRoomTombstone Type = "m.room.tombstone"
 )
 
-var parser = map[Type]func(RawEvent) (Event, error){
-	TypeRoomCanonicalAlias: roomEventParse(func() eventWithRoomEventInfo { return new(RoomCanonicalAliasEvent) }),
-	TypeRoomCreate:         roomEventParse(func() eventWithRoomEventInfo { return new(RoomCreateEvent) }),
-	TypeRoomJoinRules:      roomEventParse(func() eventWithRoomEventInfo { return new(RoomJoinRulesEvent) }),
-	TypeRoomMember:         parseRoomMemberEvent,
-	TypeRoomPowerLevels:    roomEventParse(func() eventWithRoomEventInfo { return new(RoomPowerLevelsEvent) }),
-	TypeRoomRedaction:      parseRoomRedactionEvent,
-
-	TypeRoomMessage: roomEventParse(func() eventWithRoomEventInfo { return new(RoomMessageEvent) }),
-	TypeRoomName:    roomEventParse(func() eventWithRoomEventInfo { return new(RoomNameEvent) }),
-	TypeRoomTopic:   roomEventParse(func() eventWithRoomEventInfo { return new(RoomTopicEvent) }),
-	TypeRoomAvatar:  roomEventParse(func() eventWithRoomEventInfo { return new(RoomAvatarEvent) }),
-	TypeRoomPinned:  roomEventParse(func() eventWithRoomEventInfo { return new(RoomPinnedEvent) }),
-
-	TypeDirect: eventParse(func() Event { return new(DirectEvent) }),
-
-	TypeCallInvite:     roomEventParse(func() eventWithRoomEventInfo { return new(CallInviteEvent) }),
-	TypeCallCandidates: roomEventParse(func() eventWithRoomEventInfo { return new(CallCandidatesEvent) }),
-	TypeCallAnswer:     roomEventParse(func() eventWithRoomEventInfo { return new(CallAnswerEvent) }),
-	TypeCallHangup:     roomEventParse(func() eventWithRoomEventInfo { return new(CallHangupEvent) }),
-
-	TypeTyping: parseTypingEvent,
-
-	TypeReceipt: parseReceiptEvent,
-
-	TypePresence: parsePresenceEvent,
-
-	TypeRoomHistoryVisibility: parseHistoryVisibilityEvent,
-
-	TypeRoomGuestAccess: roomEventParse(func() eventWithRoomEventInfo { return new(RoomGuestAccessEvent) }),
-
-	TypeTag: parseTagEvent,
-
-	TypeRoomTombstone: roomEventParse(func() eventWithRoomEventInfo { return new(RoomTombstoneEvent) }),
-}
+var parser = map[Type]func(RawEvent, json.RawMessage) (Event, error){}

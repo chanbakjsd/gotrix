@@ -14,10 +14,10 @@ var _ RoomEvent = RoomMessageEvent{}
 //
 // It has the type ID of `m.room.message`.
 type RoomMessageEvent struct {
-	RoomEventInfo `json:"-"`
+	*RoomEventInfo
 
-	Body    string      `json:"body"`
-	MsgType MessageType `json:"msgtype"`
+	Body        string      `json:"body"`
+	MessageType MessageType `json:"msgtype"`
 
 	// This message is a reply to RelatesTo if present.
 	RelatesTo json.RawMessage `json:"m.relates_to,omitempty"`
@@ -35,7 +35,7 @@ type RoomMessageEvent struct {
 
 	// This field is present in Image, File, Audio, Video, Location.
 	// The relevant parsing functions should be used.
-	Info json.RawMessage `json:"info,omitempty"` // Also present in Location.
+	AdditionalInfo json.RawMessage `json:"info,omitempty"` // Also present in Location.
 }
 
 // MessageType is the type of message sent.
@@ -77,7 +77,7 @@ type ThumbnailInfo struct {
 type FileInfo struct {
 	MimeType      string        `json:"mimetype,omitempty"`       // MIME type of image.
 	Size          int           `json:"size,omitempty"`           // Size in bytes.
-	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is unencrypted.
+	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is un-encrypted.
 	ThumbnailFile encrypt.File  `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
 	ThumbnailInfo ThumbnailInfo `json:"thumbnail_info,omitempty"`
 }
@@ -100,7 +100,7 @@ type AudioInfo struct {
 
 // LocationInfo stores the info of a location.
 type LocationInfo struct {
-	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is unencrypted.
+	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is un-encrypted.
 	ThumbnailFile encrypt.File  `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
 	ThumbnailInfo ThumbnailInfo `json:"thumbnail_info,omitempty"`
 }
@@ -111,43 +111,38 @@ type VideoInfo struct {
 	Duration int `json:"duration,omitempty"` // Duration of video in milliseconds.
 }
 
-// Type satisfies RoomEvent.
-func (RoomMessageEvent) Type() Type {
-	return TypeRoomMessage
-}
-
 // ImageInfo parses info as an ImageInfo.
 func (e RoomMessageEvent) ImageInfo() (ImageInfo, error) {
 	var a ImageInfo
-	err := json.Unmarshal(e.Info, &a)
+	err := json.Unmarshal(e.AdditionalInfo, &a)
 	return a, err
 }
 
 // FileInfo parses info as a FileInfo.
 func (e RoomMessageEvent) FileInfo() (FileInfo, error) {
 	var a FileInfo
-	err := json.Unmarshal(e.Info, &a)
+	err := json.Unmarshal(e.AdditionalInfo, &a)
 	return a, err
 }
 
 // AudioInfo parses info as an AudioInfo.
 func (e RoomMessageEvent) AudioInfo() (AudioInfo, error) {
 	var a AudioInfo
-	err := json.Unmarshal(e.Info, &a)
+	err := json.Unmarshal(e.AdditionalInfo, &a)
 	return a, err
 }
 
 // VideoInfo parses info as a VideoInfo.
 func (e RoomMessageEvent) VideoInfo() (VideoInfo, error) {
 	var a VideoInfo
-	err := json.Unmarshal(e.Info, &a)
+	err := json.Unmarshal(e.AdditionalInfo, &a)
 	return a, err
 }
 
 // LocationInfo parses info as a LocationInfo.
 func (e RoomMessageEvent) LocationInfo() (LocationInfo, error) {
 	var a LocationInfo
-	err := json.Unmarshal(e.Info, &a)
+	err := json.Unmarshal(e.AdditionalInfo, &a)
 	return a, err
 }
 
@@ -163,11 +158,6 @@ func (e RoomMessageEvent) StrippedBody() string {
 		return ""
 	}
 	return strings.Join(split[line:], "\n")
-}
-
-// SetRoomEventInfo sets the room event info.
-func (e *RoomMessageEvent) SetRoomEventInfo(i RoomEventInfo) {
-	e.RoomEventInfo = i
 }
 
 // InReplyTo parses the message's RelatesTo object and returns the event ID that the message replies

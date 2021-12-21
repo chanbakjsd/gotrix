@@ -3,7 +3,7 @@ package event
 import (
 	"encoding/json"
 	"errors"
-	"reflect"
+	"fmt"
 )
 
 // ErrUnknownEventType represents an error where the event type is unknown and therefore
@@ -11,58 +11,36 @@ import (
 var ErrUnknownEventType = errors.New("unknown event type")
 
 // Register registers a parser for the provided event type.
-func Register(eventType Type, p func(RawEvent) (Event, error)) {
+// The parser is passed the full raw event and its content field.
+func Register(eventType Type, p func(RawEvent, json.RawMessage) (Event, error)) {
 	parser[eventType] = p
 }
 
-// Parse returns the concrete type of the provided event's type and sets its Event
-// field to the provided event.
-func (e RawEvent) Parse() (Event, error) {
-	p, ok := parser[e.Type]
-	if !ok {
-		return nil, ErrUnknownEventType
+// Parse returns the concrete type of the provided event's type.
+func Parse(r RawEvent) (Event, error) {
+	type event struct {
+		Type    Type            `json:"type"`
+		Content json.RawMessage `json:"content"`
 	}
 
-	parsed, err := p(e)
+	var ev event
+	err := json.Unmarshal(r, &ev)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshalling event: %w", err)
 	}
-	if parsed.Type() != e.Type {
+
+	if _, ok := parser[ev.Type]; !ok {
 		return nil, ErrUnknownEventType
 	}
-	return parsed, nil
-}
 
-type eventWithRoomEventInfo interface {
-	Event
-	SetRoomEventInfo(RoomEventInfo)
-}
-
-func eventParse(zeroValue func() Event) func(RawEvent) (Event, error) {
-	return func(e RawEvent) (Event, error) {
-		v := zeroValue()
-		err := json.Unmarshal(e.Content, &v)
-		w := reflect.Indirect(reflect.ValueOf(v))
-		return w.Interface().(Event), err
+	concrete, err := parser[ev.Type](r, ev.Content)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling event of type %s: %w", ev.Type, err)
 	}
-}
 
-func roomEventParse(zeroValue func() eventWithRoomEventInfo) func(RawEvent) (Event, error) {
-	return func(e RawEvent) (Event, error) {
-		v := zeroValue()
-		v.SetRoomEventInfo(e.toRoomEventInfo())
-		err := json.Unmarshal(e.Content, &v)
-		w := reflect.Indirect(reflect.ValueOf(v))
-		return w.Interface().(Event), err
+	if concrete.Info().Type != ev.Type {
+		return nil, fmt.Errorf("error unmarshalling event of type %s: got type %s from registered parser", ev.Type, concrete.Info().Type)
 	}
-}
 
-// toRoomEventInfo creates a RoomEventInfo from the provided event.
-func (e RawEvent) toRoomEventInfo() RoomEventInfo {
-	return RoomEventInfo{
-		EventID:    e.ID,
-		RoomID:     e.RoomID,
-		SenderID:   e.Sender,
-		OriginTime: e.OriginServerTime,
-	}
+	return concrete, nil
 }

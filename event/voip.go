@@ -11,10 +11,8 @@ var (
 // https://matrix.org/docs/spec/client_server/r0.6.1#glare
 
 // CallInviteEvent is a message event where someone is inviting to establish a call.
-//
-// It has the type ID of `m.call.invite`.
 type CallInviteEvent struct {
-	RoomEventInfo `json:"-"`
+	*RoomEventInfo
 
 	CallID   string `json:"call_id"`
 	Version  int    `json:"version"`  // Currently always 0.
@@ -27,10 +25,8 @@ type CallInviteEvent struct {
 
 // CallCandidatesEvent is a message event where additional ICE candidates are provided
 // to foster communication.
-//
-// It has the type ID of `m.call.candidates`.
 type CallCandidatesEvent struct {
-	RoomEventInfo `json:"-"`
+	*RoomEventInfo
 
 	CallID     string `json:"call_id"`
 	Version    int    `json:"version"` // Currently always 0.
@@ -42,10 +38,8 @@ type CallCandidatesEvent struct {
 }
 
 // CallAnswerEvent is a message event where a callee wishes to answer the call.
-//
-// It has the type ID of `m.call.answer`.
 type CallAnswerEvent struct {
-	RoomEventInfo `json:"-"`
+	*RoomEventInfo
 
 	CallID  string `json:"call_id"`
 	Version int    `json:"int"`
@@ -57,10 +51,8 @@ type CallAnswerEvent struct {
 
 // CallHangupEvent is a message event where the call is ended. This can be sent
 // to hang up a call or to reject a call.
-//
-// It has the type ID of `m.call.hangup`.
 type CallHangupEvent struct {
-	RoomEventInfo `json:"-"`
+	*RoomEventInfo
 
 	CallID  string           `json:"call_id"`
 	Version int              `json:"version"` // Currently always 0.
@@ -77,43 +69,3 @@ const (
 	CallHangupICEFailed     CallHangupReason = "ice_failed" // ICE negotiation failed.
 	CallHangupInviteTimeout CallHangupReason = "invite_timeout"
 )
-
-// Type satisfies RoomEvent.
-func (CallInviteEvent) Type() Type {
-	return TypeCallInvite
-}
-
-// Type satisfies RoomEvent.
-func (CallCandidatesEvent) Type() Type {
-	return TypeCallCandidates
-}
-
-// Type satisfies RoomEvent.
-func (CallAnswerEvent) Type() Type {
-	return TypeCallAnswer
-}
-
-// Type satisfies RoomEvent.
-func (CallHangupEvent) Type() Type {
-	return TypeCallHangup
-}
-
-// SetRoomEventInfo sets the room event info.
-func (c *CallInviteEvent) SetRoomEventInfo(i RoomEventInfo) {
-	c.RoomEventInfo = i
-}
-
-// SetRoomEventInfo sets the room event info.
-func (c *CallCandidatesEvent) SetRoomEventInfo(i RoomEventInfo) {
-	c.RoomEventInfo = i
-}
-
-// SetRoomEventInfo sets the room event info.
-func (c *CallAnswerEvent) SetRoomEventInfo(i RoomEventInfo) {
-	c.RoomEventInfo = i
-}
-
-// SetRoomEventInfo sets the room event info.
-func (c *CallHangupEvent) SetRoomEventInfo(i RoomEventInfo) {
-	c.RoomEventInfo = i
-}
