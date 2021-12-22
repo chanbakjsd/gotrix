@@ -53,4 +53,17 @@ const (
 	TypeRoomTombstone Type = "m.room.tombstone"
 )
 
-var parser = map[Type]func(RawEvent, json.RawMessage) (Event, error){}
+var parser = map[Type]func(RawEvent, json.RawMessage) (Event, error){
+	TypeRoomCanonicalAlias: defaultParse(func() Event { return new(RoomCanonicalAliasEvent) }),
+	TypeRoomCreate:         defaultParse(func() Event { return new(RoomCreateEvent) }),
+	TypeRoomJoinRules:      defaultParse(func() Event { return new(RoomJoinRulesEvent) }),
+	TypeRoomMember:         parseRoomMemberEvent,
+	TypeRoomPowerLevels:    defaultParse(func() Event { return new(RoomPowerLevelsEvent) }),
+	TypeRoomRedaction:      parseRoomRedactionEvent,
+
+	TypeRoomMessage: defaultParse(func() Event { return new(RoomMessageEvent) }),
+	TypeRoomName:    defaultParse(func() Event { return new(RoomNameEvent) }),
+	TypeRoomTopic:   defaultParse(func() Event { return new(RoomTopicEvent) }),
+	TypeRoomAvatar:  defaultParse(func() Event { return new(RoomAvatarEvent) }),
+	TypeRoomPinned:  defaultParse(func() Event { return new(RoomPinnedEvent) }),
+}

@@ -139,8 +139,43 @@ type RoomPowerLevelsEvent struct {
 // accessible.
 // This can also be used for moderators to hide message events (which can be undone).
 type RoomRedactionEvent struct {
-	*RoomEventInfo
+	RoomEventInfo `json:"-"`
 
-	Redacts matrix.EventID `json:"redacts,omitempty"`
+	Redacts matrix.EventID `json:"-"`
 	Reason  string         `json:"reason,omitempty"`
+}
+
+// parseRoomMemberEvent invokes the default parsing mechanism of events and insert the state key
+// into the UserID field.
+func parseRoomMemberEvent(raw RawEvent, content json.RawMessage) (Event, error) {
+	v, err := defaultParse(func() Event { return &RoomMemberEvent{} })(raw, content)
+	if err != nil {
+		return nil, err
+	}
+
+	concrete := v.(*RoomMemberEvent)
+	concrete.UserID = matrix.UserID(concrete.StateKey)
+	return v, nil
+}
+
+func parseRoomRedactionEvent(raw RawEvent, content json.RawMessage) (Event, error) {
+	var rawRedact struct {
+		RoomEventInfo
+		Redacts matrix.EventID `json:"redacts"`
+	}
+	err := json.Unmarshal(raw, &rawRedact)
+	if err != nil {
+		return nil, err
+	}
+
+	v := &RoomRedactionEvent{}
+	err = json.Unmarshal(content, v) // Read Reason
+	if err != nil {
+		return nil, err
+	}
+
+	v.RoomEventInfo = rawRedact.RoomEventInfo
+	v.Redacts = rawRedact.Redacts
+	v.Raw = raw
+	return v, nil
 }

@@ -44,3 +44,35 @@ func Parse(r RawEvent) (Event, error) {
 
 	return concrete, nil
 }
+
+func defaultParse(zeroValue func() Event) func(RawEvent, json.RawMessage) (Event, error) {
+	return func(raw RawEvent, content json.RawMessage) (Event, error) {
+		v := zeroValue()
+		err := json.Unmarshal(content, v)
+		if err != nil {
+			return nil, err
+		}
+
+		switch e := v.(type) {
+		case StateEvent:
+			err := json.Unmarshal(raw, e.StateInfo())
+			if err != nil {
+				return nil, err
+			}
+		case RoomEvent:
+			err := json.Unmarshal(raw, e.RoomInfo())
+			if err != nil {
+				return nil, err
+			}
+		default:
+			err := json.Unmarshal(raw, e.Info())
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		v.Info().Raw = raw
+
+		return v, nil
+	}
+}

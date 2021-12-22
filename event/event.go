@@ -23,8 +23,8 @@ func (r RawEvent) Parse() (Event, error) {
 // EventInfo contains information present in all events.
 type EventInfo struct {
 	// Raw is the raw event as the event was received.
-	Raw  json.RawMessage `json:"-"`
-	Type Type            `json:"type"`
+	Raw  RawEvent `json:"-"`
+	Type Type     `json:"type"`
 }
 
 // EventInfo returns itself so it can be embedded into a struct and allow the struct to implement Event.
