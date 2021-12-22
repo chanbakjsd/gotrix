@@ -4,11 +4,11 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-var _ Event = ReceiptEvent{}
+var _ Event = &ReceiptEvent{}
 
 // ReceiptEvent is an event where the read marker is updated.
 type ReceiptEvent struct {
-	*EventInfo
+	EventInfo `json:"-"`
 
 	Events map[matrix.EventID]Receipt `json:"content"`
 	RoomID matrix.RoomID              `json:"room_id"`

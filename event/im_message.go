@@ -8,13 +8,13 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-var _ RoomEvent = RoomMessageEvent{}
+var _ RoomEvent = &RoomMessageEvent{}
 
 // RoomMessageEvent represents a room event where a message has been sent.
 //
 // It has the type ID of `m.room.message`.
 type RoomMessageEvent struct {
-	*RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	Body        string      `json:"body"`
 	MessageType MessageType `json:"msgtype"`

@@ -1,6 +1,6 @@
 package event
 
-var _ StateEvent = RoomGuestAccessEvent{}
+var _ StateEvent = &RoomGuestAccessEvent{}
 
 // GuestAccess is an enum that decides if a guest can join a room.
 type GuestAccess string
@@ -14,6 +14,6 @@ const (
 // RoomGuestAccessEvent is an event that controls whether guest users are allowed to join rooms.
 // If the event is not present, it's inferred to be forbidden.
 type RoomGuestAccessEvent struct {
-	*StateEventInfo
-	GuestAccess GuestAccess `json:"guest_access"`
+	StateEventInfo `json:"-"`
+	GuestAccess    GuestAccess `json:"guest_access"`
 }

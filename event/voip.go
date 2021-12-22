@@ -1,10 +1,10 @@
 package event
 
 var (
-	_ RoomEvent = CallInviteEvent{}
-	_ RoomEvent = CallCandidatesEvent{}
-	_ RoomEvent = CallAnswerEvent{}
-	_ RoomEvent = CallHangupEvent{}
+	_ RoomEvent = &CallInviteEvent{}
+	_ RoomEvent = &CallCandidatesEvent{}
+	_ RoomEvent = &CallAnswerEvent{}
+	_ RoomEvent = &CallHangupEvent{}
 )
 
 // TODO Maybe implement glare at some point.
@@ -12,7 +12,7 @@ var (
 
 // CallInviteEvent is a message event where someone is inviting to establish a call.
 type CallInviteEvent struct {
-	*RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID   string `json:"call_id"`
 	Version  int    `json:"version"`  // Currently always 0.
@@ -26,7 +26,7 @@ type CallInviteEvent struct {
 // CallCandidatesEvent is a message event where additional ICE candidates are provided
 // to foster communication.
 type CallCandidatesEvent struct {
-	*RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID     string `json:"call_id"`
 	Version    int    `json:"version"` // Currently always 0.
@@ -39,7 +39,7 @@ type CallCandidatesEvent struct {
 
 // CallAnswerEvent is a message event where a callee wishes to answer the call.
 type CallAnswerEvent struct {
-	*RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID  string `json:"call_id"`
 	Version int    `json:"int"`
@@ -52,7 +52,7 @@ type CallAnswerEvent struct {
 // CallHangupEvent is a message event where the call is ended. This can be sent
 // to hang up a call or to reject a call.
 type CallHangupEvent struct {
-	*RoomEventInfo
+	RoomEventInfo `json:"-"`
 
 	CallID  string           `json:"call_id"`
 	Version int              `json:"version"` // Currently always 0.

@@ -1,21 +1,23 @@
 package event
 
 import (
+	"encoding/json"
+
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
 var (
-	_ StateEvent = RoomCanonicalAliasEvent{}
-	_ StateEvent = RoomCreateEvent{}
-	_ StateEvent = RoomJoinRulesEvent{}
-	_ StateEvent = RoomMemberEvent{}
-	_ StateEvent = RoomPowerLevelsEvent{}
-	_ RoomEvent  = RoomRedactionEvent{}
+	_ StateEvent = &RoomCanonicalAliasEvent{}
+	_ StateEvent = &RoomCreateEvent{}
+	_ StateEvent = &RoomJoinRulesEvent{}
+	_ StateEvent = &RoomMemberEvent{}
+	_ StateEvent = &RoomPowerLevelsEvent{}
+	_ RoomEvent  = &RoomRedactionEvent{}
 )
 
 // RoomCanonicalAliasEvent represents a state event where the alias (name) of the room is set.
 type RoomCanonicalAliasEvent struct {
-	*StateEventInfo
+	StateEventInfo `json:"-"`
 
 	// The canonical alias for the room. May be empty.
 	Alias string `json:"alias,omitempty"`
@@ -28,7 +30,7 @@ type RoomCanonicalAliasEvent struct {
 // "upgrading" version 2 to 1.
 // It is the first event in any room.
 type RoomCreateEvent struct {
-	*StateEventInfo
+	StateEventInfo `json:"-"`
 
 	// The user ID of the room creator. This is set by the homeserver.
 	Creator matrix.UserID `json:"creator"`
@@ -40,7 +42,7 @@ type RoomCreateEvent struct {
 
 // RoomJoinRulesEvent represents a state event where the room's join rules are set.
 type RoomJoinRulesEvent struct {
-	*StateEventInfo
+	StateEventInfo `json:"-"`
 
 	// The new rules to be applied to users wishing to join the room.
 	JoinRule JoinRule `json:"join_rule"`
@@ -62,7 +64,7 @@ const (
 
 // RoomMemberEvent represents a state event where a user's membership state changes.
 type RoomMemberEvent struct {
-	*StateEventInfo
+	StateEventInfo `json:"-"`
 
 	// The ID of the user for this event.
 	UserID matrix.UserID `json:"-"`
@@ -106,7 +108,7 @@ const (
 // RoomPowerLevelsEvent represents a state event that establishes the power level and requirements
 // for each event to be sent.
 type RoomPowerLevelsEvent struct {
-	*StateEventInfo
+	StateEventInfo `json:"-"`
 
 	// Ban, invite, kick and redact defaults to 50 if unspecified.
 	BanRequirement    *int `json:"ban,omitempty"`

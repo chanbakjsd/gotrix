@@ -6,11 +6,11 @@ import (
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
-var _ Event = PresenceEvent{}
+var _ Event = &PresenceEvent{}
 
 // PresenceEvent is an event where the presence of a user is updated.
 type PresenceEvent struct {
-	*EventInfo
+	EventInfo `json:"-"`
 
 	User        matrix.UserID `json:"-"`
 	AvatarURL   *matrix.URL   `json:"avatar_url,omitempty"`

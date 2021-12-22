@@ -1,6 +1,6 @@
 package event
 
-var _ StateEvent = RoomHistoryVisibilityEvent{}
+var _ StateEvent = &RoomHistoryVisibilityEvent{}
 
 // HistoryVisibility specifies the group that can view the room history.
 type HistoryVisibility string
@@ -25,6 +25,6 @@ const (
 
 // RoomHistoryVisibilityEvent is an event where the visibility of history is changed.
 type RoomHistoryVisibilityEvent struct {
-	*StateEventInfo
-	Visibility HistoryVisibility `json:"history_visibility,omitempty"`
+	StateEventInfo `json:"-"`
+	Visibility     HistoryVisibility `json:"history_visibility,omitempty"`
 }
