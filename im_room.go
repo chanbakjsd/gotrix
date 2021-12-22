@@ -18,7 +18,7 @@ var ErrRoomAvatarNotFound = errors.New("user is alone in the room and a room ava
 func (c *Client) RoomAvatar(roomID matrix.RoomID) (*matrix.URL, error) {
 	e, _ := c.RoomState(roomID, event.TypeRoomAvatar, "")
 	if e != nil {
-		avatarEvent := e.(event.RoomAvatarEvent)
+		avatarEvent := e.(*event.RoomAvatarEvent)
 		return &avatarEvent.URL, nil
 	}
 
@@ -38,7 +38,7 @@ func (c *Client) RoomName(roomID matrix.RoomID) (string, error) {
 	// Step 1: Check for m.room.name state event.
 	e, _ := c.RoomState(roomID, event.TypeRoomName, "")
 	if e != nil {
-		nameEvent := e.(event.RoomNameEvent)
+		nameEvent := e.(*event.RoomNameEvent)
 		if nameEvent.Name != "" {
 			return nameEvent.Name, nil
 		}
@@ -47,7 +47,7 @@ func (c *Client) RoomName(roomID matrix.RoomID) (string, error) {
 	// Step 2: Check for m.room.canonical_alias state event.
 	e, _ = c.RoomState(roomID, event.TypeRoomCanonicalAlias, "")
 	if e != nil {
-		aliasEvent := e.(event.RoomCanonicalAliasEvent)
+		aliasEvent := e.(*event.RoomCanonicalAliasEvent)
 		if aliasEvent.Alias != "" {
 			return aliasEvent.Alias, nil
 		}

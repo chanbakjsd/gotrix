@@ -97,8 +97,10 @@ func (c *Client) Close() error {
 func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHistorical bool) {
 	for _, v := range e {
 		v := v
-		v.RoomID = roomID
 		concrete, err := v.Parse()
+		if w, ok := concrete.(event.RoomEvent); ok {
+			w.RoomInfo().RoomID = roomID
+		}
 
 		// Print out warnings.
 		switch {
@@ -188,7 +190,7 @@ func (c *Client) readLoop(ctx context.Context, opts syncOpts) {
 		for k, v := range resp.Rooms.Invited {
 			events := make([]event.RawEvent, len(v.State.Events))
 			for k, v := range v.State.Events {
-				events[k] = v.RawEvent
+				events[k] = event.RawEvent(v)
 			}
 			c.handleWithRoomID(events, k, next == "")
 		}

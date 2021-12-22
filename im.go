@@ -19,7 +19,7 @@ func (c *Client) MemberAvatar(roomID matrix.RoomID, userID matrix.UserID) (*matr
 		return nil, err
 	}
 
-	memberEvent := e.(event.RoomMemberEvent)
+	memberEvent := e.(*event.RoomMemberEvent)
 	if memberEvent.AvatarURL != "" {
 		return &memberEvent.AvatarURL, nil
 	}
@@ -45,7 +45,7 @@ func (c *Client) MemberNames(roomID matrix.RoomID, userIDs []matrix.UserID) ([]s
 	// Build the hashmap of display names to locate duplicate display names.
 	dupe := make(map[string]int)
 	err := c.EachRoomState(roomID, event.TypeRoomMember, func(key string, v event.StateEvent) error {
-		memberEvent := v.(event.RoomMemberEvent)
+		memberEvent := v.(*event.RoomMemberEvent)
 		if memberEvent.DisplayName == nil {
 			return nil
 		}
@@ -67,7 +67,7 @@ func (c *Client) MemberNames(roomID matrix.RoomID, userIDs []matrix.UserID) ([]s
 		}
 
 		// Step 2: If there are no display name field, use raw user ID as display name.
-		memberEvent := e.(event.RoomMemberEvent)
+		memberEvent := e.(*event.RoomMemberEvent)
 		if memberEvent.DisplayName == nil || *memberEvent.DisplayName == "" {
 			result = append(result, string(userID))
 			continue

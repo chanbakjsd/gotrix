@@ -14,7 +14,7 @@ func (c *Client) MentionUser(userID matrix.UserID, roomID matrix.RoomID) (body s
 		return formatMention(string(userID), string(userID))
 	}
 
-	memberEvent := e.(event.RoomMemberEvent)
+	memberEvent := e.(*event.RoomMemberEvent)
 	if memberEvent.DisplayName == nil || *memberEvent.DisplayName == "" {
 		return formatMention(string(userID), string(userID))
 	}
@@ -26,7 +26,7 @@ func (c *Client) MentionUser(userID matrix.UserID, roomID matrix.RoomID) (body s
 func (c *Client) MentionRoom(roomID matrix.RoomID) (body string, formatted string) {
 	e, _ := c.RoomState(roomID, event.TypeRoomCanonicalAlias, "")
 	if e != nil {
-		aliasEvent := e.(event.RoomCanonicalAliasEvent)
+		aliasEvent := e.(*event.RoomCanonicalAliasEvent)
 		if aliasEvent.Alias != "" {
 			return formatMention(string(roomID), aliasEvent.Alias)
 		}

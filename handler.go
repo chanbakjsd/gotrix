@@ -29,12 +29,12 @@ type defaultHandler struct {
 }
 
 func (d *defaultHandler) Handle(cli *Client, event event.Event) {
-	debug.Debug("new event: " + event.Type())
+	debug.Debug("new event: " + event.Info().Type)
 
 	d.mut.RLock()
 	defer d.mut.RUnlock()
 
-	handlers, ok := d.handlers[event.Type()]
+	handlers, ok := d.handlers[event.Info().Type]
 	if !ok {
 		return
 	}
@@ -44,7 +44,7 @@ func (d *defaultHandler) Handle(cli *Client, event event.Event) {
 }
 
 func (d *defaultHandler) HandleRaw(cli *Client, event event.RawEvent) {
-	debug.Debug("new raw event: " + event.Type)
+	debug.Debug("new raw event")
 
 	d.mut.RLock()
 	defer d.mut.RUnlock()
@@ -89,7 +89,7 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	}
 
 	// Get event type
-	eventType := content.Type()
+	eventType := content.Info().Type
 
 	d.mut.Lock()
 	defer d.mut.Unlock()

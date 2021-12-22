@@ -53,9 +53,9 @@ func (c *Client) SendAudio(roomID matrix.RoomID, file File) (matrix.EventID, err
 // SendLocation sends the provided location to the provided room ID.
 func (c *Client) SendLocation(roomID matrix.RoomID, geoURI matrix.GeoURI, caption string) (matrix.EventID, error) {
 	return c.RoomEventSend(roomID, event.TypeRoomMessage, event.RoomMessageEvent{
-		MsgType: event.RoomMessageLocation,
-		Body:    caption,
-		GeoURI:  geoURI,
+		MessageType: event.RoomMessageLocation,
+		Body:        caption,
+		GeoURI:      geoURI,
 	})
 }
 
@@ -66,8 +66,8 @@ func (c *Client) SendVideo(roomID matrix.RoomID, file File) (matrix.EventID, err
 
 func (c *Client) sendMessage(roomID matrix.RoomID, msgType event.MessageType, content string) (matrix.EventID, error) {
 	return c.RoomEventSend(roomID, event.TypeRoomMessage, event.RoomMessageEvent{
-		MsgType: msgType,
-		Body:    content,
+		MessageType: msgType,
+		Body:        content,
 	})
 }
 
@@ -83,8 +83,8 @@ func (c *Client) sendFile(roomID matrix.RoomID, msgType event.MessageType, file 
 	}
 
 	return c.RoomEventSend(roomID, event.TypeRoomMessage, event.RoomMessageEvent{
-		MsgType: msgType,
-		Body:    file.Caption,
-		URL:     url,
+		MessageType: msgType,
+		Body:        file.Caption,
+		URL:         url,
 	})
 }

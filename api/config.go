@@ -106,7 +106,7 @@ func (c *Client) IgnoredUsersSet(newList []matrix.UserID) error {
 }
 
 // DMRooms fetches the list of DM rooms as saved in 'm.direct'.
-func (c *Client) DMRooms() (event.DirectEvent, error) {
+func (c *Client) DMRooms() (*event.DirectEvent, error) {
 	var resp event.RawEvent
 	err := c.ClientConfig("m.direct", &resp)
 	if err != nil {
@@ -118,7 +118,7 @@ func (c *Client) DMRooms() (event.DirectEvent, error) {
 		return nil, fmt.Errorf("error parsing DM room list: %w", err)
 	}
 
-	directEvent, ok := ev.(event.DirectEvent)
+	directEvent, ok := ev.(*event.DirectEvent)
 	if !ok {
 		return nil, fmt.Errorf("error parsing DM room list: got %T instead of m.direct", ev)
 	}
@@ -126,7 +126,7 @@ func (c *Client) DMRooms() (event.DirectEvent, error) {
 }
 
 // DMRoomsSet updates the DM rooms saved in 'm.direct'.
-func (c *Client) DMRoomsSet(newRooms event.DirectEvent) error {
+func (c *Client) DMRoomsSet(newRooms *event.DirectEvent) error {
 	raw, err := newRooms.Raw()
 	if err != nil {
 		return fmt.Errorf("error encoding DM rooms: %w", err)

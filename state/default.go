@@ -87,14 +87,13 @@ func (d *DefaultState) RoomSummary(roomID matrix.RoomID) (api.SyncRoomSummary, e
 
 func accumulateRaw(dst []event.StateEvent, roomID matrix.RoomID, raws []event.RawEvent) []event.StateEvent {
 	for _, raw := range raws {
-		raw.RoomID = roomID
-
 		e, err := raw.Parse()
 		if err != nil {
 			continue
 		}
 		state, ok := e.(event.StateEvent)
 		if ok {
+			state.RoomInfo().RoomID = roomID
 			dst = append(dst, state)
 		}
 	}
@@ -104,14 +103,13 @@ func accumulateRaw(dst []event.StateEvent, roomID matrix.RoomID, raws []event.Ra
 
 func accumulateStripped(dst []event.StateEvent, roomID matrix.RoomID, evs []event.StrippedEvent) []event.StateEvent {
 	for _, ev := range evs {
-		ev.RoomID = roomID
-
-		e, err := ev.Parse()
+		e, err := event.RawEvent(ev).Parse()
 		if err != nil {
 			continue
 		}
 		state, ok := e.(event.StateEvent)
 		if ok {
+			state.RoomInfo().RoomID = roomID
 			dst = append(dst, state)
 		}
 	}
@@ -151,9 +149,10 @@ func (d *DefaultState) AddEvents(sync *api.SyncResponse) error {
 	defer d.mu.Unlock()
 
 	for _, state := range stateEvents {
-		roomID := state.Room()
-		stateKey := state.StateKey()
-		eventType := state.Type()
+		info := state.StateInfo()
+		roomID := info.RoomID
+		stateKey := info.StateKey
+		eventType := info.Type
 
 		if _, ok := d.roomStateMap[roomID]; !ok {
 			d.roomStateMap[roomID] = make(RoomState, 1)

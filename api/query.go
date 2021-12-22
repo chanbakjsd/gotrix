@@ -24,7 +24,7 @@ func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (event.
 }
 
 // RoomState fetches the latest state event for the provided state in the provided room.
-func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (*event.RawEvent, error) {
+func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (event.RawEvent, error) {
 	var content json.RawMessage
 	err := c.Request(
 		"GET", EndpointRoomStateExact(roomID, eventType, key), &content,
@@ -33,12 +33,25 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 	if err != nil {
 		return nil, fmt.Errorf("error fetching room state event: %w", err)
 	}
-	return &event.RawEvent{
-		Type:     eventType,
-		Content:  content,
-		RoomID:   roomID,
-		StateKey: key,
-	}, nil
+
+	// FIXME: Declare this in the event package instead of providing the user marshalled data.
+	type rawStateEvent struct {
+		event.StateEventInfo
+		Content json.RawMessage `json:"content"`
+	}
+
+	return json.Marshal(rawStateEvent{
+		StateEventInfo: event.StateEventInfo{
+			RoomEventInfo: event.RoomEventInfo{
+				EventInfo: event.EventInfo{
+					Type: eventType,
+				},
+				RoomID: roomID,
+			},
+			StateKey: key,
+		},
+		Content: content,
+	})
 }
 
 // RoomStates fetches all the current state events of the provided room.
