@@ -1,6 +1,7 @@
 package event
 
 import (
+	"bytes"
 	"encoding/json"
 	"reflect"
 	"testing"
@@ -16,8 +17,14 @@ func TestSpecExamples(t *testing.T) {
 			continue
 		}
 
-		v.Expected.Info().Raw = json.RawMessage(v.Code)
+		v.Expected.Info().Raw = RawEvent(v.Code)
 		if !reflect.DeepEqual(ev, v.Expected) {
+			if bytes.Equal(v.Expected.Info().Raw, ev.Info().Raw) {
+				// Redact raw if they're identical because it just spams output.
+				v.Expected.Info().Raw = nil
+				ev.Info().Raw = nil
+			}
+
 			t.Errorf("mismatch on parsing %s\nexpected: %#v\ngot: %#v", v.Name, v.Expected, ev)
 			continue
 		}
@@ -61,13 +68,13 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomCanonicalAliasEvent{
+		Expected: &RoomCanonicalAliasEvent{
 			Alias: "#somewhere:localhost",
 			AltAlias: []string{
 				"#somewhere:example.org",
 				"#myroom:example.com",
 			},
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomCanonicalAlias,
@@ -108,12 +115,12 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomCreateEvent{
+		Expected: &RoomCreateEvent{
 			Creator: "@example:example.org",
 			// TODO: Add predecessor field
 			Federated:   &boolTrue,
 			RoomVersion: stringPtr("1"),
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomCreate,
@@ -148,9 +155,9 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomJoinRulesEvent{
+		Expected: &RoomJoinRulesEvent{
 			JoinRule: JoinPublic,
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomJoinRules,
@@ -188,12 +195,13 @@ var specExamples = []struct {
 			}
 		}
 		`,
-		Expected: RoomMemberEvent{
+		Expected: &RoomMemberEvent{
+			UserID:      "@alice:example.org",
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberJoined,
 			// TODO: Add Reason field.
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomMember,
@@ -249,11 +257,12 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomMemberEvent{
+		Expected: &RoomMemberEvent{
+			UserID:      "@alice:example.org",
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberInvited,
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomMember,
@@ -310,12 +319,13 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomMemberEvent{
+		Expected: &RoomMemberEvent{
+			UserID:      "@alice:example.org",
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberKnock,
 			// TODO: Add field Reason
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomMember,
@@ -324,6 +334,9 @@ var specExamples = []struct {
 					OriginServerTime: 1432735824653,
 					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
 					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
 				},
 				StateKey: "@alice:example.org",
 			},
@@ -361,7 +374,8 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomMemberEvent{
+		Expected: &RoomMemberEvent{
+			UserID:      "@alice:example.org",
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberInvited,
@@ -370,7 +384,7 @@ var specExamples = []struct {
 			}{
 				DisplayName: "alice",
 			},
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomMember,
@@ -421,7 +435,7 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomPowerLevelsEvent{
+		Expected: &RoomPowerLevelsEvent{
 			BanRequirement: intPtr(50),
 			Events: map[Type]int{
 				TypeRoomName:        100,
@@ -441,7 +455,7 @@ var specExamples = []struct {
 				"@example:localhost": 100,
 			},
 			UserDefault: 0,
-			StateEventInfo: &StateEventInfo{
+			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
 						Type: TypeRoomPowerLevels,
@@ -476,9 +490,10 @@ var specExamples = []struct {
 				}
 			}
 		`,
-		Expected: RoomRedactionEvent{
-			Reason: "Spamming",
-			RoomEventInfo: &RoomEventInfo{
+		Expected: &RoomRedactionEvent{
+			Redacts: "$fukweghifu23:localhost",
+			Reason:  "Spamming",
+			RoomEventInfo: RoomEventInfo{
 				EventInfo: EventInfo{
 					Type: TypeRoomRedaction,
 				},
@@ -489,6 +504,591 @@ var specExamples = []struct {
 				Unsigned: UnsignedData{
 					Age: 1234,
 				},
+			},
+		},
+	},
+	{
+		Name: "m.room.message audio",
+		Code: `
+			{
+				"content": {
+					"body": "Bee Gees - Stayin' Alive",
+					"info": {
+						"duration": 2140786,
+						"mimetype": "audio/mpeg",
+						"size": 1563685
+					},
+					"msgtype": "m.audio",
+					"url": "mxc://example.org/ffed755USFFxlgbQYZGtryd"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			Body: "Bee Gees - Stayin' Alive",
+			AdditionalInfo: json.RawMessage(`{
+						"duration": 2140786,
+						"mimetype": "audio/mpeg",
+						"size": 1563685
+					}`),
+			MessageType: RoomMessageAudio,
+			URL:         "mxc://example.org/ffed755USFFxlgbQYZGtryd",
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+		},
+	},
+	{
+		Name: "m.room.message emote",
+		Code: `
+		{
+			"content": {
+				"body": "thinks this is an example emote",
+				"format": "org.matrix.custom.html",
+				"formatted_body": "thinks <b>this</b> is an example emote",
+				"msgtype": "m.emote"
+			},
+			"event_id": "$143273582443PhrSn:example.org",
+			"origin_server_ts": 1432735824653,
+			"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+			"sender": "@example:example.org",
+			"type": "m.room.message",
+			"unsigned": {
+				"age": 1234
+			}
+		}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body:          "thinks this is an example emote",
+			Format:        FormatHTML,
+			FormattedBody: "thinks <b>this</b> is an example emote",
+			MessageType:   RoomMessageEmote,
+		},
+	},
+	{
+		Name: "m.room.message file",
+		Code: `
+			{
+				"content": {
+					"body": "something-important.doc",
+					"filename": "something-important.doc",
+					"info": {
+						"mimetype": "application/msword",
+						"size": 46144
+					},
+					"msgtype": "m.file",
+					"url": "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body: "something-important.doc",
+			// TODO: Add field Filename
+			AdditionalInfo: json.RawMessage(`{
+						"mimetype": "application/msword",
+						"size": 46144
+					}`),
+			MessageType: RoomMessageFile,
+			URL:         "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe",
+		},
+	},
+	{
+		Name: "m.room.message image",
+		Code: `
+			{
+				"content": {
+					"body": "filename.jpg",
+					"info": {
+						"h": 398,
+						"mimetype": "image/jpeg",
+						"size": 31037,
+						"w": 394
+					},
+					"msgtype": "m.image",
+					"url": "mxc://example.org/JWEIFJgwEIhweiWJE"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body: "filename.jpg",
+			AdditionalInfo: json.RawMessage(`{
+						"h": 398,
+						"mimetype": "image/jpeg",
+						"size": 31037,
+						"w": 394
+					}`),
+			MessageType: RoomMessageImage,
+			URL:         "mxc://example.org/JWEIFJgwEIhweiWJE",
+		},
+	},
+	{
+		Name: "m.room.message location",
+		Code: `
+			{
+				"content": {
+					"body": "Big Ben, London, UK",
+					"geo_uri": "geo:51.5008,0.1247",
+					"info": {
+						"thumbnail_info": {
+							"h": 300,
+							"mimetype": "image/jpeg",
+							"size": 46144,
+							"w": 300
+						},
+						"thumbnail_url": "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe"
+					},
+					"msgtype": "m.location"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body:   "Big Ben, London, UK",
+			GeoURI: "geo:51.5008,0.1247",
+			AdditionalInfo: json.RawMessage(`{
+						"thumbnail_info": {
+							"h": 300,
+							"mimetype": "image/jpeg",
+							"size": 46144,
+							"w": 300
+						},
+						"thumbnail_url": "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe"
+					}`),
+			MessageType: RoomMessageLocation,
+		},
+	},
+	{
+		Name: "m.room.message notice",
+		Code: `
+			{
+				"content": {
+					"body": "This is an example notice",
+					"format": "org.matrix.custom.html",
+					"formatted_body": "This is an <strong>example</strong> notice",
+					"msgtype": "m.notice"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body:          "This is an example notice",
+			Format:        FormatHTML,
+			FormattedBody: "This is an <strong>example</strong> notice",
+			MessageType:   RoomMessageNotice,
+		},
+	},
+	{
+		Name: "m.room.message server notice",
+		Code: `
+			{
+				"content": {
+					"admin_contact": "mailto:server.admin@example.org",
+					"body": "Human-readable message to explain the notice",
+					"limit_type": "monthly_active_user",
+					"msgtype": "m.server_notice",
+					"server_notice_type": "m.server_notice.usage_limit_reached"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			// TODO: Add admin_contact, limit_type, server_notice_type field
+			Body:        "Human-readable message to explain the notice",
+			MessageType: "m.server_notice",
+		},
+	},
+	{
+		Name: "m.room.message text",
+		Code: `
+			{
+				"content": {
+					"body": "This is an example text message",
+					"format": "org.matrix.custom.html",
+					"formatted_body": "<b>This is an example text message</b>",
+					"msgtype": "m.text"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body:          "This is an example text message",
+			Format:        FormatHTML,
+			FormattedBody: "<b>This is an example text message</b>",
+			MessageType:   RoomMessageText,
+		},
+	},
+	{
+		Name: "m.room.message video",
+		Code: `
+			{
+				"content": {
+					"body": "Gangnam Style",
+					"info": {
+						"duration": 2140786,
+						"h": 320,
+						"mimetype": "video/mp4",
+						"size": 1563685,
+						"thumbnail_info": {
+							"h": 300,
+							"mimetype": "image/jpeg",
+							"size": 46144,
+							"w": 300
+						},
+						"thumbnail_url": "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe",
+						"w": 480
+					},
+					"msgtype": "m.video",
+					"url": "mxc://example.org/a526eYUSFFxlgbQYZmo442"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.room.message",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomMessageEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeRoomMessage,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Body: "Gangnam Style",
+			AdditionalInfo: json.RawMessage(`{
+						"duration": 2140786,
+						"h": 320,
+						"mimetype": "video/mp4",
+						"size": 1563685,
+						"thumbnail_info": {
+							"h": 300,
+							"mimetype": "image/jpeg",
+							"size": 46144,
+							"w": 300
+						},
+						"thumbnail_url": "mxc://example.org/FHyPlCeYUSFFxlgbQYZmoEoe",
+						"w": 480
+					}`),
+			MessageType: RoomMessageVideo,
+			URL:         "mxc://example.org/a526eYUSFFxlgbQYZmo442",
+		},
+	},
+	{
+		Name: "m.room.name",
+		Code: `
+			{
+				"content": {
+					"name": "The room name"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.name",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomNameEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomName,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			Name: "The room name",
+		},
+	},
+	{
+		Name: "m.room.topic",
+		Code: `
+			{
+				"content": {
+					"topic": "A room topic"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.topic",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomTopicEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomTopic,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			Topic: "A room topic",
+		},
+	},
+	{
+		Name: "m.room.avatar",
+		Code: `
+			{
+				"content": {
+					"info": {
+						"h": 398,
+						"mimetype": "image/jpeg",
+						"size": 31037,
+						"w": 394
+					},
+					"url": "mxc://example.org/JWEIFJgwEIhweiWJE"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.avatar",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomAvatarEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomAvatar,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			Image: ImageInfo{
+				FileInfo: FileInfo{
+					MimeType: "image/jpeg",
+					Size:     31037,
+				},
+				Height: 398,
+				Width:  394,
+			},
+			URL: "mxc://example.org/JWEIFJgwEIhweiWJE",
+		},
+	},
+	{
+		Name: "m.room.pinned_events",
+		Code: `
+			{
+				"content": {
+					"pinned": [
+						"$someevent:example.org"
+					]
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.pinned_events",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomPinnedEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomPinned,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			Pinned: []matrix.EventID{
+				"$someevent:example.org",
 			},
 		},
 	},
