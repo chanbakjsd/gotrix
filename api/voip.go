@@ -6,24 +6,24 @@ import (
 	"github.com/chanbakjsd/gotrix/api/httputil"
 )
 
-// TurnServersResponse represents the response to (*Client).TurnServers().
-type TurnServersResponse struct {
+// TURNServersResponse represents the response to (*Client).TURNServers().
+type TURNServersResponse struct {
 	Username   string   `json:"username"`
 	Password   string   `json:"password"`
 	URI        []string `json:"uris"`
 	TimeToLive int      `json:"ttl"`
 }
 
-// TurnServers returns the list of TURN servers which clients can use to contact the remote party.
+// TURNServers returns the list of TURN servers which clients can use to contact the remote party.
 // It may error if the homeserver doesn't support the VoIP module or if the request failed.
-func (c *Client) TurnServers() (TurnServersResponse, error) {
-	var resp TurnServersResponse
+func (c *Client) TURNServers() (TURNServersResponse, error) {
+	var resp TURNServersResponse
 	err := c.Request(
-		"GET", EndpointVOIPTurnServers, resp,
+		"GET", EndpointVOIPTURNServers, resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
-		return TurnServersResponse{}, fmt.Errorf("error fetching TURN servers: %w", err)
+		return TURNServersResponse{}, fmt.Errorf("error fetching TURN servers: %w", err)
 	}
 	return resp, nil
 }
