@@ -39,11 +39,11 @@ type UnsignedData struct {
 	// time is out of sync.
 	Age matrix.Duration `json:"age,omitempty"`
 	// RedactReason is the event that redacted this event, if any.
-	RedactReason *RawEvent `json:"redacted_because,omitempty"`
+	RedactReason RawEvent `json:"redacted_because,omitempty"`
 	// TransactionID is the client-supplied transaction ID, if the client being given the event
 	// is the same one which sent it.
 	TransactionID string `json:"transaction_id,omitempty"`
-	// PrevContent is he previous content for this event. If there is no previous content, this
+	// PrevContent is the previous content for this event. If there is no previous content, this
 	// key will be missing.
 	PrevContent json.RawMessage `json:"prev_content,omitempty"`
 }
@@ -94,4 +94,16 @@ type StateEvent interface {
 	Info() *EventInfo
 	RoomInfo() *RoomEventInfo
 	StateInfo() *StateEventInfo
+}
+
+// Supporting JSON functions:
+
+// MarshalJSON returns the raw event itself.
+func (r RawEvent) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(r).MarshalJSON()
+}
+
+// UnmarshalJSON sets *r to a copy of the data.
+func (r *RawEvent) UnmarshalJSON(msg []byte) error {
+	return (*json.RawMessage)(r).UnmarshalJSON(msg)
 }
