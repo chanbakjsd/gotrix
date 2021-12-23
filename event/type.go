@@ -66,4 +66,25 @@ var parser = map[Type]func(RawEvent, json.RawMessage) (Event, error){
 	TypeRoomTopic:   defaultParse(func() Event { return new(RoomTopicEvent) }),
 	TypeRoomAvatar:  defaultParse(func() Event { return new(RoomAvatarEvent) }),
 	TypeRoomPinned:  defaultParse(func() Event { return new(RoomPinnedEvent) }),
+
+	TypeDirect: parseDirectEvent,
+
+	TypeCallInvite:     defaultParse(func() Event { return new(CallInviteEvent) }),
+	TypeCallCandidates: defaultParse(func() Event { return new(CallCandidatesEvent) }),
+	TypeCallAnswer:     defaultParse(func() Event { return new(CallAnswerEvent) }),
+	TypeCallHangup:     defaultParse(func() Event { return new(CallHangupEvent) }),
+
+	TypeTyping: parseTypingEvent,
+
+	TypeReceipt: parseReceiptEvent,
+
+	TypePresence: parsePresenceEvent,
+
+	TypeRoomHistoryVisibility: defaultParse(func() Event { return new(RoomHistoryVisibilityEvent) }),
+
+	TypeRoomGuestAccess: defaultParse(func() Event { return new(RoomGuestAccessEvent) }),
+
+	TypeTag: defaultParse(func() Event { return new(TagEvent) }),
+
+	TypeRoomTombstone: defaultParse(func() Event { return new(RoomTombstoneEvent) }),
 }

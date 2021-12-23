@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -18,6 +19,15 @@ func TestSpecExamples(t *testing.T) {
 		}
 
 		v.Expected.Info().Raw = RawEvent(v.Code)
+		if w, ok := ev.(*PresenceEvent); ok {
+			// receiveTime is not deterministic. Remove the field for testing purpose after checking
+			// it's filled.
+			if w.receiveTime.IsZero() {
+				t.Errorf("receiveTime is zero in PresenceEvent")
+			}
+			w.receiveTime = time.Time{}
+		}
+
 		if !reflect.DeepEqual(ev, v.Expected) {
 			if bytes.Equal(v.Expected.Info().Raw, ev.Info().Raw) {
 				// Redact raw if they're identical because it just spams output.
@@ -31,13 +41,24 @@ func TestSpecExamples(t *testing.T) {
 	}
 }
 
-var boolTrue = true
+var (
+	boolTrue  = true
+	boolFalse = false
+)
 
 func stringPtr(a string) *string {
 	return &a
 }
 
 func intPtr(a int) *int {
+	return &a
+}
+
+func urlPtr(a matrix.URL) *matrix.URL {
+	return &a
+}
+
+func f64Ptr(a float64) *float64 {
 	return &a
 }
 
@@ -1090,6 +1111,440 @@ var specExamples = []struct {
 			Pinned: []matrix.EventID{
 				"$someevent:example.org",
 			},
+		},
+	},
+	{
+		Name: "m.direct",
+		Code: `
+			{
+				"content": {
+					"@bob:example.com": [
+						"!abcdefgh:example.com",
+						"!hgfedcba:example.com"
+					]
+				},
+				"type": "m.direct"
+			}
+		`,
+		Expected: &DirectEvent{
+			EventInfo: EventInfo{
+				Type: TypeDirect,
+			},
+			Rooms: map[matrix.UserID][]matrix.RoomID{
+				"@bob:example.com": {
+					"!abcdefgh:example.com",
+					"!hgfedcba:example.com",
+				},
+			},
+		},
+	},
+	{
+		Name: "m.call.invite",
+		Code: `
+			{
+				"content": {
+					"call_id": "12345",
+					"lifetime": 60000,
+					"offer": {
+						"sdp": "v=0\r\no=- 6584580628695956864 2 IN IP4 127.0.0.1[...]",
+						"type": "offer"
+					},
+					"version": 0
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.call.invite",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &CallInviteEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeCallInvite,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			CallID:   "12345",
+			Lifetime: 60000,
+			Offer: struct {
+				Type string `json:"type"`
+				SDP  string `json:"sdp"`
+			}{
+				Type: "offer",
+				SDP:  "v=0\r\no=- 6584580628695956864 2 IN IP4 127.0.0.1[...]",
+			},
+			Version: 0,
+		},
+	},
+	{
+		Name: "m.call.candidates",
+		Code: `
+			{
+				"content": {
+					"call_id": "12345",
+					"candidates": [
+						{
+							"candidate": "candidate:863018703 1 udp 2122260223 10.9.64.156 43670 typ host generation 0",
+							"sdpMLineIndex": 0,
+							"sdpMid": "audio"
+						}
+					],
+					"version": 0
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.call.candidates",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &CallCandidatesEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeCallCandidates,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			CallID: "12345",
+			Candidates: []struct {
+				SDPMediaType      string `json:"sdpMid"`
+				SDPMediaLineIndex int    `json:"sdpMLineIndex"`
+				Candidate         string `json:"candidate"`
+			}{
+				{
+					Candidate:         "candidate:863018703 1 udp 2122260223 10.9.64.156 43670 typ host generation 0",
+					SDPMediaLineIndex: 0,
+					SDPMediaType:      "audio",
+				},
+			},
+			Version: 0,
+		},
+	},
+	{
+		Name: "m.call.answer",
+		Code: `
+			{
+				"content": {
+					"answer": {
+						"sdp": "v=0\r\no=- 6584580628695956864 2 IN IP4 127.0.0.1[...]",
+						"type": "answer"
+					},
+					"call_id": "12345",
+					"lifetime": 60000,
+					"version": 0
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.call.answer",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &CallAnswerEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeCallAnswer,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			Answer: struct {
+				Type string `json:"type"`
+				SDP  string `json:"sdp"`
+			}{
+				Type: "answer",
+				SDP:  "v=0\r\no=- 6584580628695956864 2 IN IP4 127.0.0.1[...]",
+			},
+			CallID: "12345",
+			// Lifetime is deliberately not included because it was not specified in spec.
+			Version: 0,
+		},
+	},
+	{
+		Name: "m.call.hangup",
+		Code: `
+			{
+				"content": {
+					"call_id": "12345",
+					"version": 0
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"type": "m.call.hangup",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &CallHangupEvent{
+			RoomEventInfo: RoomEventInfo{
+				EventInfo: EventInfo{
+					Type: TypeCallHangup,
+				},
+				ID:               "$143273582443PhrSn:example.org",
+				OriginServerTime: 1432735824653,
+				RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+				Sender:           "@example:example.org",
+				Unsigned: UnsignedData{
+					Age: 1234,
+				},
+			},
+			CallID:  "12345",
+			Version: 0,
+		},
+	},
+	{
+		Name: "m.typing",
+		Code: `
+			{
+			  "content": {
+			    "user_ids": [
+			      "@alice:matrix.org",
+			      "@bob:example.com"
+			    ]
+			  },
+			  "room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+			  "type": "m.typing"
+			}
+		`,
+		Expected: &TypingEvent{
+			EventInfo: EventInfo{
+				Type: TypeTyping,
+			},
+			UserID: []matrix.UserID{
+				"@alice:matrix.org",
+				"@bob:example.com",
+			},
+			RoomID: "!jEsUZKDJdhlrceRyVU:example.org",
+		},
+	},
+	{
+		Name: "m.receipt",
+		Code: `
+			{
+				"content": {
+					"$1435641916114394fHBLK:matrix.org": {
+						"m.read": {
+							"@rikj:jki.re": {
+								"ts": 1436451550453
+							}
+						}
+					}
+				},
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"type": "m.receipt"
+			}
+		`,
+		Expected: &ReceiptEvent{
+			EventInfo: EventInfo{
+				Type: TypeReceipt,
+			},
+			Events: map[matrix.EventID]Receipt{
+				"$1435641916114394fHBLK:matrix.org": {
+					Read: map[matrix.UserID]struct {
+						Timestamp int `json:"ts"`
+					}{
+						"@rikj:jki.re": {
+							Timestamp: 1436451550453,
+						},
+					},
+				},
+			},
+			RoomID: "!jEsUZKDJdhlrceRyVU:example.org",
+		},
+	},
+	{
+		Name: "m.presence",
+		Code: `
+			{
+				"content": {
+					"avatar_url": "mxc://localhost/wefuiwegh8742w",
+					"currently_active": false,
+					"last_active_ago": 2478593,
+					"presence": "online",
+					"status_msg": "Making cupcakes"
+				},
+				"sender": "@example:localhost",
+				"type": "m.presence"
+			}
+		`,
+		Expected: &PresenceEvent{
+			EventInfo: EventInfo{
+				Type: TypePresence,
+			},
+			AvatarURL:       urlPtr("mxc://localhost/wefuiwegh8742w"),
+			CurrentlyActive: &boolFalse,
+			LastActiveAgo:   intPtr(2478593),
+			Presence:        matrix.PresenceOnline,
+			Status:          stringPtr("Making cupcakes"),
+			User:            "@example:localhost",
+		},
+	},
+	{
+		Name: "m.room.history_visibility",
+		Code: `
+			{
+				"content": {
+					"history_visibility": "shared"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.history_visibility",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomHistoryVisibilityEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomHistoryVisibility,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			Visibility: VisibilityShared,
+		},
+	},
+	{
+		Name: "m.room.guest_access",
+		Code: `
+			{
+				"content": {
+					"guest_access": "can_join"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.guest_access",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomGuestAccessEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomGuestAccess,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			GuestAccess: GuestAccessCanJoin,
+		},
+	},
+	{
+		Name: "m.tag",
+		Code: `
+			{
+				"content": {
+					"tags": {
+						"u.work": {
+							"order": 0.9
+						}
+					}
+				},
+				"type": "m.tag"
+			}
+		`,
+		Expected: &TagEvent{
+			EventInfo: EventInfo{
+				Type: TypeTag,
+			},
+			Tags: map[matrix.TagName]matrix.Tag{
+				"u.work": {
+					Order: f64Ptr(0.9),
+				},
+			},
+		},
+	},
+	{
+		Name: "m.room.tombstone",
+		Code: `
+			{
+				"content": {
+					"body": "This room has been replaced",
+					"replacement_room": "!newroom:example.org"
+				},
+				"event_id": "$143273582443PhrSn:example.org",
+				"origin_server_ts": 1432735824653,
+				"room_id": "!jEsUZKDJdhlrceRyVU:example.org",
+				"sender": "@example:example.org",
+				"state_key": "",
+				"type": "m.room.tombstone",
+				"unsigned": {
+					"age": 1234
+				}
+			}
+		`,
+		Expected: &RoomTombstoneEvent{
+			StateEventInfo: StateEventInfo{
+				RoomEventInfo: RoomEventInfo{
+					EventInfo: EventInfo{
+						Type: TypeRoomTombstone,
+					},
+					ID:               "$143273582443PhrSn:example.org",
+					OriginServerTime: 1432735824653,
+					RoomID:           "!jEsUZKDJdhlrceRyVU:example.org",
+					Sender:           "@example:example.org",
+					Unsigned: UnsignedData{
+						Age: 1234,
+					},
+				},
+				StateKey: "",
+			},
+			Message:         "This room has been replaced",
+			ReplacementRoom: "!newroom:example.org",
 		},
 	},
 

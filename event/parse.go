@@ -2,13 +2,18 @@ package event
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 )
 
-// ErrUnknownEventType represents an error where the event type is unknown and therefore
+// UnknownEventTypeError represents an error where the event type is unknown and therefore
 // cannot be mapped to its concrete type.
-var ErrUnknownEventType = errors.New("unknown event type")
+type UnknownEventTypeError struct {
+	Found Type
+}
+
+func (e UnknownEventTypeError) Error() string {
+	return fmt.Sprintf("unknown event type: %s", e.Found)
+}
 
 // Register registers a parser for the provided event type.
 // The parser is passed the full raw event and its content field.
@@ -30,7 +35,9 @@ func Parse(r RawEvent) (Event, error) {
 	}
 
 	if _, ok := parser[ev.Type]; !ok {
-		return nil, ErrUnknownEventType
+		return nil, UnknownEventTypeError{
+			Found: ev.Type,
+		}
 	}
 
 	concrete, err := parser[ev.Type](r, ev.Content)

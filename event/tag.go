@@ -10,6 +10,5 @@ var _ Event = &TagEvent{}
 type TagEvent struct {
 	EventInfo `json:"-"`
 
-	RoomID matrix.RoomID                 `json:"-"`
-	Tags   map[matrix.TagName]matrix.Tag `json:"tags"`
+	Tags map[matrix.TagName]matrix.Tag `json:"tags"`
 }

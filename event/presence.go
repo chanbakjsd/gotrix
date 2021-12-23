@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/chanbakjsd/gotrix/matrix"
@@ -34,4 +35,26 @@ func (p PresenceEvent) LastActive() *time.Time {
 	}
 	lastActive := p.receiveTime.Add(-time.Duration(*p.LastActiveAgo) * time.Millisecond)
 	return &lastActive
+}
+
+func parsePresenceEvent(r RawEvent, content json.RawMessage) (Event, error) {
+	receiveTime := time.Now()
+	var fullEvent struct {
+		EventInfo
+		Content PresenceEvent `json:"content"`
+		Sender  matrix.UserID `json:"sender"`
+	}
+
+	err := json.Unmarshal(r, &fullEvent)
+	if err != nil {
+		return nil, err
+	}
+
+	v := fullEvent.Content
+	v.EventInfo = fullEvent.EventInfo
+	v.User = fullEvent.Sender
+	v.receiveTime = receiveTime
+	v.Raw = r
+
+	return &v, nil
 }
