@@ -21,6 +21,20 @@ func Register(eventType Type, p func(RawEvent, json.RawMessage) (Event, error)) 
 	parser[eventType] = p
 }
 
+// RegisterDefault registers a parser for the provided event type.
+// It automatically fills in the applicable EventInfo and passes only the content to the parser
+// function.
+func RegisterDefault(eventType Type, p func(json.RawMessage) (Event, error)) {
+	parser[eventType] = func(r RawEvent, content json.RawMessage) (Event, error) {
+		v, err := p(content)
+		if err != nil {
+			return nil, err
+		}
+
+		return fillInfo(r, v)
+	}
+}
+
 // Parse returns the concrete type of the provided event's type.
 func Parse(r RawEvent) (Event, error) {
 	type event struct {
@@ -34,13 +48,14 @@ func Parse(r RawEvent) (Event, error) {
 		return nil, fmt.Errorf("error unmarshalling event: %w", err)
 	}
 
-	if _, ok := parser[ev.Type]; !ok {
+	p, ok := parser[ev.Type]
+	if !ok {
 		return nil, UnknownEventTypeError{
 			Found: ev.Type,
 		}
 	}
 
-	concrete, err := parser[ev.Type](r, ev.Content)
+	concrete, err := p(r, ev.Content)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling event of type %s: %w", ev.Type, err)
 	}
@@ -52,6 +67,32 @@ func Parse(r RawEvent) (Event, error) {
 	return concrete, nil
 }
 
+// fillInfo is a helper function that backfills EventInfo/RoomEventInfo/StateEventInfo into the provided event.
+func fillInfo(raw RawEvent, v Event) (Event, error) {
+	switch e := v.(type) {
+	case StateEvent:
+		err := json.Unmarshal(raw, e.StateInfo())
+		if err != nil {
+			return nil, err
+		}
+	case RoomEvent:
+		err := json.Unmarshal(raw, e.RoomInfo())
+		if err != nil {
+			return nil, err
+		}
+	default:
+		err := json.Unmarshal(raw, e.Info())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	v.Info().Raw = raw
+	return v, nil
+}
+
+// defaultParse parses the content into the event returned by the zeroValue func, assuming that it
+// creates a pointer. It then fills in the info.
 func defaultParse(zeroValue func() Event) func(RawEvent, json.RawMessage) (Event, error) {
 	return func(raw RawEvent, content json.RawMessage) (Event, error) {
 		v := zeroValue()
@@ -60,26 +101,6 @@ func defaultParse(zeroValue func() Event) func(RawEvent, json.RawMessage) (Event
 			return nil, err
 		}
 
-		switch e := v.(type) {
-		case StateEvent:
-			err := json.Unmarshal(raw, e.StateInfo())
-			if err != nil {
-				return nil, err
-			}
-		case RoomEvent:
-			err := json.Unmarshal(raw, e.RoomInfo())
-			if err != nil {
-				return nil, err
-			}
-		default:
-			err := json.Unmarshal(raw, e.Info())
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		v.Info().Raw = raw
-
-		return v, nil
+		return fillInfo(raw, v)
 	}
 }
