@@ -12,7 +12,7 @@ import (
 
 func TestSpecExamples(t *testing.T) {
 	for _, v := range specExamples {
-		ev, err := RawEvent(v.Code).Parse()
+		ev, err := Parse(RawEvent(v.Code))
 		if err != nil {
 			t.Errorf("error parsing %s: %v", v.Name, err)
 			continue

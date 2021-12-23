@@ -114,7 +114,7 @@ func (c *Client) DMRooms() (*event.DirectEvent, error) {
 		return nil, fmt.Errorf("error fetching DM room list: %w", err)
 	}
 
-	ev, err := resp.Parse()
+	ev, err := event.Parse(resp)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing DM room list: %w", err)
 	}

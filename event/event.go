@@ -15,11 +15,6 @@ type StrippedEvent RawEvent
 // RawEvent is an instance of event that has not been parsed.
 type RawEvent json.RawMessage
 
-// Parse parses the raw event and returns the parsed event.
-func (r RawEvent) Parse() (Event, error) {
-	return Parse(r)
-}
-
 // EventInfo contains information present in all events.
 type EventInfo struct {
 	// Raw is the raw event as the event was received.

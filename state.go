@@ -50,7 +50,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 		return nil, err
 	}
 
-	parsed, err := raw.Parse()
+	parsed, err := event.Parse(raw)
 	if err != nil {
 		return nil, err
 	}

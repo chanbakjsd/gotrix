@@ -97,7 +97,7 @@ func (c *Client) Close() error {
 func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHistorical bool) {
 	for _, v := range e {
 		v := v
-		concrete, err := v.Parse()
+		concrete, err := event.Parse(v)
 		if w, ok := concrete.(event.RoomEvent); ok {
 			w.RoomInfo().RoomID = roomID
 		}

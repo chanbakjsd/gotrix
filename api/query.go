@@ -34,13 +34,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 		return nil, fmt.Errorf("error fetching room state event: %w", err)
 	}
 
-	// FIXME: Declare this in the event package instead of providing the user marshalled data.
-	type rawStateEvent struct {
-		event.StateEventInfo
-		Content json.RawMessage `json:"content"`
-	}
-
-	return json.Marshal(rawStateEvent{
+	partial := event.Partial{
 		StateEventInfo: event.StateEventInfo{
 			RoomEventInfo: event.RoomEventInfo{
 				EventInfo: event.EventInfo{
@@ -51,7 +45,10 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 			StateKey: key,
 		},
 		Content: content,
-	})
+	}
+
+	// FIXME: Maybe avoid marshalling here and just return the partial event.
+	return partial.Raw()
 }
 
 // RoomStates fetches all the current state events of the provided room.

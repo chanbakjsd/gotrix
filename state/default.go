@@ -87,7 +87,7 @@ func (d *DefaultState) RoomSummary(roomID matrix.RoomID) (api.SyncRoomSummary, e
 
 func accumulateRaw(dst []event.StateEvent, roomID matrix.RoomID, raws []event.RawEvent) []event.StateEvent {
 	for _, raw := range raws {
-		e, err := raw.Parse()
+		e, err := event.Parse(raw)
 		if err != nil {
 			continue
 		}
@@ -103,7 +103,7 @@ func accumulateRaw(dst []event.StateEvent, roomID matrix.RoomID, raws []event.Ra
 
 func accumulateStripped(dst []event.StateEvent, roomID matrix.RoomID, evs []event.StrippedEvent) []event.StateEvent {
 	for _, ev := range evs {
-		e, err := event.RawEvent(ev).Parse()
+		e, err := event.Parse(event.RawEvent(ev))
 		if err != nil {
 			continue
 		}
