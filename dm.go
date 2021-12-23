@@ -14,7 +14,7 @@ func (c *Client) MarkRoomAsDM(remoteID matrix.UserID, roomID matrix.RoomID) erro
 		return fmt.Errorf("error while marking room as DM: %w", err)
 	}
 
-	directEvent[remoteID] = append(directEvent[remoteID], roomID)
+	directEvent.Rooms[remoteID] = append(directEvent.Rooms[remoteID], roomID)
 	err = c.DMRoomsSet(directEvent)
 	if err != nil {
 		return fmt.Errorf("error while marking room as DM: %w", err)

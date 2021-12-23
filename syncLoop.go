@@ -102,10 +102,11 @@ func (c *Client) handleWithRoomID(e []event.RawEvent, roomID matrix.RoomID, isHi
 			w.RoomInfo().RoomID = roomID
 		}
 
+		var unknownErr event.UnknownEventTypeError
 		// Print out warnings.
 		switch {
-		case errors.Is(err, event.ErrUnknownEventType):
-			debug.Warn(fmt.Sprintf("unknown event type: %s", v.Type))
+		case errors.As(err, &unknownErr):
+			debug.Warn(fmt.Sprintf("unknown event type: %s", unknownErr.Found))
 		case err != nil:
 			debug.Warn(fmt.Errorf("error unmarshalling content: %w", err))
 		}

@@ -15,7 +15,7 @@ func panicIfErr(err error) {
 	}
 }
 
-func handleInvite(c *gotrix.Client, m event.RoomMemberEvent) {
+func handleInvite(c *gotrix.Client, m *event.RoomMemberEvent) {
 	if m.NewState != event.MemberInvited || m.UserID != c.UserID {
 		// Not an invite for us.
 		return
@@ -25,7 +25,7 @@ func handleInvite(c *gotrix.Client, m event.RoomMemberEvent) {
 
 func handleMessage(c *gotrix.Client, m event.RoomMessageEvent) {
 	// If it's a notice (another bot's message) or not "ping", ignore.
-	if m.MsgType == event.RoomMessageNotice || m.Body != "ping" {
+	if m.MessageType == event.RoomMessageNotice || m.Body != "ping" {
 		return
 	}
 	// Otherwise, send pong!

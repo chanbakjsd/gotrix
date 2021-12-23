@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/chanbakjsd/gotrix/api/httputil"
@@ -127,7 +128,7 @@ func (c *Client) DMRooms() (*event.DirectEvent, error) {
 
 // DMRoomsSet updates the DM rooms saved in 'm.direct'.
 func (c *Client) DMRoomsSet(newRooms *event.DirectEvent) error {
-	raw, err := newRooms.Raw()
+	raw, err := json.Marshal(newRooms)
 	if err != nil {
 		return fmt.Errorf("error encoding DM rooms: %w", err)
 	}
