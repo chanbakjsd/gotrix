@@ -97,9 +97,9 @@ These are the changelogs of v1.1. They should be marked off when they're checked
 - [X] MSC 2795: `reason` on membership events
 - [ ] MSC 2796: `M_NOT_FOUND` on push rule endpoints
 - [ ] MSC 2807: Content reporting API: `reason`/`score` now optional
-- [ ] MSC 2808: Guest may get list of members of a room
-- [ ] MSC 3098: Support for spoilers
-- [ ] MSC 3100: `<details>` and `<summary>` now in HTML subset
+- [X] MSC 2808: Guest may get list of members of a room (Not relevant)
+- [X] MSC 3098: Support for spoilers
+- [X] MSC 3100: `<details>` and `<summary>` now in HTML subset (Not relevant)
 - [ ] MSC 3139 + MSC 3150: Key verification using in-room messages
 - [ ] MSC 3147: SSSS for cross-signing and key backup
 - [ ] MSC 3149: Key verification using QR code

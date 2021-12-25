@@ -1,11 +1,34 @@
 package gotrix
 
 import (
+	"fmt"
+	"html"
+	"io"
 	"net/url"
+	"strings"
 
 	"github.com/chanbakjsd/gotrix/event"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
+
+// FormatSpoiler creates the intended spoiler format for a spoiler message.
+// Adhering to the spec, the spoiler text is uploaded to MXC as a plaintext to be included in the
+// body. This function should therefore not be used in encrypted rooms to prevent leaks.
+func (c *Client) FormatSpoiler(reason string, spoilerText string) (body string, formatted string, _ error) {
+	url, err := c.MediaUpload("text/plain", "spoiler.txt", io.NopCloser(strings.NewReader(spoilerText)))
+	if err != nil {
+		return "", "", err
+	}
+	if reason == "" {
+		return "[Spoiler](" + string(url) + ")",
+			"<span data-mx-spoiler>" + spoilerText + "</span>",
+			nil
+	}
+
+	return fmt.Sprintf("[Spoiler for %s](%s)", reason, url),
+		fmt.Sprintf("<span data-mx-spoiler='%s'>%s</span>", html.EscapeString(reason), spoilerText),
+		nil
+}
 
 // MentionUser creates the intended mention format for a user in normal body and formatted body.
 func (c *Client) MentionUser(userID matrix.UserID, roomID matrix.RoomID) (body string, formatted string) {
