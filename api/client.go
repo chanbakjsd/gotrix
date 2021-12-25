@@ -33,9 +33,10 @@ func (c Client) WithUserID(userID matrix.UserID) *Client {
 
 // Whoami queries the homeserver to check if the token is still valid.
 // The user ID is returned if it's successful.
-func (c *Client) Whoami() (matrix.UserID, error) {
+func (c *Client) Whoami() (matrix.UserID, matrix.DeviceID, error) {
 	var resp struct {
-		UserID matrix.UserID `json:"user_id"`
+		UserID   matrix.UserID   `json:"user_id"`
+		DeviceID matrix.DeviceID `json:"device_id"`
 	}
 
 	err := c.Request(
@@ -45,9 +46,9 @@ func (c *Client) Whoami() (matrix.UserID, error) {
 		}),
 	)
 	if err != nil {
-		return "", fmt.Errorf("error fetching whoami: %w", err)
+		return "", "", fmt.Errorf("error fetching whoami: %w", err)
 	}
-	return resp.UserID, nil
+	return resp.UserID, resp.DeviceID, nil
 }
 
 // ServerCapabilities retrieves the homeserver's capabilities.

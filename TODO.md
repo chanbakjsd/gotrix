@@ -104,6 +104,6 @@ These are the changelogs of v1.1. They should be marked off when they're checked
 - [ ] MSC 3147: SSSS for cross-signing and key backup
 - [ ] MSC 3149: Key verification using QR code
 - [ ] MSC 3163: Multiple SSO providers
-- [ ] MSC 3166: `device_id` on `/account/whoami`
+- [X] MSC 3166: `device_id` on `/account/whoami`
 - [ ] MSC 3169: Identity server discovery failure results in `FAIL_PROMPT`
 - [X] MSC 3421: Re-version to be `v3` instead of `r0`
