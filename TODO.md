@@ -92,9 +92,9 @@ These are the changelogs of v1.1. They should be marked off when they're checked
 - [ ] MSC 2399: Advise recipients about withholding keys
 - [ ] MSC 2536: Cross-signing property to `POST /keys/query`
 - [ ] MSC 2597 + MSC 3151: Secure Secret Storage and Sharing
-- [ ] MSC 2709: `device_id` parameter to login fallback
+- [X] MSC 2709: `device_id` parameter to login fallback (Won't fix. JS callback)
 - [ ] MSC 2728: SAS Emojis
-- [ ] MSC 2795: `reason` on membership events
+- [X] MSC 2795: `reason` on membership events
 - [ ] MSC 2796: `M_NOT_FOUND` on push rule endpoints
 - [ ] MSC 2807: Content reporting API: `reason`/`score` now optional
 - [ ] MSC 2808: Guest may get list of members of a room

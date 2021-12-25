@@ -76,6 +76,11 @@ type RoomMemberEvent struct {
 	NewState MemberType `json:"membership,omitempty"`
 	// Flag indicating if the room was created with intention of being a DM.
 	IsDirect bool `json:"is_direct,omitempty"`
+	// Optional user-specified reason for the state change.
+	// Clients are not recommended to show this reason to users when receiving
+	// an invite due to the potential for spam and abuse. Hiding the reason
+	// behind a button or other component is recommended.
+	Reason string `json:"reason,omitempty"`
 	// ThirdPartyInvites is set when it's an invite event and is the successor of a
 	// m.room.third_party_invite event.
 	ThirdPartyInvite struct {

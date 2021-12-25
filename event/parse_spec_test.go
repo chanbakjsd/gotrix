@@ -221,7 +221,7 @@ var specExamples = []struct {
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberJoined,
-			// TODO: Add Reason field.
+			Reason:      "Looking for support",
 			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
@@ -283,6 +283,7 @@ var specExamples = []struct {
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberInvited,
+			Reason:      "Looking for support",
 			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{
@@ -345,7 +346,7 @@ var specExamples = []struct {
 			AvatarURL:   "mxc://example.org/SEsfnsuifSDFSSEF",
 			DisplayName: stringPtr("Alice Margatroid"),
 			NewState:    MemberKnock,
-			// TODO: Add field Reason
+			Reason:      "Looking for support",
 			StateEventInfo: StateEventInfo{
 				RoomEventInfo: RoomEventInfo{
 					EventInfo: EventInfo{

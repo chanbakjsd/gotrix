@@ -23,10 +23,12 @@ func (c *Client) Rooms() ([]matrix.RoomID, error) {
 }
 
 // Invite invites the requested user to the specified room ID.
-func (c *Client) Invite(roomID matrix.RoomID, userID matrix.UserID) error {
+// To not specify a reason, pass an empty string to the reason parameter.
+func (c *Client) Invite(roomID matrix.RoomID, userID matrix.UserID, reason string) error {
 	body := struct {
 		UserID matrix.UserID `json:"user_id"`
-	}{userID}
+		Reason string        `json:"reason,omitempty"`
+	}{userID, reason}
 	err := c.Request(
 		"POST", EndpointRoomInvite(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(body),
@@ -38,10 +40,14 @@ func (c *Client) Invite(roomID matrix.RoomID, userID matrix.UserID) error {
 }
 
 // RoomJoin joins the specified room ID.
-func (c *Client) RoomJoin(roomID matrix.RoomID) error {
+// To not specify a reason, pass an empty string to the reason parameter.
+func (c *Client) RoomJoin(roomID matrix.RoomID, reason string) error {
+	body := struct {
+		Reason string `json:"reason,omitempty"`
+	}{reason}
 	err := c.Request(
 		"POST", EndpointRoomJoin(roomID), nil,
-		httputil.WithToken(),
+		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	if err != nil {
 		return fmt.Errorf("error joining room: %w", err)
@@ -52,10 +58,14 @@ func (c *Client) RoomJoin(roomID matrix.RoomID) error {
 // TODO: Implement third party invite version of (*Client).RoomJoin.
 
 // RoomLeave leaves the specified room ID.
-func (c *Client) RoomLeave(roomID matrix.RoomID) error {
+// To not specify a reason, pass an empty string to the reason parameter.
+func (c *Client) RoomLeave(roomID matrix.RoomID, reason string) error {
+	body := struct {
+		Reason string `json:"reason,omitempty"`
+	}{reason}
 	err := c.Request(
 		"POST", EndpointRoomLeave(roomID), nil,
-		httputil.WithToken(),
+		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	return err
 }
@@ -109,10 +119,12 @@ func (c *Client) Ban(roomID matrix.RoomID, userID matrix.UserID, reason string) 
 }
 
 // Unban unbans the user from the provided room.
-func (c *Client) Unban(roomID matrix.RoomID, userID matrix.UserID) error {
+// To not specify a reason, pass an empty string to the reason parameter.
+func (c *Client) Unban(roomID matrix.RoomID, userID matrix.UserID, reason string) error {
 	param := struct {
 		UserID matrix.UserID `json:"user_id"`
-	}{userID}
+		Reason string        `json:"reason,omitempty"`
+	}{userID, reason}
 
 	err := c.Request(
 		"POST", EndpointRoomUnban(roomID), nil,
