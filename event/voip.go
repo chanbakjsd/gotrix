@@ -8,7 +8,7 @@ var (
 )
 
 // TODO Maybe implement glare at some point.
-// https://matrix.org/docs/spec/client_server/r0.6.1#glare
+// https://spec.matrix.org/v1.1/client-server-api/#glare
 
 // CallInviteEvent is a message event where someone is inviting to establish a call.
 type CallInviteEvent struct {
@@ -63,7 +63,6 @@ type CallHangupEvent struct {
 type CallHangupReason string
 
 // Possible reasons to hang up.
-// List available at https://matrix.org/docs/spec/client_server/r0.6.1#m-call-hangup.
 const (
 	CallHangupNormal        CallHangupReason = ""
 	CallHangupICEFailed     CallHangupReason = "ice_failed" // ICE negotiation failed.

@@ -96,7 +96,7 @@ func (c *Client) ThreePIDDelete(req ThreePIDDeleteArg) (matrix.IDServerUnbindRes
 	}
 
 	err := c.Request(
-		"POST", "_matrix/client/r0/account/3pid/delete", &resp,
+		"POST", "_matrix/client/v3/account/3pid/delete", &resp,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -120,7 +120,7 @@ func (c *Client) ThreePIDUnbind(req ThreePIDUnbindArg) (matrix.IDServerUnbindRes
 	}
 
 	err := c.Request(
-		"POST", "_matrix/client/r0/account/3pid/unbind", &resp,
+		"POST", "_matrix/client/v3/account/3pid/unbind", &resp,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

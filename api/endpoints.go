@@ -8,7 +8,7 @@ import (
 )
 
 // Version is the Client-Server API version implemented by Gotrix.
-var Version = "r0"
+var Version = "v3"
 
 // Known Matrix Client-Server API endpoints.
 //nolint:lll

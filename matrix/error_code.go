@@ -4,7 +4,7 @@ package matrix
 type ErrorCode string
 
 // List of official error codes.
-// It can be found at https://matrix.org/docs/spec/client_server/r0.6.1#api-standards.
+// It can be found at https://spec.matrix.org/v1.1/client-server-api/#standard-error-response.
 const (
 	// Common error codes
 	CodeForbidden     ErrorCode = "M_FORBIDDEN"
@@ -34,6 +34,7 @@ const (
 	CodeBadState                     ErrorCode = "M_BAD_STATE"
 	CodeGuestAccessForbidden         ErrorCode = "M_GUEST_ACCESS_FORBIDDEN"
 	CodeCaptchaNeeded                ErrorCode = "M_CAPTCHA_NEEDED"
+	CodeCaptchaInvalid               ErrorCode = "M_CAPTCHA_INVALID"
 	CodeMissingParam                 ErrorCode = "M_MISSING_PARAM"
 	CodeInvalidParam                 ErrorCode = "M_INVALID_PARAM"
 	CodeTooLarge                     ErrorCode = "M_TOO_LARGE"

@@ -16,7 +16,7 @@ var ErrInteractiveAuthIncomplete = errors.New("interactive auth has not been com
 // UserInteractiveAuthAPI represents the state that needs to be kept for
 // the user interactive authentication API.
 //
-// It implements https://matrix.org/docs/spec/client_server/r0.6.1#user-interactive-authentication-api.
+// It implements https://spec.matrix.org/v1.1/client-server-api/#user-interactive-authentication-api.
 type UserInteractiveAuthAPI struct {
 	// Flows are list of stages that the server requires before allowing.
 	Flows []struct {
@@ -108,7 +108,6 @@ type authRequest struct {
 
 	Response string `json:"response,omitempty"`
 
-	Token         string `json:"token,omitempty"`
 	TransactionID string `json:"txn_id,omitempty"`
 
 	ThreePIDCreds ThreePIDCreds `json:"threepidCreds,omitempty"`
@@ -138,17 +137,6 @@ func (u *UserInteractiveAuthAPI) AuthRecaptcha(response string) error {
 		Type:     matrix.LoginRecaptcha,
 		Session:  u.Session,
 		Response: response,
-	})
-}
-
-// AuthToken is a helper method to login with token.
-// Transaction ID should be a randomly generated ID that is persistent for each request.
-func (u *UserInteractiveAuthAPI) AuthToken(token, transactionID string) error {
-	return u.Auth(authRequest{
-		Type:          matrix.LoginToken,
-		Session:       u.Session,
-		Token:         token,
-		TransactionID: transactionID,
 	})
 }
 

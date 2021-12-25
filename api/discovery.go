@@ -34,7 +34,7 @@ type DiscoveryInfoResponse struct {
 // DiscoveryInfo discovers homeserver and identity server from the URL set in (*Client).HomeServer
 // and validates them.
 //
-// It implements https://matrix.org/docs/spec/client_server/r0.6.1#well-known-uri.
+// It implements https://spec.matrix.org/v1.1/client-server-api/#well-known-uri.
 func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	// Check well-known URI.
 	var result DiscoveryInfoResponse

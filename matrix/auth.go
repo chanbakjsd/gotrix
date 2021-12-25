@@ -8,7 +8,7 @@ import (
 type LoginMethod string
 
 // List of official authentications.
-// It can be found here: https://matrix.org/docs/spec/client_server/r0.6.1#authentication-types.
+// It can be found here: https://spec.matrix.org/v1.1/client-server-api/#authentication-types.
 const (
 	LoginPassword  LoginMethod = "m.login.password"
 	LoginRecaptcha LoginMethod = "m.login.recaptcha"
@@ -29,7 +29,7 @@ const (
 // This can be used when the auth method is not natively supported by the client.
 func (l LoginMethod) FallbackURL(authServerHost string, sessionID string) string {
 	return fmt.Sprintf(
-		"https://%s/_matrix/client/r0/auth/%s/fallback/web?session=%s",
+		"https://%s/_matrix/client/v3/auth/%s/fallback/web?session=%s",
 		authServerHost, string(l), sessionID,
 	)
 }

@@ -17,7 +17,7 @@ A list of available modules that are done can be found at [TODO.md][todo-link].
 If you require the use of features that have not been implemented yet,
 [gomatrix][gomatrix-link] and [mautrix-go][mautrixgo-link] are alternative clients of Matrix in Go.
 
-[spec-link]: https://matrix.org/docs/spec/client_server/r0.6.1
+[spec-link]: https://spec.matrix.org/v1.1/client-server-api/
 [todo-link]: https://github.com/chanbakjsd/gotrix/blob/master/TODO.md
 [gomatrix-link]: https://github.com/matrix-org/gomatrix
 [mautrixgo-link]: https://github.com/tulir/mautrix-go
