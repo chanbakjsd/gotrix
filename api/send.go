@@ -49,25 +49,17 @@ func (c *Client) RoomEventSend(roomID matrix.RoomID, eventType event.Type, body 
 // RoomEventRedact redacts a room event as specified by the room ID and event ID.
 // A user can redact events they sent out or other people's event provided they have the power level to.
 func (c *Client) RoomEventRedact(roomID matrix.RoomID, eventID matrix.EventID, reason string) (matrix.EventID, error) {
+	req := struct {
+		Reason string `json:"reason,omitempty"`
+	}{reason}
 	var resp struct {
 		EventID matrix.EventID `json:"event_id"`
 	}
-	var err error
 
-	if reason == "" {
-		err = c.Request(
-			"PUT", EndpointRoomRedact(roomID, eventID, NextTransactionID()), &resp,
-			httputil.WithToken(),
-		)
-	} else {
-		err = c.Request(
-			"PUT", EndpointRoomRedact(roomID, eventID, NextTransactionID()), &resp,
-			httputil.WithToken(), httputil.WithJSONBody(struct {
-				Reason string `json:"reason"`
-			}{
-				Reason: reason,
-			}))
-	}
+	err := c.Request(
+		"PUT", EndpointRoomRedact(roomID, eventID, NextTransactionID()), &resp,
+		httputil.WithToken(), httputil.WithJSONBody(req),
+	)
 	if err != nil {
 		return "", fmt.Errorf("error redacting room event: %w", err)
 	}
