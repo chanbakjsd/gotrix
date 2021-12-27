@@ -1,6 +1,7 @@
 package gotrix
 
 import (
+	"encoding/json"
 	"io"
 
 	"github.com/chanbakjsd/gotrix/event"
@@ -33,6 +34,11 @@ type File struct {
 	MIMEType string
 	Content  io.ReadCloser
 	Caption  string // Set to filename if empty.
+
+	FileInfo  *event.FileInfo
+	ImageInfo *event.ImageInfo
+	AudioInfo *event.AudioInfo
+	VideoInfo *event.VideoInfo
 }
 
 // SendImage uploads the provided image to the server and sends a message containing it to the designated room.
@@ -82,9 +88,36 @@ func (c *Client) sendFile(roomID matrix.RoomID, msgType event.MessageType, file 
 		file.Caption = file.Name
 	}
 
+	var additionalInfo json.RawMessage
+	if file.AudioInfo != nil {
+		additionalInfo, err = json.Marshal(file.AudioInfo)
+		if err != nil {
+			return "", err
+		}
+	}
+	if file.FileInfo != nil {
+		additionalInfo, err = json.Marshal(file.FileInfo)
+		if err != nil {
+			return "", err
+		}
+	}
+	if file.ImageInfo != nil {
+		additionalInfo, err = json.Marshal(file.ImageInfo)
+		if err != nil {
+			return "", err
+		}
+	}
+	if file.VideoInfo != nil {
+		additionalInfo, err = json.Marshal(file.VideoInfo)
+		if err != nil {
+			return "", err
+		}
+	}
+
 	return c.RoomEventSend(roomID, event.TypeRoomMessage, event.RoomMessageEvent{
-		MessageType: msgType,
-		Body:        file.Caption,
-		URL:         url,
+		MessageType:    msgType,
+		Body:           file.Caption,
+		URL:            url,
+		AdditionalInfo: additionalInfo,
 	})
 }
