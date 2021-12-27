@@ -102,3 +102,13 @@ func (r RawEvent) MarshalJSON() ([]byte, error) {
 func (r *RawEvent) UnmarshalJSON(msg []byte) error {
 	return (*json.RawMessage)(r).UnmarshalJSON(msg)
 }
+
+// MarshalJSON returns the stripped event itself.
+func (r StrippedEvent) MarshalJSON() ([]byte, error) {
+	return json.RawMessage(r).MarshalJSON()
+}
+
+// UnmarshalJSON sets *r to a copy of the data.
+func (r *StrippedEvent) UnmarshalJSON(msg []byte) error {
+	return (*json.RawMessage)(r).UnmarshalJSON(msg)
+}
