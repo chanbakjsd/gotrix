@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/chanbakjsd/gotrix/encrypt"
 	"github.com/chanbakjsd/gotrix/matrix"
 )
 
@@ -31,7 +30,7 @@ type RoomMessageEvent struct {
 
 	// These fields are present in Image, File, Audio, Video.
 	URL  matrix.URL    `json:"url,omitempty"`  // Present if content is not encrypted.
-	File *encrypt.File `json:"file,omitempty"` // Present if content is encrypted.
+	File EncryptedFile `json:"file,omitempty"` // Present if content is encrypted.
 
 	// This field is present in Image, File, Audio, Video, Location.
 	// The relevant parsing functions should be used.
@@ -78,7 +77,7 @@ type FileInfo struct {
 	MimeType      string        `json:"mimetype,omitempty"`       // MIME type of image.
 	Size          int           `json:"size,omitempty"`           // Size in bytes.
 	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is un-encrypted.
-	ThumbnailFile encrypt.File  `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
+	ThumbnailFile EncryptedFile `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
 	ThumbnailInfo ThumbnailInfo `json:"thumbnail_info,omitempty"`
 }
 
@@ -101,7 +100,7 @@ type AudioInfo struct {
 // LocationInfo stores the info of a location.
 type LocationInfo struct {
 	ThumbnailURL  matrix.URL    `json:"thumbnail_url,omitempty"`  // Present if thumbnail is un-encrypted.
-	ThumbnailFile encrypt.File  `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
+	ThumbnailFile EncryptedFile `json:"thumbnail_file,omitempty"` // Present if thumbnail is encrypted.
 	ThumbnailInfo ThumbnailInfo `json:"thumbnail_info,omitempty"`
 }
 
