@@ -55,6 +55,9 @@ func Parse(r RawEvent) (Event, error) {
 		}
 	}
 
+	// Copy RawEvent before passing it to the individual parsers as most store
+	// it in the Raw field literally.
+	r = append([]byte(nil), r...)
 	concrete, err := p(r, ev.Content)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling event of type %s: %w", ev.Type, err)
