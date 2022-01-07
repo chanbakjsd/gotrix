@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -21,13 +22,31 @@ type SyncArg struct {
 // SyncResponse represents the response of a sync API call consisting of every info the server
 // updates the client on.
 type SyncResponse struct {
-	NextBatch              string          `json:"next_batch"`
-	Presence               SyncEvents      `json:"presence,omitempty"`
-	AccountData            SyncEvents      `json:"account_data,omitempty"`
-	Rooms                  SyncRoomEvents  `json:"rooms,omitempty"`
-	ToDevice               SyncEvents      `json:"to_device,omitempty"`
-	DeviceLists            SyncDeviceLists `json:"device_lists,omitempty"`
-	DeviceOneTimeKeysCount map[string]int  `json:"device_one_time_keys_count,omitempty"`
+	NextBatch   string         `json:"next_batch"`
+	Presence    SyncEvents     `json:"presence,omitempty"`
+	AccountData SyncEvents     `json:"account_data,omitempty"`
+	Rooms       SyncRoomEvents `json:"rooms,omitempty"`
+	ToDevice    SyncEvents     `json:"to_device,omitempty"`
+
+	raw json.RawMessage
+}
+
+// UnmarshalJSON unmarshals b into r and fills the raw JSON.
+func (r *SyncResponse) UnmarshalJSON(b []byte) error {
+	type raw SyncResponse
+
+	if err := json.Unmarshal(b, (*raw)(r)); err != nil {
+		return err
+	}
+
+	r.raw = append([]byte(nil), b...)
+	return nil
+}
+
+// Raw returns the original JSON that the SyncResponse was unmarshaled on with. It may be nil if the
+// SyncResponse is not originally unmarshaled from.
+func (r *SyncResponse) Raw() []byte {
+	return r.raw
 }
 
 // SyncRoomEvents consists of events that are tied to specific rooms (like messages and typing
