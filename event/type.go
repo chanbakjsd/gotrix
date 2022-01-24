@@ -51,6 +51,9 @@ const (
 
 	// Events from the Room Upgrade module.
 	TypeRoomTombstone Type = "m.room.tombstone"
+
+	// Events from the Push Notifications module.
+	TypePushRules Type = "m.push_rules"
 )
 
 var parser = map[Type]func(RawEvent, json.RawMessage) (Event, error){
@@ -87,4 +90,6 @@ var parser = map[Type]func(RawEvent, json.RawMessage) (Event, error){
 	TypeTag: defaultParse(func() Event { return new(TagEvent) }),
 
 	TypeRoomTombstone: defaultParse(func() Event { return new(RoomTombstoneEvent) }),
+
+	TypePushRules: defaultParse(func() Event { return new(PushRulesEvent) }),
 }
