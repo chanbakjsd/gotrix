@@ -19,7 +19,7 @@ type Presence struct {
 func (c *Client) Presence(userID matrix.UserID) (Presence, error) {
 	var resp Presence
 	err := c.Request(
-		"GET", EndpointPresenceStatus(userID), &resp,
+		"GET", c.Endpoints.PresenceStatus(userID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -39,7 +39,7 @@ func (c *Client) PresenceSet(presence matrix.Presence, statusMsg string) error {
 	}
 
 	err := c.Request(
-		"PUT", EndpointPresenceStatus(c.UserID), nil,
+		"PUT", c.Endpoints.PresenceStatus(c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

@@ -46,10 +46,16 @@ func NewWithClient(httpClient httputil.Client, serverName string) (*Client, erro
 	}
 
 	apiClient := &api.Client{
-		Client: httpClient,
+		Client:    httpClient,
+		Endpoints: api.Endpoints{Version: "r0"},
 	}
 	apiClient.HomeServer = parsed.Host
 	apiClient.HomeServerScheme = parsed.Scheme
+
+	if vClient, err := apiClient.WithLatestVersion(); err == nil {
+		apiClient = vClient
+	}
+
 	return &Client{
 		Client:   apiClient,
 		SyncOpts: DefaultSyncOptions,

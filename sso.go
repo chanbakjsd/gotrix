@@ -6,8 +6,6 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-
-	"github.com/chanbakjsd/gotrix/api"
 )
 
 //go:embed sso_success.html
@@ -46,7 +44,7 @@ func (c *Client) LoginSSO() (string, func() error, error) {
 
 	port := listener.Addr().(*net.TCPAddr).Port
 	url := "http://127.0.0.1:" + strconv.Itoa(port) + "/"
-	ssoURL := c.FullRoute(api.EndpointSSOLogin(url))
+	ssoURL := c.FullRoute(c.Client.Endpoints.SSOLogin(url))
 
 	success := make(chan string)
 	errChannel := make(chan error)

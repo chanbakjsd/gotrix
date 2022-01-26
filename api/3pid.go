@@ -21,7 +21,7 @@ type ThirdpartyIdentifier struct {
 func (c *Client) ThreePID() ([]ThirdpartyIdentifier, error) {
 	resp := []ThirdpartyIdentifier{}
 	err := c.Request(
-		"GET", EndpointAccount3PID, &resp,
+		"GET", c.Endpoints.Account3PID(), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -45,13 +45,13 @@ func (c *Client) ThreePIDAdd(clientSecret string, sessionID string) (*UserIntera
 	uiaa.Request = func(auth, to interface{}) error {
 		req.Auth = auth
 		return c.Request(
-			"POST", EndpointAccount3PIDAdd, to,
+			"POST", c.Endpoints.Account3PIDAdd(), to,
 			httputil.WithToken(), httputil.WithJSONBody(req),
 		)
 	}
 	uiaa.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
-			"POST", EndpointAccount3PIDRequestToken(authType), to,
+			"POST", c.Endpoints.Account3PIDRequestToken(authType), to,
 			httputil.WithJSONBody(auth),
 		)
 	}
@@ -73,7 +73,7 @@ type ThreePIDBindArg struct {
 // to the current token.
 func (c *Client) ThreePIDBind(req ThreePIDBindArg) error {
 	err := c.Request(
-		"POST", EndpointAccount3PIDBind, nil,
+		"POST", c.Endpoints.Account3PIDBind(), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

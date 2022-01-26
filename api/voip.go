@@ -19,7 +19,7 @@ type TURNServersResponse struct {
 func (c *Client) TURNServers() (TURNServersResponse, error) {
 	var resp TURNServersResponse
 	err := c.Request(
-		"GET", EndpointVOIPTURNServers, resp,
+		"GET", c.Endpoints.VOIPTURNServers(), resp,
 		httputil.WithToken(),
 	)
 	if err != nil {

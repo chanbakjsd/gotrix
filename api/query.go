@@ -14,7 +14,7 @@ import (
 func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (event.RawEvent, error) {
 	var resp event.RawEvent
 	err := c.Request(
-		"GET", EndpointRoomEvent(roomID, eventID), &resp,
+		"GET", c.Endpoints.RoomEvent(roomID, eventID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -27,7 +27,7 @@ func (c *Client) RoomEvent(roomID matrix.RoomID, eventID matrix.EventID) (event.
 func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key string) (event.RawEvent, error) {
 	var content json.RawMessage
 	err := c.Request(
-		"GET", EndpointRoomStateExact(roomID, eventType, key), &content,
+		"GET", c.Endpoints.RoomStateExact(roomID, eventType, key), &content,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -56,7 +56,7 @@ func (c *Client) RoomState(roomID matrix.RoomID, eventType event.Type, key strin
 func (c *Client) RoomStates(roomID matrix.RoomID) ([]event.RawEvent, error) {
 	resp := []event.RawEvent{}
 	err := c.Request(
-		"GET", EndpointRoomState(roomID), &resp,
+		"GET", c.Endpoints.RoomState(roomID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -92,7 +92,7 @@ func (c *Client) RoomMembers(roomID matrix.RoomID, filter RoomMemberFilter) ([]e
 	}
 
 	err := c.Request(
-		"GET", EndpointRoomMembers(roomID), &resp,
+		"GET", c.Endpoints.RoomMembers(roomID), &resp,
 		httputil.WithToken(), httputil.WithQuery(arg),
 	)
 	if err != nil {
@@ -111,7 +111,7 @@ type RoomMember struct {
 func (c *Client) RoomJoinedMembers(roomID matrix.RoomID) (map[matrix.UserID]RoomMember, error) {
 	var resp map[matrix.UserID]RoomMember
 	err := c.Request(
-		"GET", EndpointRoomJoinedMembers(roomID), &resp,
+		"GET", c.Endpoints.RoomJoinedMembers(roomID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -169,7 +169,7 @@ func (c *Client) RoomMessages(roomID matrix.RoomID, query RoomMessagesQuery) (Ro
 
 	var resp RoomMessagesResponse
 	err := c.Request(
-		"GET", EndpointRoomMessages(roomID), &resp,
+		"GET", c.Endpoints.RoomMessages(roomID), &resp,
 		httputil.WithToken(), httputil.WithQuery(arg),
 	)
 	if err != nil {

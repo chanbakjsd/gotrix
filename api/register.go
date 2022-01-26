@@ -39,7 +39,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 	ir.Request = func(auth, to interface{}) error {
 		req.Auth = auth
 		err := c.Request(
-			"POST", EndpointRegister, to,
+			"POST", c.Endpoints.Register(), to,
 			httputil.WithJSONBody(req), httputil.WithQuery(map[string]string{
 				"kind": kind,
 			}),
@@ -49,7 +49,7 @@ func (c *Client) Register(kind string, req RegisterArg) (InteractiveRegister, er
 
 	ir.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
-			"POST", EndpointRegisterRequestToken(authType), to,
+			"POST", c.Endpoints.RegisterRequestToken(authType), to,
 			httputil.WithJSONBody(auth),
 		)
 	}
@@ -99,7 +99,7 @@ func (i InteractiveRegister) RegisterResponse() (*RegisterResponse, error) {
 // between UsernameAvailable() and actual registration.
 func (c *Client) UsernameAvailable(username string) (bool, error) {
 	err := c.Request(
-		"GET", EndpointRegisterAvailable, nil,
+		"GET", c.Endpoints.RegisterAvailable(), nil,
 		httputil.WithQuery(map[string]string{
 			"username": username,
 		}),

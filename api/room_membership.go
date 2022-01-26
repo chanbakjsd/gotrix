@@ -13,7 +13,7 @@ func (c *Client) Rooms() ([]matrix.RoomID, error) {
 		JoinedRooms []matrix.RoomID `json:"joined_rooms"`
 	}
 	err := c.Request(
-		"GET", EndpointJoinedRooms, &resp,
+		"GET", c.Endpoints.JoinedRooms(), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -30,7 +30,7 @@ func (c *Client) Invite(roomID matrix.RoomID, userID matrix.UserID, reason strin
 		Reason string        `json:"reason,omitempty"`
 	}{userID, reason}
 	err := c.Request(
-		"POST", EndpointRoomInvite(roomID), nil,
+		"POST", c.Endpoints.RoomInvite(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *Client) RoomJoin(roomID matrix.RoomID, reason string) error {
 		Reason string `json:"reason,omitempty"`
 	}{reason}
 	err := c.Request(
-		"POST", EndpointRoomJoin(roomID), nil,
+		"POST", c.Endpoints.RoomJoin(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	if err != nil {
@@ -64,7 +64,7 @@ func (c *Client) RoomLeave(roomID matrix.RoomID, reason string) error {
 		Reason string `json:"reason,omitempty"`
 	}{reason}
 	err := c.Request(
-		"POST", EndpointRoomLeave(roomID), nil,
+		"POST", c.Endpoints.RoomLeave(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	return err
@@ -75,7 +75,7 @@ func (c *Client) RoomLeave(roomID matrix.RoomID, reason string) error {
 // The client must not be in the room when RoomForget is called.
 func (c *Client) RoomForget(roomID matrix.RoomID) error {
 	err := c.Request(
-		"POST", EndpointRoomForget(roomID), nil,
+		"POST", c.Endpoints.RoomForget(roomID), nil,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -92,7 +92,7 @@ func (c *Client) Kick(roomID matrix.RoomID, userID matrix.UserID, reason string)
 	}{userID, reason}
 
 	err := c.Request(
-		"POST", EndpointRoomKick(roomID), nil,
+		"POST", c.Endpoints.RoomKick(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(param),
 	)
 	if err != nil {
@@ -109,7 +109,7 @@ func (c *Client) Ban(roomID matrix.RoomID, userID matrix.UserID, reason string) 
 	}{userID, reason}
 
 	err := c.Request(
-		"POST", EndpointRoomBan(roomID), nil,
+		"POST", c.Endpoints.RoomBan(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(param),
 	)
 	if err != nil {
@@ -127,7 +127,7 @@ func (c *Client) Unban(roomID matrix.RoomID, userID matrix.UserID, reason string
 	}{userID, reason}
 
 	err := c.Request(
-		"POST", EndpointRoomUnban(roomID), nil,
+		"POST", c.Endpoints.RoomUnban(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(param),
 	)
 	if err != nil {

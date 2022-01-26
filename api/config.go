@@ -13,7 +13,7 @@ import (
 // 'v' is a pointer that is directly passed into json.Unmarshal to unmarshal the content of the config.
 func (c *Client) ClientConfig(configType string, v interface{}) error {
 	err := c.Request(
-		"GET", EndpointAccountDataGlobal(c.UserID, configType), v,
+		"GET", c.Endpoints.AccountDataGlobal(c.UserID, configType), v,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -30,7 +30,7 @@ func (c *Client) ClientConfig(configType string, v interface{}) error {
 // of SyncResponse.
 func (c *Client) ClientConfigSet(configType string, config interface{}) error {
 	err := c.Request(
-		"PUT", EndpointAccountDataGlobal(c.UserID, configType), nil,
+		"PUT", c.Endpoints.AccountDataGlobal(c.UserID, configType), nil,
 		httputil.WithToken(), httputil.WithJSONBody(config),
 	)
 	if err != nil {
@@ -43,7 +43,7 @@ func (c *Client) ClientConfigSet(configType string, config interface{}) error {
 // 'v' is a pointer that is directly passed into json.Unmarshal to unmarshal the content of the config.
 func (c *Client) ClientConfigRoom(roomID matrix.RoomID, configType string, v interface{}) error {
 	err := c.Request(
-		"GET", EndpointAccountDataRoom(c.UserID, roomID, configType), v,
+		"GET", c.Endpoints.AccountDataRoom(c.UserID, roomID, configType), v,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -62,7 +62,7 @@ func (c *Client) ClientConfigRoom(roomID matrix.RoomID, configType string, v int
 func (c *Client) ClientConfigRoomSet(roomID matrix.RoomID, configType string,
 	config interface{}) error {
 	err := c.Request(
-		"PUT", EndpointAccountDataRoom(c.UserID, roomID, configType), nil,
+		"PUT", c.Endpoints.AccountDataRoom(c.UserID, roomID, configType), nil,
 		httputil.WithToken(), httputil.WithJSONBody(config),
 	)
 	if err != nil {

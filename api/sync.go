@@ -118,7 +118,7 @@ func (c *Client) Sync(req SyncArg) (*SyncResponse, error) {
 		args["timeout"] = strconv.Itoa(req.Timeout)
 	}
 	err := c.Request(
-		"GET", EndpointSync, resp,
+		"GET", c.Endpoints.Sync(), resp,
 		httputil.WithToken(), httputil.WithQuery(args),
 	)
 	if err != nil {

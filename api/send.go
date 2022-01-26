@@ -21,7 +21,7 @@ func (c *Client) RoomStateSend(roomID matrix.RoomID, event RoomStateSendArg) (ma
 		EventID matrix.EventID `json:"event_id"`
 	}
 	err := c.Request(
-		"PUT", EndpointRoomStateExact(roomID, event.Type, event.StateKey), &resp,
+		"PUT", c.Endpoints.RoomStateExact(roomID, event.Type, event.StateKey), &resp,
 		httputil.WithToken(), httputil.WithJSONBody(event.Content),
 	)
 	if err != nil {
@@ -37,7 +37,7 @@ func (c *Client) RoomEventSend(roomID matrix.RoomID, eventType event.Type, body 
 	}
 
 	err := c.Request(
-		"PUT", EndpointRoomSend(roomID, eventType, NextTransactionID()), &resp,
+		"PUT", c.Endpoints.RoomSend(roomID, eventType, NextTransactionID()), &resp,
 		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	if err != nil {
@@ -57,7 +57,7 @@ func (c *Client) RoomEventRedact(roomID matrix.RoomID, eventID matrix.EventID, r
 	}
 
 	err := c.Request(
-		"PUT", EndpointRoomRedact(roomID, eventID, NextTransactionID()), &resp,
+		"PUT", c.Endpoints.RoomRedact(roomID, eventID, NextTransactionID()), &resp,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -76,7 +76,7 @@ func (c *Client) SendToDevice(eventType event.Type, messages DeviceMessages) err
 	}
 
 	err := c.Request(
-		"PUT", EndpointSendToDevice(eventType, NextTransactionID()), nil,
+		"PUT", c.Endpoints.SendToDevice(eventType, NextTransactionID()), nil,
 		httputil.WithToken(), httputil.WithJSONBody(body),
 	)
 	if err != nil {

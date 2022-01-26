@@ -65,7 +65,7 @@ func (c *Client) RoomCreate(arg RoomCreateArg) (matrix.RoomID, error) {
 		RoomID matrix.RoomID `json:"room_id"`
 	}{}
 	err := c.Request(
-		"POST", EndpointRoomCreate, resp,
+		"POST", c.Endpoints.RoomCreate(), resp,
 		httputil.WithToken(), httputil.WithJSONBody(arg),
 	)
 	if err != nil {

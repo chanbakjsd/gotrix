@@ -16,7 +16,7 @@ func (c *Client) UpgradeRoom(roomID matrix.RoomID, newVersion string) (matrix.Ro
 		ReplacementRoom matrix.RoomID `json:"replacement_room"`
 	}
 	err := c.Request(
-		"POST", EndpointRoomUpgrade(roomID), &resp,
+		"POST", c.Endpoints.RoomUpgrade(roomID), &resp,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

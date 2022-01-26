@@ -17,7 +17,7 @@ type RoomAliasResponse struct {
 func (c *Client) RoomAlias(alias string) (RoomAliasResponse, error) {
 	var resp RoomAliasResponse
 	err := c.Request(
-		"GET", EndpointDirectoryRoomAlias(alias), &resp,
+		"GET", c.Endpoints.DirectoryRoomAlias(alias), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *Client) RoomAliases(roomID matrix.RoomID) ([]string, error) {
 		Aliases []string `json:"aliases"`
 	}
 	err := c.Request(
-		"GET", EndpointRoomAliases(roomID), &resp,
+		"GET", c.Endpoints.RoomAliases(roomID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *Client) RoomAliasCreate(alias string, roomID matrix.RoomID) error {
 		RoomID: roomID,
 	}
 	err := c.Request(
-		"PUT", EndpointDirectoryRoomAlias(alias), nil,
+		"PUT", c.Endpoints.DirectoryRoomAlias(alias), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *Client) RoomAliasCreate(alias string, roomID matrix.RoomID) error {
 // RoomAliasDelete deletes a room alias.
 func (c *Client) RoomAliasDelete(alias string) error {
 	err := c.Request(
-		"DELETE", EndpointDirectoryRoomAlias(alias), nil,
+		"DELETE", c.Endpoints.DirectoryRoomAlias(alias), nil,
 		httputil.WithToken(),
 	)
 	if err != nil {

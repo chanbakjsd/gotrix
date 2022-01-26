@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
+	"strconv"
 
 	"github.com/chanbakjsd/gotrix/matrix"
 )
@@ -31,8 +31,7 @@ type DiscoveryInfoResponse struct {
 	} `json:"m.identity_server"`
 }
 
-// DiscoveryInfo discovers homeserver and identity server from the URL set in (*Client).HomeServer
-// and validates them.
+// DiscoveryInfo discovers homeserver and identity server from the URL set in (*Client).HomeServer.
 //
 // It implements https://spec.matrix.org/v1.1/client-server-api/#well-known-uri.
 func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
@@ -53,19 +52,6 @@ func (c *Client) DiscoveryInfo() (*DiscoveryInfoResponse, error) {
 	if result.HomeServer.BaseURL == "" {
 		return nil, ErrServerNotFound
 	}
-	parsedURL, err := url.Parse(result.HomeServer.BaseURL)
-	if err != nil {
-		return nil, ErrDiscoveryFail
-	}
-
-	// Probe provided homeserver to make sure it's valid.
-	checkClient := &Client{Client: c.Client}
-	checkClient.HomeServer = parsedURL.Host
-
-	_, err = checkClient.SupportedVersions()
-	if err != nil {
-		return nil, err
-	}
 
 	// TODO: Check identity server when it's implemented.
 
@@ -83,10 +69,66 @@ type SupportedVersionsResponse struct {
 // The homeserver is inferred from (*Client).HomeServer and should be set before calling this function.
 func (c *Client) SupportedVersions() (SupportedVersionsResponse, error) {
 	var result SupportedVersionsResponse
-	err := c.Request("GET", "_matrix/client/versions", &result)
+	err := c.Request("GET", EndpointSupportedVersions, &result)
 	if err != nil {
 		return SupportedVersionsResponse{}, fmt.Errorf("error fetching homeserver supported versions: %w", err)
 	}
 
 	return result, nil
+}
+
+// WithLatestVersion returns the client that uses the latest endpoint version. An error with a nil
+// *Client is returned if the server doesn't have any supported versions or if the server returns
+// invalid versions.
+func (c Client) WithLatestVersion() (*Client, error) {
+	versions, err := c.SupportedVersions()
+	if err != nil {
+		return nil, err
+	}
+
+	var endpointVer string
+
+	for _, v := range versions.Versions {
+		base, ok := SupportedVersions[v]
+		if !ok {
+			continue
+		}
+
+		// Always pick the later version if possible.
+		if endpointVer == "" || versionLess(endpointVer, base) {
+			endpointVer = base
+		}
+	}
+
+	if endpointVer == "" {
+		return nil, fmt.Errorf("server has no supported version in %q", versions.Versions)
+	}
+
+	c.Endpoints.Version = endpointVer
+	return &c, nil
+}
+
+// versionLess returns true if ver1 < ver2 in Matrix endpoint versioning format.
+func versionLess(ver1, ver2 string) bool {
+	if len(ver1) == 0 || len(ver2) == 0 {
+		return ver1 < ver2
+	}
+
+	if ver1[0] == ver2[0] {
+		v1, err1 := strconv.Atoi(ver1[1:])
+		v2, err2 := strconv.Atoi(ver2[1:])
+		if err1 == nil && err2 == nil {
+			return v1 < v2
+		}
+		return ver1[1:] < ver2[1:]
+	}
+
+	if ver1[0] == 'r' {
+		return true // 1 < 2
+	}
+	if ver2[0] == 'r' {
+		return false // 1 > 2
+	}
+
+	return ver1 < ver2
 }

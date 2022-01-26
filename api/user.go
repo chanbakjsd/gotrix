@@ -30,7 +30,7 @@ func (c *Client) UserSearch(keyword string, limit int) (result []User, limited b
 	}
 
 	err = c.Request(
-		"POST", EndpointUserDirectorySearch, &resp,
+		"POST", c.Endpoints.UserDirectorySearch(), &resp,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *Client) User(userID matrix.UserID) (User, error) {
 		ID: userID,
 	}
 	err := c.Request(
-		"GET", EndpointProfile(userID), &resp,
+		"GET", c.Endpoints.Profile(userID), &resp,
 	)
 	if err != nil {
 		return User{}, fmt.Errorf("error fetching user info: %w", err)
@@ -60,7 +60,7 @@ func (c *Client) DisplayName(userID matrix.UserID) (*string, error) {
 		DisplayName *string `json:"displayname,omitempty"`
 	}
 	err := c.Request(
-		"GET", EndpointProfileDisplayName(userID), &resp,
+		"GET", c.Endpoints.ProfileDisplayName(userID), &resp,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching display name: %w", err)
@@ -75,7 +75,7 @@ func (c *Client) DisplayNameSet(displayName string) error {
 	}
 
 	err := c.Request(
-		"PUT", EndpointProfileDisplayName(c.UserID), nil,
+		"PUT", c.Endpoints.ProfileDisplayName(c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -90,7 +90,7 @@ func (c *Client) AvatarURL(userID matrix.UserID) (*matrix.URL, error) {
 		AvatarURL *matrix.URL `json:"avatar_url,omitempty"`
 	}
 	err := c.Request(
-		"GET", EndpointProfileAvatarURL(userID), &resp,
+		"GET", c.Endpoints.ProfileAvatarURL(userID), &resp,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching avatar URL: %w", err)
@@ -105,7 +105,7 @@ func (c *Client) AvatarURLSet(avatarURL matrix.URL) error {
 	}
 
 	err := c.Request(
-		"PUT", EndpointProfileAvatarURL(c.UserID), nil,
+		"PUT", c.Endpoints.ProfileAvatarURL(c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {

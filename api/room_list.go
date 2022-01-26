@@ -14,7 +14,7 @@ func (c *Client) RoomVisibility(roomID matrix.RoomID) (RoomVisibility, error) {
 		Visibility RoomVisibility `json:"visibility"`
 	}
 
-	err := c.Request("GET", EndpointDirectoryListRoom(roomID), &resp)
+	err := c.Request("GET", c.Endpoints.DirectoryListRoom(roomID), &resp)
 	if err != nil {
 		return "", fmt.Errorf("error fetching room visibility: %w", err)
 	}
@@ -28,7 +28,7 @@ func (c *Client) RoomVisibilitySet(roomID matrix.RoomID, newVisibility RoomVisib
 	}{newVisibility}
 
 	err := c.Request(
-		"GET", EndpointDirectoryListRoom(roomID), nil,
+		"GET", c.Endpoints.DirectoryListRoom(roomID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *Client) PublicRooms(limit int, since string, server string) (PublicRoom
 
 	var resp PublicRoomsResponse
 	err := c.Request(
-		"GET", EndpointPublicRooms, &resp,
+		"GET", c.Endpoints.PublicRooms(), &resp,
 		httputil.WithQuery(req),
 	)
 	if err != nil {
@@ -120,7 +120,7 @@ func (c *Client) PublicRoomsSearch(arg PublicRoomsSearchArg) (PublicRoomsRespons
 
 	var resp PublicRoomsResponse
 	err := c.Request(
-		"POST", EndpointPublicRooms, &resp,
+		"POST", c.Endpoints.PublicRooms(), &resp,
 		httputil.WithQuery(req), httputil.WithJSONBody(arg),
 	)
 	if err != nil {

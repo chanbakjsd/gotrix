@@ -24,7 +24,7 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) (*UserIn
 	uiaa.Request = func(auth, to interface{}) error {
 		req.Auth = auth
 		err := c.Request(
-			"POST", EndpointAccountPassword, to,
+			"POST", c.Endpoints.AccountPassword(), to,
 			httputil.WithToken(), httputil.WithJSONBody(req),
 		)
 		if err != nil {
@@ -34,7 +34,7 @@ func (c *Client) PasswordChange(newPassword string, logoutDevices bool) (*UserIn
 	}
 	uiaa.RequestThreePID = func(authType string, auth, to interface{}) error {
 		return c.Request(
-			"POST", EndpointAccountPasswordRequestToken(authType), nil,
+			"POST", c.Endpoints.AccountPasswordRequestToken(authType), nil,
 			httputil.WithJSONBody(auth),
 		)
 	}
@@ -63,7 +63,7 @@ func (c *Client) DeactivateAccount(idServer string) (InteractiveDeactivate, erro
 	uiaa.Request = func(auth, to interface{}) error {
 		req.Auth = auth
 		err := c.Request(
-			"POST", EndpointAccountDeactivate, to,
+			"POST", c.Endpoints.AccountDeactivate(), to,
 			httputil.WithToken(), httputil.WithJSONBody(req),
 		)
 		if err != nil {

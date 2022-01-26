@@ -14,6 +14,7 @@ import (
 // For routes expecting user ID, the UserID field is used unless otherwise provided.
 type Client struct {
 	httputil.Client
+	Endpoints      Endpoints
 	IdentityServer string
 	UserID         matrix.UserID
 	DeviceID       matrix.DeviceID
@@ -40,7 +41,7 @@ func (c *Client) Whoami() (matrix.UserID, matrix.DeviceID, error) {
 	}
 
 	err := c.Request(
-		"GET", EndpointAccountWhoami, &resp,
+		"GET", c.Endpoints.AccountWhoami(), &resp,
 		httputil.WithToken(), httputil.WithQuery(map[string]string{
 			"user_id": string(c.UserID),
 		}),
@@ -58,7 +59,7 @@ func (c *Client) ServerCapabilities() (*matrix.Capabilities, error) {
 	}
 
 	err := c.Request(
-		"GET", EndpointCapabilities, &resp,
+		"GET", c.Endpoints.Capabilities(), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {

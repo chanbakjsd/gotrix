@@ -15,7 +15,7 @@ func (c *Client) GetLoginMethods() ([]matrix.LoginMethod, error) {
 		} `json:"flows"`
 	}
 
-	err := c.Request("GET", EndpointLogin, &response)
+	err := c.Request("GET", c.Endpoints.Login(), &response)
 	if err != nil {
 		return nil, fmt.Errorf("error getting login methods: %w", err)
 	}
@@ -52,7 +52,7 @@ func (c *Client) Login(arg LoginArg) error {
 		WellKnown   DiscoveryInfoResponse `json:"well_known"`
 	}
 
-	err := c.Request("POST", EndpointLogin, &resp, httputil.WithJSONBody(arg))
+	err := c.Request("POST", c.Endpoints.Login(), &resp, httputil.WithJSONBody(arg))
 	if err != nil {
 		return fmt.Errorf("error logging in: %w", err)
 	}
@@ -67,7 +67,7 @@ func (c *Client) Login(arg LoginArg) error {
 // Logout clears the AccessToken field in the client and attempts to invalidate the
 // token on the server-side.
 func (c *Client) Logout() error {
-	err := c.Request("POST", EndpointLogout, nil, httputil.WithToken())
+	err := c.Request("POST", c.Endpoints.Logout(), nil, httputil.WithToken())
 	c.AccessToken = ""
 	if err != nil {
 		return fmt.Errorf("error logging out: %w", err)
@@ -78,7 +78,7 @@ func (c *Client) Logout() error {
 // LogoutAll clears the AccessToken field in the client and attempts to invalidate all
 // tokens on the server-side.
 func (c *Client) LogoutAll() error {
-	err := c.Request("POST", EndpointLogoutAll, nil, httputil.WithToken())
+	err := c.Request("POST", c.Endpoints.LogoutAll(), nil, httputil.WithToken())
 	c.AccessToken = ""
 	if err != nil {
 		return fmt.Errorf("error logging out all tokens: %w", err)

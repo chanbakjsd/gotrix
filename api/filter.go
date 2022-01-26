@@ -14,7 +14,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 		FilterID string `json:"filter_id"`
 	}
 	err := c.Request(
-		"POST", EndpointFilter(c.UserID), &resp,
+		"POST", c.Endpoints.Filter(c.UserID), &resp,
 		httputil.WithToken(), httputil.WithJSONBody(filterToUpload),
 	)
 	if err != nil {
@@ -27,7 +27,7 @@ func (c *Client) FilterAdd(filterToUpload event.GlobalFilter) (string, error) {
 func (c *Client) Filter(filterID string) (*event.GlobalFilter, error) {
 	resp := &event.GlobalFilter{}
 	err := c.Request(
-		"GET", EndpointFilterGet(c.UserID, filterID), resp,
+		"GET", c.Endpoints.FilterGet(c.UserID, filterID), resp,
 		httputil.WithToken(),
 	)
 	if err != nil {

@@ -18,7 +18,7 @@ func (c *Client) MediaUpload(contentType string, filename string, body io.ReadCl
 		ContentURI matrix.URL `json:"content_uri"`
 	}
 	err := c.Request(
-		"POST", EndpointMediaUpload, &resp,
+		"POST", c.Endpoints.MediaUpload(), &resp,
 		httputil.WithToken(),
 		httputil.WithHeader(map[string][]string{
 			"Content-Type": {
@@ -50,7 +50,7 @@ func (c *Client) MediaDownloadURL(matrixURL matrix.URL, allowRemote bool, filena
 
 	parsed.Path = strings.TrimPrefix(parsed.Path, "/")
 
-	return c.FullRoute(EndpointMediaDownload(parsed.Host, parsed.Path, filename)) +
+	return c.FullRoute(c.Endpoints.MediaDownload(parsed.Host, parsed.Path, filename)) +
 			"?allow_remote=" + strconv.FormatBool(allowRemote),
 		nil
 }
@@ -87,7 +87,7 @@ func (c *Client) MediaThumbnailURL(matrixURL matrix.URL, allowRemote bool,
 		"allow_remote": {strconv.FormatBool(allowRemote)},
 	}
 
-	return c.FullRoute(EndpointMediaThumbnail(parsed.Host, parsed.Path)) + "?" + query.Encode(), nil
+	return c.FullRoute(c.Endpoints.MediaThumbnail(parsed.Host, parsed.Path)) + "?" + query.Encode(), nil
 }
 
 // URLMetadata contains the basic OpenGraph metadata that the Matrix backend
@@ -144,7 +144,7 @@ func (c *Client) PreviewURL(url string, ts matrix.Timestamp) (*URLMetadata, erro
 
 	var resp *URLMetadata
 	err := c.Request(
-		"GET", EndpointMediaPreviewURL, &resp,
+		"GET", c.Endpoints.MediaPreviewURL(), &resp,
 		httputil.WithToken(), httputil.WithQuery(query),
 	)
 	if err != nil {
@@ -164,7 +164,7 @@ type MediaConfig struct {
 func (c *Client) MediaConfig() (MediaConfig, error) {
 	var resp MediaConfig
 	err := c.Request(
-		"GET", EndpointMediaConfig, &resp,
+		"GET", c.Endpoints.MediaConfig(), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {

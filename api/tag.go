@@ -16,7 +16,7 @@ func (c *Client) Tags(roomID matrix.RoomID) (map[matrix.TagName]matrix.Tag, erro
 		Tags map[matrix.TagName]matrix.Tag `json:"tags"`
 	}
 	err := c.Request(
-		"GET", EndpointTags(c.UserID, roomID), &resp,
+		"GET", c.Endpoints.Tags(c.UserID, roomID), &resp,
 		httputil.WithToken(),
 	)
 	if err != nil {
@@ -31,7 +31,7 @@ func (c *Client) TagAdd(roomID matrix.RoomID, name matrix.TagName, tagData matri
 		return ErrInvalidTagName
 	}
 	err := c.Request(
-		"PUT", EndpointTag(c.UserID, roomID, name), nil,
+		"PUT", c.Endpoints.Tag(c.UserID, roomID, name), nil,
 		httputil.WithToken(), httputil.WithJSONBody(tagData),
 	)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *Client) TagDelete(roomID matrix.RoomID, name matrix.TagName) error {
 		return ErrInvalidTagName
 	}
 	err := c.Request(
-		"DELETE", EndpointTag(c.UserID, roomID, name), nil,
+		"DELETE", c.Endpoints.Tag(c.UserID, roomID, name), nil,
 		httputil.WithToken(),
 	)
 	if err != nil {

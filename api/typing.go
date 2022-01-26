@@ -17,7 +17,7 @@ func (c *Client) TypingStart(roomID matrix.RoomID, timeout time.Duration) error 
 	}
 
 	err := c.Request(
-		"PUT", EndpointRoomTyping(roomID, c.UserID), nil,
+		"PUT", c.Endpoints.RoomTyping(roomID, c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
@@ -33,7 +33,7 @@ func (c *Client) TypingStop(roomID matrix.RoomID) error {
 	}
 
 	err := c.Request(
-		"PUT", EndpointRoomTyping(roomID, c.UserID), nil,
+		"PUT", c.Endpoints.RoomTyping(roomID, c.UserID), nil,
 		httputil.WithToken(), httputil.WithJSONBody(req),
 	)
 	if err != nil {
