@@ -42,7 +42,7 @@ type RoomMessageEvent struct {
 type MessageType string
 
 // All possible RoomMessageEvent types.
-// List available at https://spec.matrix.org/v1.1/client-server-api/#mroommessage-msgtypes.
+// List available at https://spec.matrix.org/v1.2/client-server-api/#mroommessage-msgtypes.
 const (
 	// Text, Emote and Notice are all messages.
 	// Text is a regular message, Emote is similar to /me in IRC and Notice is a message sent by a bot.

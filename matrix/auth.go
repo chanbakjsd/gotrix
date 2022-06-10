@@ -8,7 +8,7 @@ import (
 type LoginMethod string
 
 // List of official authentications.
-// It can be found here: https://spec.matrix.org/v1.1/client-server-api/#authentication-types.
+// It can be found here: https://spec.matrix.org/v1.2/client-server-api/#authentication-types.
 const (
 	LoginPassword  LoginMethod = "m.login.password"
 	LoginRecaptcha LoginMethod = "m.login.recaptcha"

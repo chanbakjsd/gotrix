@@ -4,7 +4,7 @@ package matrix
 type ErrorCode string
 
 // List of official error codes.
-// It can be found at https://spec.matrix.org/v1.1/client-server-api/#standard-error-response.
+// It can be found at https://spec.matrix.org/v1.2/client-server-api/#standard-error-response.
 const (
 	// Common error codes
 	CodeForbidden     ErrorCode = "M_FORBIDDEN"

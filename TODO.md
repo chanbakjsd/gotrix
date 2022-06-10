@@ -70,11 +70,13 @@ These are modules that are "optional" but somewhat required to figure out what i
 - [ ] Moderation Policy
 
 # Migration
-These are the changelogs of v1.1. They should be marked off when they're checked to be implemented.
+These are the changelogs of v1.1 and v1.2. They should be marked off when they're checked to be implemented.
 
 ## Breaking Changes
 - [ ] MSC 2687: `curve25519-hkdf-sha256` for SAS verification
 - [ ] MSC 3139: `m.key.verification.ready` and `m.key.verification.done`
+- [ ] MSC 3524: `prev_content` is now `unsigned`
+- [ ] MSC 3624: `aliases` has been removed
 
 ## Deprecations
 - [X] MSC 3199: Remove starting verification without `m.key.verification.ready`
@@ -84,6 +86,8 @@ These are the changelogs of v1.1. They should be marked off when they're checked
 - [ ] MSC 2536: `POST /keys/device_signing/upload` and `POST /keys/signatures/upload`
 - [ ] MSC 3154 + MSC 3254: `/knock`
 - [ ] MSC 3163: `/login/sso/redirect/{idpId}`
+- [ ] MSC 3610: `/rooms/{roomId}/hierarchy`
+- [ ] MSC 3616: `/register/m.login.registration_token/validity`
 
 ## Removed Endpoints
 - [X] MSC 2609: `m.login.oauth2` and `m.login.token` User-Interactive Auth API
@@ -107,3 +111,12 @@ These are the changelogs of v1.1. They should be marked off when they're checked
 - [X] MSC 3166: `device_id` on `/account/whoami`
 - [ ] MSC 3169: Identity server discovery failure results in `FAIL_PROMPT`
 - [X] MSC 3421: Re-version to be `v3` instead of `r0`
+- [ ] MSC 3324: App-service login
+- [ ] MSC 3387: `restricted` rooms
+- [ ] MSC 3605: `is_guest` in `/account/whoami`
+- [ ] MSC 3610: Spaces and room types
+- [ ] MSC 3614: `m.set_displayname`, `m.set_avatar_url`, `m.3pid_changes`
+- [ ] MSC 3615: Fallback keys
+- [ ] MSC 3616: Token-authenticated registration support
+- [ ] MSC 3530: `M_FORBIDDEN` on `/profile/{userId}`
+- [ ] MSC 3652: Remove group mentions

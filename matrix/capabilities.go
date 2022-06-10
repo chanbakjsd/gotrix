@@ -3,7 +3,7 @@ package matrix
 import "encoding/json"
 
 // Capabilities represent the server's capabilities as defined in
-// https://spec.matrix.org/v1.1/client-server-api/#get_matrixclientv3capabilities.
+// https://spec.matrix.org/v1.2/client-server-api/#get_matrixclientv3capabilities.
 type Capabilities map[string]json.RawMessage
 
 // CapabilityChangePassword contains whether the server has password change enabled.

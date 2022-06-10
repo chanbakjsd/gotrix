@@ -11,7 +11,8 @@ import (
 var SupportedVersions = map[string]string{
 	"r0.6.0": "r0",
 	"r0.6.1": "r0",
-	"v1.1.0": "v3",
+	"v1.1":   "v3",
+	"v1.2":   "v3",
 }
 
 const EndpointSupportedVersions = "_matrix/client/versions"

@@ -16,7 +16,7 @@ var ErrInteractiveAuthIncomplete = errors.New("interactive auth has not been com
 // UserInteractiveAuthAPI represents the state that needs to be kept for
 // the user interactive authentication API.
 //
-// It implements https://spec.matrix.org/v1.1/client-server-api/#user-interactive-authentication-api.
+// It implements https://spec.matrix.org/v1.2/client-server-api/#user-interactive-authentication-api.
 type UserInteractiveAuthAPI struct {
 	// Flows are list of stages that the server requires before allowing.
 	Flows []struct {

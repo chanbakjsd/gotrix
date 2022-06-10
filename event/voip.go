@@ -8,7 +8,7 @@ var (
 )
 
 // TODO Maybe implement glare at some point.
-// https://spec.matrix.org/v1.1/client-server-api/#glare
+// https://spec.matrix.org/v1.2/client-server-api/#glare
 
 // CallInviteEvent is a message event where someone is inviting to establish a call.
 type CallInviteEvent struct {

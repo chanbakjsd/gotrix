@@ -9,7 +9,7 @@ import (
 type IdentifierType string
 
 // Official list of Identifier types.
-// It can be found at https://spec.matrix.org/v1.1/client-server-api/#identifier-types.
+// It can be found at https://spec.matrix.org/v1.2/client-server-api/#identifier-types.
 const (
 	IdentifierUser       IdentifierType = "m.id.user"
 	IdentifierThirdparty IdentifierType = "m.id.thirdparty"
