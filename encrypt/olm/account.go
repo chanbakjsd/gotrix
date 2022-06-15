@@ -127,13 +127,18 @@ func (a *Account) Sign(message string) (string, error) {
 	return C.GoString((*C.char)(signature)), nil
 }
 
+// MaxOneTimeKeys returns the maximum number of one time keys.
+func (a *Account) MaxOneTimeKeys() int {
+	return int(C.olm_account_max_number_of_one_time_keys(a.acc))
+}
+
 // OneTimeKeys generates a new set of one time keys and returns unpublished one time keys
 // in the form of a JSON-formatted object containing the 'curve25519' property.
 //
 // The 'curve25519' property contains an object that maps key ID to base64 encoded Curve25519 keys.
-func (a *Account) OneTimeKeys() (string, error) {
-	count := C.olm_account_max_number_of_one_time_keys(a.acc)
-	randomLen := C.olm_account_generate_one_time_keys_random_length(a.acc, count)
+func (a *Account) OneTimeKeys(count int) (string, error) {
+	cCount := C.ulong(count)
+	randomLen := C.olm_account_generate_one_time_keys_random_length(a.acc, cCount)
 	randomBytes := make([]byte, randomLen)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
@@ -143,7 +148,7 @@ func (a *Account) OneTimeKeys() (string, error) {
 	cBytes := C.CBytes(randomBytes)
 	defer C.free(cBytes)
 
-	ret := C.olm_account_generate_one_time_keys(a.acc, count, cBytes, randomLen)
+	ret := C.olm_account_generate_one_time_keys(a.acc, cCount, cBytes, randomLen)
 	if ret == errValue {
 		return "", a.LastError()
 	}

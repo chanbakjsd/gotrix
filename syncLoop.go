@@ -179,6 +179,7 @@ func (c *Client) readLoop(ctx context.Context, opts syncOpts) {
 			debug.Debug(fmt.Errorf("error adding sync events to state: %w", err))
 		}
 
+		c.Handler.HandleResponse(c, resp)
 		handle(resp.Presence.Events)
 		handle(resp.AccountData.Events)
 		handle(resp.ToDevice.Events)

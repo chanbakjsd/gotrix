@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/chanbakjsd/gotrix/api"
 	"github.com/chanbakjsd/gotrix/debug"
 	"github.com/chanbakjsd/gotrix/event"
 )
@@ -14,6 +15,7 @@ import (
 type Handler interface {
 	Handle(cli *Client, event event.Event)
 	HandleRaw(cli *Client, event event.RawEvent)
+	HandleResponse(cli *Client, resp *api.SyncResponse)
 	AddHandler(toCall interface{}) error
 }
 
@@ -23,9 +25,10 @@ func (c *Client) AddHandler(function interface{}) error {
 }
 
 type defaultHandler struct {
-	mut        sync.RWMutex
-	handlers   map[event.Type][]reflect.Value
-	rawHandler []reflect.Value
+	mut         sync.RWMutex
+	handlers    map[event.Type][]reflect.Value
+	rawHandler  []reflect.Value
+	respHandler []reflect.Value
 }
 
 func (d *defaultHandler) Handle(cli *Client, event event.Event) {
@@ -54,6 +57,17 @@ func (d *defaultHandler) HandleRaw(cli *Client, event event.RawEvent) {
 	}
 }
 
+func (d *defaultHandler) HandleResponse(cli *Client, resp *api.SyncResponse) {
+	debug.Debug("new response event")
+
+	d.mut.RLock()
+	defer d.mut.RUnlock()
+
+	for _, v := range d.respHandler {
+		go v.Call([]reflect.Value{reflect.ValueOf(cli), reflect.ValueOf(resp)})
+	}
+}
+
 func (d *defaultHandler) AddHandler(function interface{}) error {
 	typ := reflect.TypeOf(function)
 	val := reflect.ValueOf(function)
@@ -71,6 +85,15 @@ func (d *defaultHandler) AddHandler(function interface{}) error {
 	}
 
 	contentInterface := reflect.Zero(typ.In(1)).Interface()
+	if _, ok := contentInterface.(*api.SyncResponse); ok {
+		d.mut.Lock()
+		defer d.mut.Unlock()
+
+		d.respHandler = append(d.respHandler, val)
+		debug.Debug("added sync response handler")
+		return nil
+	}
+
 	if _, ok := contentInterface.(event.RawEvent); ok {
 		d.mut.Lock()
 		defer d.mut.Unlock()

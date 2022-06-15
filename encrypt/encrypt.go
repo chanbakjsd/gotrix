@@ -27,6 +27,12 @@ func (a SignatureAlgorithm) SignedAlgorithm() SignatureAlgorithm {
 	return a
 }
 
+// SignedCurve25519Key is the structure containing a curve25519 key that is signed.
+type SignedCurve25519Key struct {
+	Key        string         `json:"key"`
+	Signatures UserSignatures `json:"signatures"`
+}
+
 // Signature describes a digital cryptography signature of unknown algorithm.
 type Signature string
 
@@ -54,7 +60,7 @@ type SyncResponse struct {
 	} `json:"device_lists,omitempty"`
 	// DeviceOneTimeKeysCount is the number of unclaimed one-time keys currently held on the server
 	// for this device.
-	DeviceOneTimeKeysCount map[Algorithm]int `json:"device_one_time_keys_count,omitempty"`
+	DeviceOneTimeKeysCount map[SignatureAlgorithm]int `json:"device_one_time_keys_count,omitempty"`
 }
 
 // ParseSyncResponse parses the encrypt.SyncResponse from the given API SyncResponse.
